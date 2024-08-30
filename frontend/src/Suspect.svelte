@@ -1,41 +1,39 @@
 <script lang="ts">
-    export let suspectUUID: string;
-    export let imgSrc: string;
-
+    import { main } from '../wailsjs/go/models';
     import { FreeSuspect } from '../wailsjs/go/main/App.js';
+    export let suspect: main.Suspect;
 
+    const imgDir: string = 'src/assets/images/suspects/';
     let isFree = false; // innocent suspects can be free
     let fled = false; // if it was criminal
 
     async function selected() {
-        if (isFree) {
-            return;
-        }
+        if (isFree) return;
 
         try {
-            const isInnocent = await FreeSuspect(suspectUUID);
+            const isInnocent = await FreeSuspect(suspect.uuid);
             if (isInnocent) {
                 isFree = true;
-                console.log(`Suspect ${suspectUUID} freed`);
+                console.log(`Suspect ${suspect.uuid} freed`);
                 return;
             }
             fled = true;
-            console.log(`Criminal ${suspectUUID} released`);
+            console.log(`Criminal ${suspect.uuid} released`);
             return;
         } catch (error) {
-            console.error(`Failed to free suspect ${suspectUUID}:`, error);
+            console.error(`Failed to free suspect ${suspect.uuid}:`, error);
         }
     }
 </script>
 
 <div 
     class="suspect {isFree ? 'free' : ''} {fled ? 'fled' : ''}"
-    id={suspectUUID} 
+    id={suspect.uuid} 
     on:click={selected}
     on:keydown={selected}
     aria-disabled={isFree}
 >
-    <div class="suspect-image" style="background-image: url({imgSrc});"></div>
+    <div class="suspect-image" style="background-image: url({imgDir+suspect.imageSource});"></div>
 </div>
 
 <style>

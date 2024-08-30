@@ -1,25 +1,14 @@
 <script lang="ts">
+    import { main } from '../wailsjs/go/models';
     import Suspect from './Suspect.svelte'
+    
+    export let suspects: main.Suspect[];
 </script>
 
 <div class="suspects">
-    <Suspect suspectUUID="sus1" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect suspectUUID="sus2" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect suspectUUID="sus3" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect suspectUUID="sus4" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect suspectUUID="sus5" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-
-    <Suspect suspectUUID="sus6" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect suspectUUID="sus7" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect suspectUUID="sus8" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect suspectUUID="sus9" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect suspectUUID="sus10" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    
-    <Suspect suspectUUID="sus11" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect suspectUUID="sus12" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect suspectUUID="sus13" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect suspectUUID="sus14" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect suspectUUID="sus15" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    {#each suspects as suspect}
+        <Suspect suspect={suspect} on:message />
+    {/each}
 </div>
 
 <style>

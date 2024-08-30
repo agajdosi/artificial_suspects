@@ -1,7 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
-
     function newGame() {
         dispatch('message', { message: 'goToGame' });
     }
