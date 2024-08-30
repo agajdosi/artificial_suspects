@@ -25,3 +25,25 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
+
+// Create a new game. Returns the suspects.
+func (a *App) NewGame() {
+
+}
+
+// New round is requested. Returns question for the round.
+func (a *App) NewRound() string {
+	return ""
+}
+
+// Asks the AI whether it thinks the
+func (a *App) GetAnswerFromAI() bool {
+	return true
+}
+
+// User selected suspect to be freed.
+func (a *App) FreeSuspect(suspectUUID string) bool {
+	fmt.Printf("Freeing suspect: %s\n", suspectUUID)
+
+	return true
+}

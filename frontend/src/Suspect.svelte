@@ -2,10 +2,10 @@
     export let susID: string;
     export let imgSrc: string;
 
-    import { createEventDispatcher } from 'svelte';
-    const dispatch = createEventDispatcher();
+    import {FreeSuspect} from '../wailsjs/go/main/App.js'
+    
     function selected() {
-        dispatch('message', {'susID': susID});
+        FreeSuspect(susID);
     }
 
 </script>

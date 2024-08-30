@@ -2,7 +2,6 @@
   import Suspects from './Suspects.svelte'
   import Home from './Home.svelte'
 
-  import {Greet} from '../wailsjs/go/main/App.js'
   let currentScreen = 'suspects'; // State to track the current screen
 
   function handleMessage(event) {
