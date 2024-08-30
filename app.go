@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"golang.org/x/exp/rand"
 )
 
@@ -37,6 +38,9 @@ func (a *App) NewGame() Game {
 
 	// DUMMY
 	game = Game{
+		GameUUID: uuid.New().String(),
+		Level:    1,
+		Question: question,
 		Suspects: []Suspect{
 			{UUID: "1", ImageSource: "2.jpg"},
 			{UUID: "2", ImageSource: "2.jpg"},
@@ -54,8 +58,6 @@ func (a *App) NewGame() Game {
 			{UUID: "14", ImageSource: "2.jpg"},
 			{UUID: "15", ImageSource: "1.jpg"},
 		},
-		Level:    1,
-		Question: question,
 	}
 	return game
 }
@@ -70,6 +72,7 @@ func (a *App) GetGame() Game {
 func (a *App) NextLevel() Game {
 	game.Question = GetQuestion()
 	game.Level++
+	fmt.Printf("New level %d: %s\n", game.Level, game.Question)
 	return game
 }
 
