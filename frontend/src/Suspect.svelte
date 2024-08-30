@@ -2,11 +2,12 @@
     export let susID: string;
     export let imgSrc: string;
 
-    import logo from './assets/images/logo-universal.png'
-    
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
     function selected() {
-        console.log("Suspect selected!")
+        dispatch('message', {'susID': susID});
     }
+
 </script>
 
 <div class="suspect" id={susID} on:click={selected} on:keydown={selected} style="background-image: url({imgSrc});"></div>

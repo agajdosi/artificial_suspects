@@ -1,22 +1,25 @@
 <script lang="ts">
-  import logo from './assets/images/logo-universal.png'
   import Suspects from './Suspects.svelte'
+  import Home from './Home.svelte'
 
   import {Greet} from '../wailsjs/go/main/App.js'
+  let currentScreen = 'suspects'; // State to track the current screen
 
-  let resultText: string = "Please enter your name below 👇"
-  let name: string
-
-  function greet(): void {
-    Greet(name).then(result => resultText = result)
+  function handleMessage(event) {
+    console.log(event)
+    const { message } = event.detail;
+    if (message === 'goToSuspects') {
+      currentScreen = 'suspects';
+    } else if (message === 'goToHome') {
+      currentScreen = 'home';
+    }
   }
 </script>
 
 <main>
-  <Suspects />
+  {#if currentScreen === 'home'}
+    <Home on:message={handleMessage} />
+  {:else if currentScreen === 'suspects'}
+    <Suspects on:message={handleMessage} />
+  {/if}
 </main>
-
-<style>
-
-
-</style>
