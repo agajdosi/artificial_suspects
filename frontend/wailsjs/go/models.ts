@@ -19,6 +19,7 @@ export namespace main {
 	export class Game {
 	    suspects: Suspect[];
 	    level: number;
+	    question: string;
 	    gameUUID: string;
 	
 	    static createFrom(source: any = {}) {
@@ -29,6 +30,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.suspects = this.convertValues(source["suspects"], Suspect);
 	        this.level = source["level"];
+	        this.question = source["question"];
 	        this.gameUUID = source["gameUUID"];
 	    }
 	

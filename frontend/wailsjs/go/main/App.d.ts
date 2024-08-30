@@ -12,4 +12,4 @@ export function Greet(arg1:string):Promise<string>;
 
 export function NewGame():Promise<main.Game>;
 
-export function NewRound():Promise<string>;
+export function NextLevel():Promise<main.Game>;

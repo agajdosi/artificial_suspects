@@ -12,8 +12,8 @@
         if (message === 'goToGame') {
             try {
                 game = await NewGame();
-                } catch (error) {
-                    console.log(`NewGame() has failed: ${error}`)
+            } catch (error) {
+                console.log(`NewGame() has failed: ${error}`)
             }
             console.log(game)
             currentScreen = 'game';

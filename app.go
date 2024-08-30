@@ -7,6 +7,8 @@ import (
 	"golang.org/x/exp/rand"
 )
 
+var game Game
+
 // App struct
 type App struct {
 	ctx context.Context
@@ -31,13 +33,16 @@ func (a *App) Greet(name string) string {
 // Create a new game. Returns the suspects.
 func (a *App) NewGame() Game {
 	fmt.Println("Loading new game")
-	game := Game{
+	question := GetQuestion()
+
+	// DUMMY
+	game = Game{
 		Suspects: []Suspect{
 			{UUID: "1", ImageSource: "2.jpg"},
 			{UUID: "2", ImageSource: "2.jpg"},
 			{UUID: "3", ImageSource: "1.jpg"},
 			{UUID: "4", ImageSource: "2.jpg"},
-			{UUID: "5", ImageSource: "1.jpg"},
+			{UUID: "5", ImageSource: "2.jpg"},
 			{UUID: "6", ImageSource: "2.jpg"},
 			{UUID: "7", ImageSource: "1.jpg"},
 			{UUID: "8", ImageSource: "2.jpg"},
@@ -49,7 +54,8 @@ func (a *App) NewGame() Game {
 			{UUID: "14", ImageSource: "2.jpg"},
 			{UUID: "15", ImageSource: "1.jpg"},
 		},
-		Level: 1,
+		Level:    1,
+		Question: question,
 	}
 	return game
 }
@@ -60,9 +66,11 @@ func (a *App) GetGame() Game {
 	return game
 }
 
-// New round is requested. Returns question for the round.
-func (a *App) NewRound() string {
-	return ""
+// Next level is requested. Updates the question and level for the game object.
+func (a *App) NextLevel() Game {
+	game.Question = GetQuestion()
+	game.Level++
+	return game
 }
 
 // Asks the AI whether it thinks the
@@ -76,9 +84,15 @@ func (a *App) FreeSuspect(suspectUUID string) bool {
 	return rand.Intn(2) == 1
 }
 
+func GetQuestion() string {
+	i := rand.Intn(len(Questions)) // DUMMY
+	return Questions[i]
+}
+
 type Game struct {
 	Suspects []Suspect `json:"suspects"`
 	Level    int       `json:"level"`
+	Question string    `json:"question"`
 	GameUUID string    `json:"gameUUID"`
 }
 
@@ -86,4 +100,11 @@ type Suspect struct {
 	UUID        string `json:"uuid"`
 	ImageSource string `json:"imageSource"`
 	Free        bool   `json:"free"`
+}
+
+var Questions = []string{
+	"Does the suspect love pizza?",
+	"Does the suspect hate immigrants?",
+	"Is the suspect a leftist?",
+	"Does the suspect love spicy food?",
 }

@@ -22,6 +22,6 @@ export function NewGame() {
   return window['go']['main']['App']['NewGame']();
 }
 
-export function NewRound() {
-  return window['go']['main']['App']['NewRound']();
+export function NextLevel() {
+  return window['go']['main']['App']['NextLevel']();
 }
