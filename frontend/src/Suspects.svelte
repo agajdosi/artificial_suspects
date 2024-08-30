@@ -11,23 +11,23 @@
 <button on:click={goToMenu}>Menu</button>
 
 <div class="suspects">
-    <Suspect susID="sus1" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect susID="sus2" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect susID="sus3" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect susID="sus4" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect susID="sus5" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus1" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus2" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus3" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus4" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus5" imgSrc="src/assets/images/suspects/1.jpg" on:message />
 
-    <Suspect susID="sus6" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect susID="sus7" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect susID="sus8" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect susID="sus9" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect susID="sus10" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus6" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus7" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus8" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus9" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus10" imgSrc="src/assets/images/suspects/2.jpg" on:message />
     
-    <Suspect susID="sus11" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect susID="sus12" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect susID="sus13" imgSrc="src/assets/images/suspects/1.jpg" on:message />
-    <Suspect susID="sus14" imgSrc="src/assets/images/suspects/2.jpg" on:message />
-    <Suspect susID="sus15" imgSrc="src/assets/images/suspects/1.jpg"/>
+    <Suspect suspectUUID="sus11" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus12" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus13" imgSrc="src/assets/images/suspects/1.jpg" on:message />
+    <Suspect suspectUUID="sus14" imgSrc="src/assets/images/suspects/2.jpg" on:message />
+    <Suspect suspectUUID="sus15" imgSrc="src/assets/images/suspects/1.jpg" on:message />
 </div>
 
 <style>

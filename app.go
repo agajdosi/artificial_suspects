@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"golang.org/x/exp/rand"
 )
 
 // App struct
@@ -44,6 +46,5 @@ func (a *App) GetAnswerFromAI() bool {
 // User selected suspect to be freed.
 func (a *App) FreeSuspect(suspectUUID string) bool {
 	fmt.Printf("Freeing suspect: %s\n", suspectUUID)
-
-	return true
+	return rand.Intn(2) == 1
 }
