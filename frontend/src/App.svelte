@@ -1,14 +1,14 @@
 <script lang="ts">
-  import Suspects from './Suspects.svelte'
-  import Home from './Home.svelte'
+  import GamePage from './GamePage.svelte'
+  import HomePage from './HomePage.svelte'
 
-  let currentScreen = 'suspects'; // State to track the current screen
+  let currentScreen = 'game'; // State to track the current screen
 
   function handleMessage(event) {
     console.log(event)
     const { message } = event.detail;
-    if (message === 'goToSuspects') {
-      currentScreen = 'suspects';
+    if (message === 'goToGame') {
+      currentScreen = 'game';
     } else if (message === 'goToHome') {
       currentScreen = 'home';
     }
@@ -17,8 +17,8 @@
 
 <main>
   {#if currentScreen === 'home'}
-    <Home on:message={handleMessage} />
-  {:else if currentScreen === 'suspects'}
-    <Suspects on:message={handleMessage} />
+    <HomePage on:message={handleMessage} />
+  {:else if currentScreen === 'game'}
+    <GamePage on:message={handleMessage} />
   {/if}
 </main>

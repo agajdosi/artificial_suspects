@@ -33,6 +33,11 @@ func (a *App) NewGame() {
 
 }
 
+// Loads the last game.
+func (a *App) GetGame() {
+
+}
+
 // New round is requested. Returns question for the round.
 func (a *App) NewRound() string {
 	return ""

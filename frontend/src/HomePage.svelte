@@ -3,7 +3,7 @@
     const dispatch = createEventDispatcher();
 
     function newGame() {
-        dispatch('message', { message: 'goToSuspects' });
+        dispatch('message', { message: 'goToGame' });
     }
 </script>
 

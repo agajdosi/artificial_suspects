@@ -10,6 +10,10 @@ export function GetAnswerFromAI() {
   return window['go']['main']['App']['GetAnswerFromAI']();
 }
 
+export function GetGame() {
+  return window['go']['main']['App']['GetGame']();
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }

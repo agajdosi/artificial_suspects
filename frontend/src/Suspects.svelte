@@ -1,14 +1,6 @@
 <script lang="ts">
     import Suspect from './Suspect.svelte'
-
-    import { createEventDispatcher } from 'svelte';
-    const dispatch = createEventDispatcher();
-    function goToMenu() {
-        dispatch('message', { message: 'goToHome' });
-    }
 </script>
-
-<button on:click={goToMenu}>Menu</button>
 
 <div class="suspects">
     <Suspect suspectUUID="sus1" imgSrc="src/assets/images/suspects/1.jpg" on:message />

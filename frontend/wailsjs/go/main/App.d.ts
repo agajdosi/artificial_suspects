@@ -5,6 +5,8 @@ export function FreeSuspect(arg1:string):Promise<boolean>;
 
 export function GetAnswerFromAI():Promise<boolean>;
 
+export function GetGame():Promise<void>;
+
 export function Greet(arg1:string):Promise<string>;
 
 export function NewGame():Promise<void>;
