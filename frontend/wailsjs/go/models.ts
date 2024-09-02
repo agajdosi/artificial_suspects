@@ -34,6 +34,7 @@ export namespace main {
 	}
 	export class Investigation {
 	    uuid: string;
+	    game_uuid: string;
 	    suspects: Suspect[];
 	    level: number;
 	    rounds: Round[];
@@ -45,6 +46,7 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.uuid = source["uuid"];
+	        this.game_uuid = source["game_uuid"];
 	        this.suspects = this.convertValues(source["suspects"], Suspect);
 	        this.level = source["level"];
 	        this.rounds = this.convertValues(source["rounds"], Round);

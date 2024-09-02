@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/adrg/xdg"
 	"github.com/google/uuid"
@@ -21,7 +22,8 @@ var game Game
 var database *sql.DB
 
 const (
-	appName = "suspects"
+	appName           = "suspects"
+	TimeFormat string = time.RFC3339Nano
 )
 
 // MARK: APP
@@ -49,45 +51,75 @@ func (a *App) Greet(name string) string {
 
 // Create a new game. Returns the suspects.
 func (a *App) NewGame() Game {
-	fmt.Println("Loading new game")
-	question, err := GetRandomQuestion()
+	game, err := newGame()
 	if err != nil {
-		fmt.Println("NewGame()->GetRandomQuestion() error:", err)
-	}
-
-	// DUMMY
-	game = Game{
-		UUID:  uuid.New().String(),
-		Level: 1,
-		Investigation: Investigation{
-			Suspects: []Suspect{
-				{UUID: "1", ImageSource: "2.jpg"},
-				{UUID: "2", ImageSource: "2.jpg"},
-				{UUID: "3", ImageSource: "1.jpg"},
-				{UUID: "4", ImageSource: "2.jpg"},
-				{UUID: "5", ImageSource: "2.jpg"},
-				{UUID: "6", ImageSource: "2.jpg"},
-				{UUID: "7", ImageSource: "1.jpg"},
-				{UUID: "8", ImageSource: "2.jpg"},
-				{UUID: "9", ImageSource: "1.jpg"},
-				{UUID: "10", ImageSource: "2.jpg"},
-				{UUID: "11", ImageSource: "1.jpg"},
-				{UUID: "12", ImageSource: "2.jpg"},
-				{UUID: "13", ImageSource: "1.jpg"},
-				{UUID: "14", ImageSource: "2.jpg"},
-				{UUID: "15", ImageSource: "1.jpg"},
-			},
-			Rounds: []Round{
-				{Question: question.Text},
-			},
-		},
+		fmt.Println("NewGame() error:", err)
 	}
 	return game
 }
 
+func newGame() (Game, error) {
+	var game Game
+	game.UUID = uuid.New().String()
+	game.Timestamp = time.Now().String()
+	err := saveGame(game)
+	if err != nil {
+		return game, err
+	}
+
+	game.Investigation, err = newInvestigation(game.UUID)
+	if err != nil {
+		return game, err
+	}
+
+	return game, err
+}
+
+func getCurrentGame() (Game, error) {
+	var game Game
+	row := database.QueryRow("SELECT uuid FROM games ORDER BY timestamp LIMIT 1")
+	err := row.Scan(&game.UUID)
+
+	// No game found - first play
+	if err == sql.ErrNoRows {
+		return newGame()
+	}
+	if err != nil {
+		return game, err
+	}
+
+	return game, nil
+}
+
+func getCurrentInvestigation(gameUUID string) (Investigation, error) {
+	var investigation Investigation
+	return investigation, nil
+}
+
+func getCurrentRound(investigationUUID string) ([]Round, error) {
+	var rounds []Round
+	return rounds, nil
+}
+
 // Loads the last game.
 func (a *App) GetGame() Game {
-	game := a.NewGame()
+	game, err := getCurrentGame()
+	if err != nil {
+		fmt.Println("GetGame()->getCurrentGame() error: ", err)
+	}
+
+	game.Investigation, err = getCurrentInvestigation(game.UUID)
+	if err != nil {
+		fmt.Println("GetGame()->getCurrentInvestigation(): ", err)
+		return game
+	}
+
+	game.Investigation.Rounds, err = getCurrentRound(game.Investigation.UUID)
+	if err != nil {
+		fmt.Println("GetGame() error:", err)
+		return game
+	}
+
 	return game
 }
 
@@ -135,11 +167,11 @@ var createQuestionsTable = `
 		level INT
 	);`
 
-func GetRandomQuestion() (*Question, error) {
+func GetRandomQuestion() (Question, error) {
 	var question Question
 	row := database.QueryRow("SELECT uuid, question, topic, level FROM questions ORDER BY RANDOM() LIMIT 1")
 	err := row.Scan(&question.UUID, &question.Text, &question.Topic, &question.Level)
-	return &question, err
+	return question, err
 }
 
 var QS = []Question{
@@ -268,7 +300,29 @@ const createSuspectsTable = `
 		timestamp TEXT
 	);`
 
-// MARK: GAMES
+// DUMMY for now
+func randomSuspects() ([]Suspect, error) {
+	suspects := []Suspect{
+		{UUID: "1", ImageSource: "1.jpg"},
+		{UUID: "2", ImageSource: "2.jpg"},
+		{UUID: "3", ImageSource: "3.jpg"},
+		{UUID: "4", ImageSource: "4.jpg"},
+		{UUID: "5", ImageSource: "5.jpg"},
+		{UUID: "6", ImageSource: "6.jpg"},
+		{UUID: "7", ImageSource: "7.jpg"},
+		{UUID: "8", ImageSource: "8.jpg"},
+		{UUID: "9", ImageSource: "9.jpg"},
+		{UUID: "10", ImageSource: "10.jpg"},
+		{UUID: "11", ImageSource: "11.jpg"},
+		{UUID: "12", ImageSource: "12.jpg"},
+		{UUID: "13", ImageSource: "13.jpg"},
+		{UUID: "14", ImageSource: "14.jpg"},
+		{UUID: "15", ImageSource: "15.jpg"},
+	}
+	return suspects, nil
+}
+
+// MARK: GAME
 
 // User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
 type Game struct {
@@ -285,7 +339,7 @@ const createGamesTable = `
 	);`
 
 // Get all users from the database.
-func GetGame() ([]*Game, error) {
+func getGame() ([]*Game, error) {
 	var users []*Game
 	rows, err := database.Query("SELECT uuid FROM games")
 	if err != nil {
@@ -311,14 +365,25 @@ func GetGame() ([]*Game, error) {
 	return users, nil
 }
 
-// MARK: CASES
+func saveGame(game Game) error {
+	query := `
+		INSERT INTO games (uuid, timestamp)
+		VALUES (?, ?)
+		`
+	_, err := database.Exec(query, game.UUID, game.Timestamp)
+	return err
+}
+
+// MARK: INVESTIGATION
 
 // Investigation is a set of X Suspects, User needs to find a Criminal among them.
 type Investigation struct {
 	UUID      string    `json:"uuid"`
+	GameUUID  string    `json:"game_uuid"`
 	Suspects  []Suspect `json:"suspects"`
 	Level     int       `json:"level"` // but can be taken from len of Rounds
 	Rounds    []Round   `json:"rounds"`
+	Criminal  int
 	Timestamp string
 }
 
@@ -329,13 +394,44 @@ const createInvestigationsTable = `
 		timestamp TEXT
 	);`
 
+func newInvestigation(gameUUID string) (Investigation, error) {
+	var i Investigation
+	i.UUID = uuid.New().String()
+	i.GameUUID = gameUUID
+	i.Timestamp = time.Now().String()
+	i.Level = 1
+
+	round, err := newRound(i.UUID)
+	if err != nil {
+		return i, err
+	}
+	i.Rounds = append(i.Rounds, round)
+
+	suspects, err := randomSuspects()
+	if err != nil {
+		return i, err
+	}
+	i.Suspects = suspects
+	i.Criminal = rand.Intn(len(suspects))
+
+	return i, err
+}
+
+func saveInvestigation(i Investigation) error {
+	query := `UPDATE posts (uuid, game_uuid, timestamp) VALUES (?, ?, ?)`
+	_, err := database.Exec(query, i.UUID, i.GameUUID, i.Timestamp)
+	return err
+}
+
 // MARK: ROUNDS
 
 type Round struct {
-	UUID      string `json:"uuid"`
-	Question  string `json:"question"`
-	Answer    string `json:"answer"`
-	Timestamp string
+	UUID              string `json:"uuid"`
+	InvestigationUUID string
+	QuestionUUID      string
+	Question          string `json:"question"`
+	Answer            string `json:"answer"`
+	Timestamp         string
 }
 
 const createRoundsTable = `
@@ -347,10 +443,35 @@ const createRoundsTable = `
 		timestamp TEXT
 	);`
 
+func newRound(investigationUUID string) (Round, error) {
+	var r Round
+	r.UUID = uuid.New().String()
+	r.InvestigationUUID = investigationUUID
+	r.Timestamp = time.Now().Format(TimeFormat)
+	question, err := GetRandomQuestion()
+	if err != nil {
+		return r, err
+	}
+	r.Question = question.Text
+	r.QuestionUUID = question.UUID
+
+	return r, err
+}
+
+func saveRound(r Round) error {
+	query := `
+		INSERT OR REPLACE INTO rounds (uuid, investigation_uuid, question_uuid, answer, timestamp)
+		VALUES (?, ?, ?, ?, ?)
+		`
+	_, err := database.Exec(query, r.UUID, r.InvestigationUUID, r.QuestionUUID, r.Answer, r.Timestamp)
+	return err
+}
+
 // MARK: ELIMINATIONS
 
 type Elimination struct {
 	UUID        string `json:"uuid"`
+	RoundUUID   string
 	SuspectUUID string `json:"suspectUUID"`
 	Timestamp   string
 }
@@ -362,3 +483,12 @@ const createEliminationsTable = `
 		suspect_uuid TEXT,
 		timestamp TEXT
 	);`
+
+func saveElimination(e Elimination) error {
+	query := `
+		INSERT OR REPLACE INTO eliminations (uuid, round_uuid, suspect_uuid, timestamp)
+		VALUES (?, ?, ?, ?, ?)
+		`
+	_, err := database.Exec(query, e.UUID, e.RoundUUID, e.SuspectUUID, e.Timestamp)
+	return err
+}
