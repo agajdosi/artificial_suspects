@@ -38,25 +38,29 @@ func (a *App) NewGame() Game {
 
 	// DUMMY
 	game = Game{
-		GameUUID: uuid.New().String(),
-		Level:    1,
-		Question: question,
-		Suspects: []Suspect{
-			{UUID: "1", ImageSource: "2.jpg"},
-			{UUID: "2", ImageSource: "2.jpg"},
-			{UUID: "3", ImageSource: "1.jpg"},
-			{UUID: "4", ImageSource: "2.jpg"},
-			{UUID: "5", ImageSource: "2.jpg"},
-			{UUID: "6", ImageSource: "2.jpg"},
-			{UUID: "7", ImageSource: "1.jpg"},
-			{UUID: "8", ImageSource: "2.jpg"},
-			{UUID: "9", ImageSource: "1.jpg"},
-			{UUID: "10", ImageSource: "2.jpg"},
-			{UUID: "11", ImageSource: "1.jpg"},
-			{UUID: "12", ImageSource: "2.jpg"},
-			{UUID: "13", ImageSource: "1.jpg"},
-			{UUID: "14", ImageSource: "2.jpg"},
-			{UUID: "15", ImageSource: "1.jpg"},
+		UUID:  uuid.New().String(),
+		Level: 1,
+		Case: Case{
+			Suspects: []Suspect{
+				{UUID: "1", ImageSource: "2.jpg"},
+				{UUID: "2", ImageSource: "2.jpg"},
+				{UUID: "3", ImageSource: "1.jpg"},
+				{UUID: "4", ImageSource: "2.jpg"},
+				{UUID: "5", ImageSource: "2.jpg"},
+				{UUID: "6", ImageSource: "2.jpg"},
+				{UUID: "7", ImageSource: "1.jpg"},
+				{UUID: "8", ImageSource: "2.jpg"},
+				{UUID: "9", ImageSource: "1.jpg"},
+				{UUID: "10", ImageSource: "2.jpg"},
+				{UUID: "11", ImageSource: "1.jpg"},
+				{UUID: "12", ImageSource: "2.jpg"},
+				{UUID: "13", ImageSource: "1.jpg"},
+				{UUID: "14", ImageSource: "2.jpg"},
+				{UUID: "15", ImageSource: "1.jpg"},
+			},
+			Rounds: []Round{
+				{Question: question},
+			},
 		},
 	}
 	return game
@@ -70,9 +74,9 @@ func (a *App) GetGame() Game {
 
 // Next level is requested. Updates the question and level for the game object.
 func (a *App) NextLevel() Game {
-	game.Question = GetQuestion()
+	game.Case.Rounds[0].Question = GetQuestion() // HERE APPEND A NEW ROUND
 	game.Level++
-	fmt.Printf("New level %d: %s\n", game.Level, game.Question)
+	fmt.Printf("New level %d: %s\n", game.Level, game.Case.Rounds[0].Question)
 	return game
 }
 
@@ -92,11 +96,25 @@ func GetQuestion() string {
 	return Questions[i]
 }
 
+// User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
 type Game struct {
+	UUID  string `json:"uuid"`
+	Level int    `json:"level"`
+	Case  Case   `json:"case"`
+}
+
+// Case is a set of X Suspects, User needs to find a Criminal among them.
+type Case struct {
+	UUID     string    `json:"uuid"`
 	Suspects []Suspect `json:"suspects"`
-	Level    int       `json:"level"`
-	Question string    `json:"question"`
-	GameUUID string    `json:"gameUUID"`
+	Level    int       `json:"level"` // but can be taken from len of Rounds
+	Rounds   []Round   `json:"rounds"`
+}
+
+type Round struct {
+	UUID     string `json:"uuid"`
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
 }
 
 type Suspect struct {

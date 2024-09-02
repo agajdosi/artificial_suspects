@@ -26,8 +26,8 @@
 
 
 <button on:click={goToMenu}>Menu</button>
-<h1>{game.question}</h1>
-<Suspects suspects={game.suspects}/>
+<h1>{game.case.rounds[0].question}</h1>
+<Suspects suspects={game.case.suspects}/>
 <button on:click={nextRound}>Next Question</button>
 
 <style>
