@@ -18,7 +18,7 @@ import (
 var game Game
 
 // Holds the database connection. Is created via EnsureDBAvailable()
-var db *sql.DB
+var database *sql.DB
 
 const (
 	appName = "suspects"
@@ -50,7 +50,10 @@ func (a *App) Greet(name string) string {
 // Create a new game. Returns the suspects.
 func (a *App) NewGame() Game {
 	fmt.Println("Loading new game")
-	question := GetQuestion()
+	question, err := GetRandomQuestion()
+	if err != nil {
+		fmt.Println("NewGame()->GetRandomQuestion() error:", err)
+	}
 
 	// DUMMY
 	game = Game{
@@ -75,7 +78,7 @@ func (a *App) NewGame() Game {
 				{UUID: "15", ImageSource: "1.jpg"},
 			},
 			Rounds: []Round{
-				{Question: question},
+				{Question: question.Text},
 			},
 		},
 	}
@@ -90,7 +93,15 @@ func (a *App) GetGame() Game {
 
 // Next level is requested. Updates the question and level for the game object.
 func (a *App) NextLevel() Game {
-	game.Investigation.Rounds[0].Question = GetQuestion() // HERE APPEND A NEW ROUND
+	var game Game
+
+	q, err := GetRandomQuestion()
+	if err != nil {
+		fmt.Println("GetRandomQuestion() error:", err)
+		return game
+	}
+
+	game.Investigation.Rounds[0].Question = q.Text
 	game.Level++
 	fmt.Printf("New level %d: %s\n", game.Level, game.Investigation.Rounds[0].Question)
 	return game
@@ -124,16 +135,11 @@ var createQuestionsTable = `
 		level INT
 	);`
 
-func GetQuestion() string {
-	i := rand.Intn(len(questions)) // DUMMY
-	return questions[i]
-}
-
-var questions = []string{
-	"Does the suspect love pizza?",
-	"Does the suspect hate immigrants?",
-	"Is the suspect a leftist?",
-	"Does the suspect love spicy food?",
+func GetRandomQuestion() (*Question, error) {
+	var question Question
+	row := database.QueryRow("SELECT uuid, question, topic, level FROM questions ORDER BY RANDOM() LIMIT 1")
+	err := row.Scan(&question.UUID, &question.Text, &question.Topic, &question.Level)
+	return &question, err
 }
 
 var QS = []Question{
@@ -211,17 +217,19 @@ func EnsureDBAvailable() error {
 
 	fmt.Println("gameDBPath created")
 
-	database, err := sql.Open("sqlite3", gameDBPath)
+	db, err := sql.Open("sqlite3", gameDBPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = initDB(database)
+	err = initDB(db)
 	if err != nil {
 		return err
 	}
 
-	db = database // setting to global variable
+	database = db // setting to global variable
+	fmt.Println("Database prepared and available!")
+
 	return nil
 }
 
@@ -279,7 +287,7 @@ const createGamesTable = `
 // Get all users from the database.
 func GetGame() ([]*Game, error) {
 	var users []*Game
-	rows, err := db.Query("SELECT uuid FROM games")
+	rows, err := database.Query("SELECT uuid FROM games")
 	if err != nil {
 		return nil, err
 	}
