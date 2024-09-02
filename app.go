@@ -169,11 +169,13 @@ func EnsureDBAvailable() error {
 }
 
 func initDB(db *sql.DB) error {
-	_, err := db.Exec(createUsersTable)
-	if err != nil {
-		return err
+	var tables = []string{createSuspectsTable, createGamesTable, createInvestigationsTable, createRoundsTable, createEliminationsTable}
+	for i := range tables {
+		_, err := db.Exec(tables[i])
+		if err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 
@@ -185,6 +187,13 @@ type Suspect struct {
 	Free        bool   `json:"free"`
 }
 
+const createSuspectsTable = `
+	CREATE TABLE IF NOT EXISTS suspects (
+		uuid TEXT PRIMARY KEY,
+		image TEXT,
+		timestamp TEXT
+	);`
+
 // MARK: GAMES
 
 // User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
@@ -192,14 +201,14 @@ type Game struct {
 	UUID          string        `json:"uuid"`
 	Level         int           `json:"level"`
 	Investigation Investigation `json:"investigation"`
+	Timestamp     string
 }
 
-const createUsersTable = `
-	CREATE TABLE IF NOT EXISTS users (
+const createGamesTable = `
+	CREATE TABLE IF NOT EXISTS games (
 		uuid TEXT PRIMARY KEY,
 		timestamp TEXT
-	);
-	`
+	);`
 
 // Get all users from the database.
 func GetGame() ([]*Game, error) {
@@ -232,18 +241,50 @@ func GetGame() ([]*Game, error) {
 
 // Investigation is a set of X Suspects, User needs to find a Criminal among them.
 type Investigation struct {
-	UUID     string    `json:"uuid"`
-	Suspects []Suspect `json:"suspects"`
-	Level    int       `json:"level"` // but can be taken from len of Rounds
-	Rounds   []Round   `json:"rounds"`
+	UUID      string    `json:"uuid"`
+	Suspects  []Suspect `json:"suspects"`
+	Level     int       `json:"level"` // but can be taken from len of Rounds
+	Rounds    []Round   `json:"rounds"`
+	Timestamp string
 }
+
+const createInvestigationsTable = `
+	CREATE TABLE IF NOT EXISTS investigations (
+		uuid TEXT PRIMARY KEY,
+		game_uuid TEXT,
+		timestamp TEXT
+	);`
 
 // MARK: ROUNDS
 
 type Round struct {
-	UUID     string `json:"uuid"`
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
+	UUID      string `json:"uuid"`
+	Question  string `json:"question"`
+	Answer    string `json:"answer"`
+	Timestamp string
 }
 
+const createRoundsTable = `
+	CREATE TABLE IF NOT EXISTS rounds (
+		uuid TEXT PRIMARY KEY,
+		investigation_uuid TEXT,
+		questionUUID TEXT,
+		answer TEXT,
+		timestamp TEXT
+	);`
+
 // MARK: ELIMINATIONS
+
+type Elimination struct {
+	UUID        string `json:"uuid"`
+	SuspectUUID string `json:"suspectUUID"`
+	Timestamp   string
+}
+
+const createEliminationsTable = `
+	CREATE TABLE IF NOT EXISTS eliminations (
+		uuid TEXT PRIMARY KEY,
+		round_uuid TEXT,
+		suspect_uuid TEXT,
+		timestamp TEXT
+	);`
