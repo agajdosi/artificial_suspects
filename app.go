@@ -102,23 +102,80 @@ func (a *App) GetAnswerFromAI() bool {
 }
 
 // User selected suspect to be freed.
-func (a *App) FreeSuspect(suspectUUID string) bool {
-	fmt.Printf("Freeing suspect: %s\n", suspectUUID)
+func (a *App) FreeSuspect(uuid string) bool {
+	fmt.Printf("Freeing suspect: %s\n", uuid)
 	return rand.Intn(2) == 1
 }
 
 // MARK: QUESTION
 
-func GetQuestion() string {
-	i := rand.Intn(len(Questions)) // DUMMY
-	return Questions[i]
+type Question struct {
+	UUID  string `json:"uuid"`
+	Text  string `json:"text"`
+	Topic string `json:"topic"`
+	Level int    `json:"level"`
 }
 
-var Questions = []string{
+var createQuestionsTable = `
+	CREATE TABLE IF NOT EXISTS questions (
+		uuid TEXT PRIMARY KEY,
+		question TEXT,
+		topic TEXT,
+		level INT
+	);`
+
+func GetQuestion() string {
+	i := rand.Intn(len(questions)) // DUMMY
+	return questions[i]
+}
+
+var questions = []string{
 	"Does the suspect love pizza?",
 	"Does the suspect hate immigrants?",
 	"Is the suspect a leftist?",
 	"Does the suspect love spicy food?",
+}
+
+var QS = []Question{
+	{Text: "Does the suspect love pizza?", Topic: "food", Level: 1},
+	{Text: "Does the suspect love spicy food?", Topic: "food", Level: 1},
+	{Text: "Does the suspect hate immigrants?", Topic: "political", Level: 1},
+	{Text: "Is the suspect a leftist?", Topic: "political", Level: 1},
+}
+
+func InitQuestionsTable(db *sql.DB) error {
+	_, err := db.Exec(createQuestionsTable)
+	if err != nil {
+		return err
+	}
+
+	for i := range QS {
+		err := SaveQuestion(db, QS[i])
+		if err != nil {
+			log.Println("Cannot initialize question:", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func SaveQuestion(db *sql.DB, q Question) error {
+	var exists bool
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM questions WHERE question = ?)"
+	err := db.QueryRow(checkQuery, q.Text).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
+	}
+
+	UUID := uuid.New().String()
+	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
+	_, err = db.Exec(query, UUID, q.Text, q.Topic, q.Level)
+	return err
 }
 
 // MARK: DATABASE
@@ -169,14 +226,23 @@ func EnsureDBAvailable() error {
 }
 
 func initDB(db *sql.DB) error {
-	var tables = []string{createSuspectsTable, createGamesTable, createInvestigationsTable, createRoundsTable, createEliminationsTable}
+	var tables = []string{
+		createSuspectsTable,
+		createGamesTable,
+		createInvestigationsTable,
+		createRoundsTable,
+		createEliminationsTable,
+	}
 	for i := range tables {
 		_, err := db.Exec(tables[i])
 		if err != nil {
+			fmt.Printf("Error initializing table: '%s', error: %v", tables[i], err)
 			return err
 		}
 	}
-	return nil
+	err := InitQuestionsTable(db)
+
+	return err
 }
 
 // MARK: SUSPECTS
@@ -268,7 +334,7 @@ const createRoundsTable = `
 	CREATE TABLE IF NOT EXISTS rounds (
 		uuid TEXT PRIMARY KEY,
 		investigation_uuid TEXT,
-		questionUUID TEXT,
+		question_uuid TEXT,
 		answer TEXT,
 		timestamp TEXT
 	);`
