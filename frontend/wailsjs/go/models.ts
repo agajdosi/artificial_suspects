@@ -32,14 +32,14 @@ export namespace main {
 	        this.free = source["free"];
 	    }
 	}
-	export class Case {
+	export class Investigation {
 	    uuid: string;
 	    suspects: Suspect[];
 	    level: number;
 	    rounds: Round[];
 	
 	    static createFrom(source: any = {}) {
-	        return new Case(source);
+	        return new Investigation(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -71,7 +71,7 @@ export namespace main {
 	export class Game {
 	    uuid: string;
 	    level: number;
-	    case: Case;
+	    investigation: Investigation;
 	
 	    static createFrom(source: any = {}) {
 	        return new Game(source);
@@ -81,7 +81,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.uuid = source["uuid"];
 	        this.level = source["level"];
-	        this.case = this.convertValues(source["case"], Case);
+	        this.investigation = this.convertValues(source["investigation"], Investigation);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -102,6 +102,7 @@ export namespace main {
 		    return a;
 		}
 	}
+	
 	
 
 }

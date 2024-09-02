@@ -2,13 +2,29 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 
+	"github.com/adrg/xdg"
 	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
+
 	"golang.org/x/exp/rand"
 )
 
 var game Game
+
+// Holds the database connection. Is created via EnsureDBAvailable()
+var db *sql.DB
+
+const (
+	appName = "suspects"
+)
+
+// MARK: APP
 
 // App struct
 type App struct {
@@ -40,7 +56,7 @@ func (a *App) NewGame() Game {
 	game = Game{
 		UUID:  uuid.New().String(),
 		Level: 1,
-		Case: Case{
+		Investigation: Investigation{
 			Suspects: []Suspect{
 				{UUID: "1", ImageSource: "2.jpg"},
 				{UUID: "2", ImageSource: "2.jpg"},
@@ -74,9 +90,9 @@ func (a *App) GetGame() Game {
 
 // Next level is requested. Updates the question and level for the game object.
 func (a *App) NextLevel() Game {
-	game.Case.Rounds[0].Question = GetQuestion() // HERE APPEND A NEW ROUND
+	game.Investigation.Rounds[0].Question = GetQuestion() // HERE APPEND A NEW ROUND
 	game.Level++
-	fmt.Printf("New level %d: %s\n", game.Level, game.Case.Rounds[0].Question)
+	fmt.Printf("New level %d: %s\n", game.Level, game.Investigation.Rounds[0].Question)
 	return game
 }
 
@@ -91,36 +107,11 @@ func (a *App) FreeSuspect(suspectUUID string) bool {
 	return rand.Intn(2) == 1
 }
 
+// MARK: QUESTION
+
 func GetQuestion() string {
 	i := rand.Intn(len(Questions)) // DUMMY
 	return Questions[i]
-}
-
-// User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
-type Game struct {
-	UUID  string `json:"uuid"`
-	Level int    `json:"level"`
-	Case  Case   `json:"case"`
-}
-
-// Case is a set of X Suspects, User needs to find a Criminal among them.
-type Case struct {
-	UUID     string    `json:"uuid"`
-	Suspects []Suspect `json:"suspects"`
-	Level    int       `json:"level"` // but can be taken from len of Rounds
-	Rounds   []Round   `json:"rounds"`
-}
-
-type Round struct {
-	UUID     string `json:"uuid"`
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
-}
-
-type Suspect struct {
-	UUID        string `json:"uuid"`
-	ImageSource string `json:"imageSource"`
-	Free        bool   `json:"free"`
 }
 
 var Questions = []string{
@@ -129,3 +120,130 @@ var Questions = []string{
 	"Is the suspect a leftist?",
 	"Does the suspect love spicy food?",
 }
+
+// MARK: DATABASE
+
+func GetDataDirPath() string {
+	return filepath.Join(xdg.ConfigHome, appName)
+}
+
+func GetDBPath() string {
+	return filepath.Join(GetDataDirPath(), "default.db")
+}
+
+func EnsureConfigDirAvailable() error {
+	DataDir := GetDataDirPath()
+	return os.MkdirAll(DataDir, 0755)
+}
+
+// Ensure that database is ready to be used. First, check if gamesDir exists, if not create it.
+// Then, check if database file exists, if not create it and initialize it.
+// Returns the database connection.
+func EnsureDBAvailable() error {
+	gameDBPath := GetDBPath()
+
+	fmt.Println("Stating the dbPATH")
+	_, err := os.Stat(gameDBPath)
+	if os.IsNotExist(err) {
+		file, err := os.Create(gameDBPath)
+		if err != nil {
+			return err
+		}
+		file.Close()
+	}
+
+	fmt.Println("gameDBPath created")
+
+	database, err := sql.Open("sqlite3", gameDBPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = initDB(database)
+	if err != nil {
+		return err
+	}
+
+	db = database // setting to global variable
+	return nil
+}
+
+func initDB(db *sql.DB) error {
+	_, err := db.Exec(createUsersTable)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MARK: SUSPECTS
+
+type Suspect struct {
+	UUID        string `json:"uuid"`
+	ImageSource string `json:"imageSource"`
+	Free        bool   `json:"free"`
+}
+
+// MARK: GAMES
+
+// User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
+type Game struct {
+	UUID          string        `json:"uuid"`
+	Level         int           `json:"level"`
+	Investigation Investigation `json:"investigation"`
+}
+
+const createUsersTable = `
+	CREATE TABLE IF NOT EXISTS users (
+		uuid TEXT PRIMARY KEY,
+		timestamp TEXT
+	);
+	`
+
+// Get all users from the database.
+func GetGame() ([]*Game, error) {
+	var users []*Game
+	rows, err := db.Query("SELECT uuid FROM games")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		user := new(Game)
+		err := rows.Scan(
+			&user.UUID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+// MARK: CASES
+
+// Investigation is a set of X Suspects, User needs to find a Criminal among them.
+type Investigation struct {
+	UUID     string    `json:"uuid"`
+	Suspects []Suspect `json:"suspects"`
+	Level    int       `json:"level"` // but can be taken from len of Rounds
+	Rounds   []Round   `json:"rounds"`
+}
+
+// MARK: ROUNDS
+
+type Round struct {
+	UUID     string `json:"uuid"`
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+}
+
+// MARK: ELIMINATIONS

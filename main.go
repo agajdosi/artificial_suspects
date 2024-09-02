@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"log"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -10,6 +11,18 @@ import (
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+func init() {
+	err := EnsureConfigDirAvailable()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = EnsureDBAvailable()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
 	// Create an instance of the app structure
