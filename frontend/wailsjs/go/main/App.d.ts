@@ -8,8 +8,6 @@ export function GetAnswerFromAI():Promise<boolean>;
 
 export function GetGame():Promise<main.Game>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function NewGame():Promise<main.Game>;
 
 export function NextLevel():Promise<main.Game>;

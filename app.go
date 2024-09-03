@@ -16,8 +16,6 @@ import (
 	"golang.org/x/exp/rand"
 )
 
-var game Game
-
 // Holds the database connection. Is created via EnsureDBAvailable()
 var database *sql.DB
 
@@ -44,11 +42,6 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
 // Create a new game. Returns the suspects.
 func (a *App) NewGame() Game {
 	game, err := newGame()
@@ -58,66 +51,11 @@ func (a *App) NewGame() Game {
 	return game
 }
 
-func newGame() (Game, error) {
-	var game Game
-	game.UUID = uuid.New().String()
-	game.Timestamp = time.Now().String()
-	err := saveGame(game)
-	if err != nil {
-		return game, err
-	}
-
-	game.Investigation, err = newInvestigation(game.UUID)
-	if err != nil {
-		return game, err
-	}
-
-	return game, err
-}
-
-func getCurrentGame() (Game, error) {
-	var game Game
-	row := database.QueryRow("SELECT uuid FROM games ORDER BY timestamp LIMIT 1")
-	err := row.Scan(&game.UUID)
-
-	// No game found - first play
-	if err == sql.ErrNoRows {
-		return newGame()
-	}
-	if err != nil {
-		return game, err
-	}
-
-	return game, nil
-}
-
-func getCurrentInvestigation(gameUUID string) (Investigation, error) {
-	var investigation Investigation
-	return investigation, nil
-}
-
-func getCurrentRound(investigationUUID string) ([]Round, error) {
-	var rounds []Round
-	return rounds, nil
-}
-
 // Loads the last game.
 func (a *App) GetGame() Game {
 	game, err := getCurrentGame()
 	if err != nil {
 		fmt.Println("GetGame()->getCurrentGame() error: ", err)
-	}
-
-	game.Investigation, err = getCurrentInvestigation(game.UUID)
-	if err != nil {
-		fmt.Println("GetGame()->getCurrentInvestigation(): ", err)
-		return game
-	}
-
-	game.Investigation.Rounds, err = getCurrentRound(game.Investigation.UUID)
-	if err != nil {
-		fmt.Println("GetGame() error:", err)
-		return game
 	}
 
 	return game
@@ -214,6 +152,17 @@ func SaveQuestion(q Question) error {
 	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
 	_, err = database.Exec(query, UUID, q.Text, q.Topic, q.Level)
 	return err
+}
+
+func getQuestion(questionUUID string) (Question, error) {
+	var question = Question{UUID: questionUUID}
+	row := database.QueryRow("SELECT question, topic, level FROM questions WHERE uuid = $1 LIMIT 1", questionUUID)
+	err := row.Scan(&question.Text, &question.Topic, &question.Level)
+	if err != nil {
+		log.Printf("Could not scan question (%s): %v", questionUUID, err)
+		return question, err
+	}
+	return question, nil
 }
 
 // MARK: DATABASE
@@ -338,31 +287,46 @@ const createGamesTable = `
 		timestamp TEXT
 	);`
 
-// Get all users from the database.
-func getGame() ([]*Game, error) {
-	var users []*Game
-	rows, err := database.Query("SELECT uuid FROM games")
+func newGame() (Game, error) {
+	var game Game
+	game.UUID = uuid.New().String()
+	game.Timestamp = time.Now().String()
+	err := saveGame(game)
 	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		user := new(Game)
-		err := rows.Scan(
-			&user.UUID,
-		)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
+		return game, err
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
+	game.Investigation, err = newInvestigation(game.UUID)
+	if err != nil {
+		return game, err
 	}
 
-	return users, nil
+	return game, err
+}
+
+func getCurrentGame() (Game, error) {
+	var game Game
+	row := database.QueryRow("SELECT uuid, timestamp FROM games ORDER BY timestamp DESC LIMIT 1")
+	err := row.Scan(&game.UUID, &game.Timestamp)
+
+	// No game found - first play
+	if err == sql.ErrNoRows {
+		log.Println("Warning: No games in DB, creating new game")
+		return newGame()
+	}
+	if err != nil {
+		return game, err
+	}
+
+	log.Printf("Got game: %v | %v", game.UUID, game.Timestamp)
+
+	game.Investigation, err = getCurrentInvestigation(game.UUID)
+	if err != nil {
+		fmt.Println("GetGame()->getCurrentInvestigation(): ", err)
+		return game, err
+	}
+
+	return game, nil
 }
 
 func saveGame(game Game) error {
@@ -424,14 +388,32 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 	return i, err
 }
 
+func getCurrentInvestigation(gameUUID string) (Investigation, error) {
+	var investigation = Investigation{GameUUID: gameUUID}
+	log.Printf("Getting investigation for game %s\n", gameUUID)
+	row := database.QueryRow("SELECT uuid, timestamp FROM investigations WHERE game_uuid = $1 ORDER BY timestamp DESC LIMIT 1", gameUUID)
+	err := row.Scan(&investigation.UUID, &investigation.Timestamp)
+	if err != nil {
+		log.Printf("Could not get investigation: %v\n", err)
+		return investigation, err
+	}
+
+	investigation.Rounds, err = getRounds(investigation.UUID)
+	if err != nil {
+		return investigation, err
+	}
+
+	return investigation, nil
+}
+
 // MARK: ROUNDS
 
 type Round struct {
 	UUID              string `json:"uuid"`
 	InvestigationUUID string
 	QuestionUUID      string
-	Question          string `json:"question"`
-	Answer            string `json:"answer"`
+	Question          string `json:"question"` // TODO: Question could be actually the whole object
+	Answer            string `json:"answer"`   // TODO: Answer could be actually stored in table
 	Timestamp         string
 }
 
@@ -443,6 +425,15 @@ const createRoundsTable = `
 		answer TEXT,
 		timestamp TEXT
 	);`
+
+func saveRound(r Round) error {
+	query := `
+		INSERT OR REPLACE INTO rounds (uuid, investigation_uuid, question_uuid, answer, timestamp)
+		VALUES (?, ?, ?, ?, ?)
+		`
+	_, err := database.Exec(query, r.UUID, r.InvestigationUUID, r.QuestionUUID, r.Answer, r.Timestamp)
+	return err
+}
 
 func newRound(investigationUUID string) (Round, error) {
 	var r Round
@@ -460,13 +451,42 @@ func newRound(investigationUUID string) (Round, error) {
 	return r, err
 }
 
-func saveRound(r Round) error {
-	query := `
-		INSERT OR REPLACE INTO rounds (uuid, investigation_uuid, question_uuid, answer, timestamp)
-		VALUES (?, ?, ?, ?, ?)
-		`
-	_, err := database.Exec(query, r.UUID, r.InvestigationUUID, r.QuestionUUID, r.Answer, r.Timestamp)
-	return err
+func getRounds(investigationUUID string) ([]Round, error) {
+	var rounds []Round
+	log.Println("Getting rounds for investigation", investigationUUID)
+
+	rows, err := database.Query("SELECT uuid, investigation_uuid, question_uuid, answer, timestamp FROM rounds WHERE investigation_uuid = $1 ORDER BY timestamp DESC", investigationUUID)
+	if err != nil {
+		log.Printf("Could not get rounds: %v\n", err)
+		return rounds, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var round Round
+		err := rows.Scan(&round.UUID, &round.InvestigationUUID, &round.QuestionUUID, &round.Answer, &round.Timestamp)
+		if err != nil {
+			log.Printf("Could not scan round: %v\n", err)
+			return rounds, err
+		}
+
+		question, err := getQuestion(round.QuestionUUID)
+		if err != nil {
+			log.Printf("Could not get question text for question_uuid=%s: %v", round.QuestionUUID, err)
+		}
+		round.Question = question.Text
+
+		rounds = append(rounds, round)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error during rows iteration: %v\n", err)
+		return rounds, err
+	}
+
+	log.Println("Got rounds:", rounds)
+
+	return rounds, nil
 }
 
 // MARK: ELIMINATIONS
