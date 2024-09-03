@@ -24,6 +24,7 @@
 
 <div class="menu">
     <button on:click={newGame}>NEW GAME</button>
+    <button>CONTINUE GAME</button>
     <button on:click={getGame}>GET GAME</button>
 </div>
 

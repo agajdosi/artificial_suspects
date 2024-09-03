@@ -17,9 +17,10 @@ export namespace main {
 	    }
 	}
 	export class Suspect {
-	    uuid: string;
-	    imageSource: string;
-	    free: boolean;
+	    UUID: string;
+	    Image: string;
+	    Free: boolean;
+	    Timestamp: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Suspect(source);
@@ -27,9 +28,10 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.uuid = source["uuid"];
-	        this.imageSource = source["imageSource"];
-	        this.free = source["free"];
+	        this.UUID = source["UUID"];
+	        this.Image = source["Image"];
+	        this.Free = source["Free"];
+	        this.Timestamp = source["Timestamp"];
 	    }
 	}
 	export class Investigation {

@@ -22,6 +22,7 @@ var database *sql.DB
 const (
 	appName           = "suspects"
 	TimeFormat string = time.RFC3339Nano
+	numSuspect        = 15 // How many suspects are in one investigation - there were 12 in original board game.
 )
 
 // MARK: APP
@@ -128,7 +129,7 @@ func InitQuestionsTable() error {
 	for i := range QS {
 		err := SaveQuestion(QS[i])
 		if err != nil {
-			log.Println("Cannot initialize question:", err)
+			log.Println("Cannot initialize Question:", err)
 			return err
 		}
 	}
@@ -151,7 +152,12 @@ func SaveQuestion(q Question) error {
 	UUID := uuid.New().String()
 	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
 	_, err = database.Exec(query, UUID, q.Text, q.Topic, q.Level)
-	return err
+	if err != nil {
+		log.Printf("Could not save Question %s (%s): %v", q.Text, UUID, err)
+		return err
+	}
+
+	return nil
 }
 
 func getQuestion(questionUUID string) (Question, error) {
@@ -216,7 +222,6 @@ func EnsureDBAvailable() error {
 
 func initDB() error {
 	var tables = []string{
-		createSuspectsTable,
 		createGamesTable,
 		createInvestigationsTable,
 		createRoundsTable,
@@ -230,16 +235,25 @@ func initDB() error {
 		}
 	}
 	err := InitQuestionsTable()
+	if err != nil {
+		return err
+	}
 
-	return err
+	err = InitSuspectsTable()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // MARK: SUSPECTS
 
 type Suspect struct {
-	UUID        string `json:"uuid"`
-	ImageSource string `json:"imageSource"`
-	Free        bool   `json:"free"`
+	UUID      string `json:"UUID"`
+	Image     string `json:"Image"`
+	Free      bool   `json:"Free"`
+	Timestamp string `json:"Timestamp"`
 }
 
 const createSuspectsTable = `
@@ -249,25 +263,90 @@ const createSuspectsTable = `
 		timestamp TEXT
 	);`
 
+var defaultSuspects = []Suspect{
+	{UUID: "001", Image: "1.jpg"},
+	{UUID: "002", Image: "2.jpg"},
+	{UUID: "003", Image: "3.jpg"},
+	{UUID: "004", Image: "4.jpg"},
+	{UUID: "005", Image: "5.jpg"},
+	{UUID: "006", Image: "6.jpg"},
+	{UUID: "007", Image: "7.jpg"},
+	{UUID: "008", Image: "8.jpg"},
+	{UUID: "009", Image: "9.jpg"},
+	{UUID: "010", Image: "10.jpg"},
+	{UUID: "011", Image: "11.jpg"},
+	{UUID: "012", Image: "12.jpg"},
+	{UUID: "013", Image: "13.jpg"},
+	{UUID: "014", Image: "14.jpg"},
+	{UUID: "015", Image: "15.jpg"},
+}
+
+func InitSuspectsTable() error {
+	_, err := database.Exec(createSuspectsTable)
+	if err != nil {
+		return err
+	}
+
+	for i := range defaultSuspects {
+		err := SaveSuspect(defaultSuspects[i])
+		if err != nil {
+			log.Println("Cannot initialize Suspect:", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func SaveSuspect(suspect Suspect) error {
+	var exists bool
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM suspects WHERE image = ?)"
+	err := database.QueryRow(checkQuery, suspect.Image).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
+	}
+
+	UUID := uuid.New().String()
+	timestamp := time.Now().String()
+	query := "INSERT into suspects (uuid, image, timestamp) VALUES (?, ?, ?)"
+	_, err = database.Exec(query, UUID, suspect.Image, timestamp)
+	if err != nil {
+		log.Printf("Could not save Suspect %s (%s): %v", suspect.Image, UUID, err)
+		return err
+	}
+
+	return nil
+}
+
 // DUMMY for now
 func randomSuspects() ([]Suspect, error) {
-	suspects := []Suspect{
-		{UUID: "1", ImageSource: "1.jpg"},
-		{UUID: "2", ImageSource: "2.jpg"},
-		{UUID: "3", ImageSource: "3.jpg"},
-		{UUID: "4", ImageSource: "4.jpg"},
-		{UUID: "5", ImageSource: "5.jpg"},
-		{UUID: "6", ImageSource: "6.jpg"},
-		{UUID: "7", ImageSource: "7.jpg"},
-		{UUID: "8", ImageSource: "8.jpg"},
-		{UUID: "9", ImageSource: "9.jpg"},
-		{UUID: "10", ImageSource: "10.jpg"},
-		{UUID: "11", ImageSource: "11.jpg"},
-		{UUID: "12", ImageSource: "12.jpg"},
-		{UUID: "13", ImageSource: "13.jpg"},
-		{UUID: "14", ImageSource: "14.jpg"},
-		{UUID: "15", ImageSource: "15.jpg"},
+	var suspects []Suspect
+	rows, err := database.Query("SELECT uuid, image, timestamp FROM suspects ORDER BY RANDOM() LIMIT $1", numSuspect)
+	if err != nil {
+		log.Printf("Could not get random suspects: %v\n", err)
+		return suspects, err
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var suspect Suspect
+		err := rows.Scan(&suspect.UUID, &suspect.Image, &suspect.Timestamp)
+		if err != nil {
+			log.Printf("Could not scan suspect: %v\n", err)
+			return suspects, err
+		}
+		suspects = append(suspects, suspect)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error during suspects rows iteration: %v\n", err)
+		return suspects, err
+	}
+
 	return suspects, nil
 }
 

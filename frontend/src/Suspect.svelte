@@ -11,29 +11,29 @@
         if (isFree) return;
 
         try {
-            const isInnocent = await FreeSuspect(suspect.uuid);
+            const isInnocent = await FreeSuspect(suspect.UUID);
             if (isInnocent) {
                 isFree = true;
-                console.log(`Suspect ${suspect.uuid} freed`);
+                console.log(`Suspect ${suspect.UUID} freed`);
                 return;
             }
             fled = true;
-            console.log(`Criminal ${suspect.uuid} released`);
+            console.log(`Criminal ${suspect.UUID} released`);
             return;
         } catch (error) {
-            console.error(`Failed to free suspect ${suspect.uuid}:`, error);
+            console.error(`Failed to free suspect ${suspect.UUID}:`, error);
         }
     }
 </script>
 
 <div 
     class="suspect {isFree ? 'free' : ''} {fled ? 'fled' : ''}"
-    id={suspect.uuid} 
+    id={suspect.UUID} 
     on:click={selected}
     on:keydown={selected}
     aria-disabled={isFree}
 >
-    <div class="suspect-image" style="background-image: url({imgDir+suspect.imageSource});"></div>
+    <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>
 
 <style>
