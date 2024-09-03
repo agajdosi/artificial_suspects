@@ -344,21 +344,87 @@ type Investigation struct {
 	Suspects  []Suspect `json:"suspects"`
 	Level     int       `json:"level"` // but can be taken from len of Rounds
 	Rounds    []Round   `json:"rounds"`
-	Criminal  int
+	Criminal  string
 	Timestamp string
 }
 
+// Original has 12 suspects, for now I plan 15.
+// Do not know how to make the array in more elegant way.
+// This ugly shit works - for now.
 const createInvestigationsTable = `
 	CREATE TABLE IF NOT EXISTS investigations (
 		uuid TEXT PRIMARY KEY,
 		game_uuid TEXT,
-		timestamp TEXT
+		timestamp TEXT,
+		criminal_uuid TEXT,
+		sus1_uuid TEXT,
+		sus2_uuid TEXT,
+		sus3_uuid TEXT,
+		sus4_uuid TEXT,
+		sus5_uuid TEXT,
+		sus6_uuid TEXT,
+		sus7_uuid TEXT,
+		sus8_uuid TEXT,
+		sus9_uuid TEXT,
+		sus10_uuid TEXT,
+		sus11_uuid TEXT,
+		sus12_uuid TEXT,
+		sus13_uuid TEXT,
+		sus14_uuid TEXT,
+		sus15_uuid TEXT
 	);`
 
-func saveInvestigation(i Investigation) error {
-	query := `INSERT OR REPLACE INTO investigations (uuid, game_uuid, timestamp) VALUES (?, ?, ?)`
-	_, err := database.Exec(query, i.UUID, i.GameUUID, i.Timestamp)
-	return err
+func saveInvestigation(investigation Investigation) error {
+	if len(investigation.Suspects) != 15 {
+		err := fmt.Errorf("Investigation does not have 15 suspects, has %d", (len(investigation.Suspects)))
+		log.Printf("Cannot save investigation: %v\n", err)
+		return err
+	}
+
+	query := `INSERT OR REPLACE INTO investigations
+		(uuid, game_uuid, timestamp,
+		sus1_uuid,
+		sus2_uuid,
+		sus3_uuid,
+		sus4_uuid,
+		sus5_uuid,
+		sus6_uuid,
+		sus7_uuid,
+		sus8_uuid,
+		sus9_uuid,
+		sus10_uuid,
+		sus11_uuid,
+		sus12_uuid,
+		sus13_uuid,
+		sus14_uuid,
+		sus15_uuid,
+		criminal_uuid
+		)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := database.Exec(query, investigation.UUID, investigation.GameUUID, investigation.Timestamp,
+		investigation.Suspects[0].UUID,
+		investigation.Suspects[1].UUID,
+		investigation.Suspects[2].UUID,
+		investigation.Suspects[3].UUID,
+		investigation.Suspects[4].UUID,
+		investigation.Suspects[5].UUID,
+		investigation.Suspects[6].UUID,
+		investigation.Suspects[7].UUID,
+		investigation.Suspects[8].UUID,
+		investigation.Suspects[9].UUID,
+		investigation.Suspects[10].UUID,
+		investigation.Suspects[11].UUID,
+		investigation.Suspects[12].UUID,
+		investigation.Suspects[13].UUID,
+		investigation.Suspects[14].UUID,
+		investigation.Criminal,
+	)
+	if err != nil {
+		log.Printf("Could not save investigation: %v", err)
+		return err
+	}
+
+	return nil
 }
 
 // Create a new Investigation, save it into the database and return it.
@@ -382,7 +448,9 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 		return i, err
 	}
 	i.Suspects = suspects
-	i.Criminal = rand.Intn(len(suspects))
+
+	cn := rand.Intn(len(suspects))
+	i.Criminal = i.Suspects[cn].UUID
 
 	err = saveInvestigation(i)
 	return i, err
