@@ -181,14 +181,14 @@ var QS = []Question{
 	{Text: "Is the suspect a leftist?", Topic: "political", Level: 1},
 }
 
-func InitQuestionsTable(db *sql.DB) error {
-	_, err := db.Exec(createQuestionsTable)
+func InitQuestionsTable() error {
+	_, err := database.Exec(createQuestionsTable)
 	if err != nil {
 		return err
 	}
 
 	for i := range QS {
-		err := SaveQuestion(db, QS[i])
+		err := SaveQuestion(QS[i])
 		if err != nil {
 			log.Println("Cannot initialize question:", err)
 			return err
@@ -198,10 +198,10 @@ func InitQuestionsTable(db *sql.DB) error {
 	return nil
 }
 
-func SaveQuestion(db *sql.DB, q Question) error {
+func SaveQuestion(q Question) error {
 	var exists bool
 	checkQuery := "SELECT EXISTS(SELECT 1 FROM questions WHERE question = ?)"
-	err := db.QueryRow(checkQuery, q.Text).Scan(&exists)
+	err := database.QueryRow(checkQuery, q.Text).Scan(&exists)
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func SaveQuestion(db *sql.DB, q Question) error {
 
 	UUID := uuid.New().String()
 	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
-	_, err = db.Exec(query, UUID, q.Text, q.Topic, q.Level)
+	_, err = database.Exec(query, UUID, q.Text, q.Topic, q.Level)
 	return err
 }
 
@@ -253,19 +253,19 @@ func EnsureDBAvailable() error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	database = db // setting to global variable
 
-	err = initDB(db)
+	err = initDB()
 	if err != nil {
 		return err
 	}
 
-	database = db // setting to global variable
 	fmt.Println("Database prepared and available!")
 
 	return nil
 }
 
-func initDB(db *sql.DB) error {
+func initDB() error {
 	var tables = []string{
 		createSuspectsTable,
 		createGamesTable,
@@ -274,13 +274,13 @@ func initDB(db *sql.DB) error {
 		createEliminationsTable,
 	}
 	for i := range tables {
-		_, err := db.Exec(tables[i])
+		_, err := database.Exec(tables[i])
 		if err != nil {
 			fmt.Printf("Error initializing table: '%s', error: %v", tables[i], err)
 			return err
 		}
 	}
-	err := InitQuestionsTable(db)
+	err := InitQuestionsTable()
 
 	return err
 }
@@ -366,10 +366,7 @@ func getGame() ([]*Game, error) {
 }
 
 func saveGame(game Game) error {
-	query := `
-		INSERT INTO games (uuid, timestamp)
-		VALUES (?, ?)
-		`
+	query := `INSERT INTO games (uuid, timestamp)VALUES (?, ?)`
 	_, err := database.Exec(query, game.UUID, game.Timestamp)
 	return err
 }
@@ -394,6 +391,15 @@ const createInvestigationsTable = `
 		timestamp TEXT
 	);`
 
+func saveInvestigation(i Investigation) error {
+	query := `INSERT OR REPLACE INTO investigations (uuid, game_uuid, timestamp) VALUES (?, ?, ?)`
+	_, err := database.Exec(query, i.UUID, i.GameUUID, i.Timestamp)
+	return err
+}
+
+// Create a new Investigation, save it into the database and return it.
+// Usage on New Game for initial first Investigation,
+// or when Investigation is successfully solved and we need new one.
 func newInvestigation(gameUUID string) (Investigation, error) {
 	var i Investigation
 	i.UUID = uuid.New().String()
@@ -414,13 +420,8 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 	i.Suspects = suspects
 	i.Criminal = rand.Intn(len(suspects))
 
+	err = saveInvestigation(i)
 	return i, err
-}
-
-func saveInvestigation(i Investigation) error {
-	query := `UPDATE posts (uuid, game_uuid, timestamp) VALUES (?, ?, ?)`
-	_, err := database.Exec(query, i.UUID, i.GameUUID, i.Timestamp)
-	return err
 }
 
 // MARK: ROUNDS
@@ -455,6 +456,7 @@ func newRound(investigationUUID string) (Round, error) {
 	r.Question = question.Text
 	r.QuestionUUID = question.UUID
 
+	err = saveRound(r)
 	return r, err
 }
 
