@@ -87,6 +87,8 @@ export namespace main {
 	    game_uuid: string;
 	    suspects: Suspect[];
 	    rounds: Round[];
+	    CriminalUUID: string;
+	    Timestamp: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Investigation(source);
@@ -98,6 +100,8 @@ export namespace main {
 	        this.game_uuid = source["game_uuid"];
 	        this.suspects = this.convertValues(source["suspects"], Suspect);
 	        this.rounds = this.convertValues(source["rounds"], Round);
+	        this.CriminalUUID = source["CriminalUUID"];
+	        this.Timestamp = source["Timestamp"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

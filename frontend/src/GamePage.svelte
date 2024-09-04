@@ -38,11 +38,13 @@
     }   
 </script>
 
-
 <button on:click={goToMenu}>Menu</button>
-<h1>{game.investigation.rounds[0].question}</h1>
+<h1>{game.investigation.rounds[0].question} '{game.investigation.rounds[0].answer}'</h1>
 <Suspects suspects={game.investigation.suspects} on:suspect_freeing={handleSuspectFreeing} />
-<button on:click={nextRound}>Next Question</button>
+
+<button on:click={nextRound} disabled={!game.investigation.rounds[0].Eliminations} aria-disabled="{!game.investigation.rounds[0].Eliminations ? 'true': 'false'}">
+    Next Question
+</button>
 
 <style>
 

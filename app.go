@@ -495,8 +495,8 @@ type Investigation struct {
 	GameUUID     string    `json:"game_uuid"`
 	Suspects     []Suspect `json:"suspects"`
 	Rounds       []Round   `json:"rounds"`
-	CriminalUUID string
-	Timestamp    string
+	CriminalUUID string    `json:"CriminalUUID"`
+	Timestamp    string    `json:"Timestamp"`
 }
 
 // Original has 12 suspects, for now I plan 15.
