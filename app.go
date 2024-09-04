@@ -263,22 +263,38 @@ const createSuspectsTable = `
 		timestamp TEXT
 	);`
 
+// TODO: Load this from the files at the src/suspects.
 var defaultSuspects = []Suspect{
-	{UUID: "001", Image: "1.jpg"},
-	{UUID: "002", Image: "2.jpg"},
-	{UUID: "003", Image: "3.jpg"},
-	{UUID: "004", Image: "4.jpg"},
-	{UUID: "005", Image: "5.jpg"},
-	{UUID: "006", Image: "6.jpg"},
-	{UUID: "007", Image: "7.jpg"},
-	{UUID: "008", Image: "8.jpg"},
-	{UUID: "009", Image: "9.jpg"},
-	{UUID: "010", Image: "10.jpg"},
-	{UUID: "011", Image: "11.jpg"},
-	{UUID: "012", Image: "12.jpg"},
-	{UUID: "013", Image: "13.jpg"},
-	{UUID: "014", Image: "14.jpg"},
-	{UUID: "015", Image: "15.jpg"},
+	{Image: "1.jpg"},
+	{Image: "2.jpg"},
+	{Image: "3.jpg"},
+	{Image: "4.jpg"},
+	{Image: "5.jpg"},
+	{Image: "6.jpg"},
+	{Image: "7.jpg"},
+	{Image: "8.jpg"},
+	{Image: "9.jpg"},
+	{Image: "10.jpg"},
+	{Image: "11.jpg"},
+	{Image: "12.jpg"},
+	{Image: "13.jpg"},
+	{Image: "14.jpg"},
+	{Image: "15.jpg"},
+	{Image: "16.jpg"},
+	{Image: "17.jpg"},
+	{Image: "18.jpg"},
+	{Image: "19.jpg"},
+	{Image: "20.jpg"},
+	{Image: "21.jpg"},
+	{Image: "22.jpg"},
+	{Image: "23.jpg"},
+	{Image: "24.jpg"},
+	{Image: "25.jpg"},
+	{Image: "26.jpg"},
+	{Image: "27.jpg"},
+	{Image: "28.jpg"},
+	{Image: "29.jpg"},
+	{Image: "30.jpg"},
 }
 
 func InitSuspectsTable() error {
@@ -320,6 +336,33 @@ func SaveSuspect(suspect Suspect) error {
 	}
 
 	return nil
+}
+
+// Get the basic suspect data from the Database without Suspect.Free field!
+func getSuspect(suspectUUID string) (Suspect, error) {
+	var suspect Suspect
+	row := database.QueryRow("SELECT uuid, image, timestamp FROM suspects WHERE uuid = $1 LIMIT 1", suspectUUID)
+	err := row.Scan(&suspect.UUID, &suspect.Image, &suspect.Timestamp)
+	if err != nil {
+		log.Printf("Could not load Suspect (%s): %v", suspectUUID, err)
+		return suspect, err
+	}
+
+	return suspect, nil
+}
+
+func getSuspects(suspectUUIDs []string) ([]Suspect, error) {
+	var suspects []Suspect
+	var err error
+	for x := range suspectUUIDs {
+		var suspect Suspect
+		suspect, err = getSuspect(suspectUUIDs[x])
+		if err != nil {
+			log.Printf("Error iterating over suspects: %v", err)
+		}
+		suspects = append(suspects, suspect)
+	}
+	return suspects, err
 }
 
 // DUMMY for now
@@ -418,13 +461,12 @@ func saveGame(game Game) error {
 
 // Investigation is a set of X Suspects, User needs to find a Criminal among them.
 type Investigation struct {
-	UUID      string    `json:"uuid"`
-	GameUUID  string    `json:"game_uuid"`
-	Suspects  []Suspect `json:"suspects"`
-	Level     int       `json:"level"` // but can be taken from len of Rounds
-	Rounds    []Round   `json:"rounds"`
-	Criminal  string
-	Timestamp string
+	UUID         string    `json:"uuid"`
+	GameUUID     string    `json:"game_uuid"`
+	Suspects     []Suspect `json:"suspects"`
+	Rounds       []Round   `json:"rounds"`
+	CriminalUUID string
+	Timestamp    string
 }
 
 // Original has 12 suspects, for now I plan 15.
@@ -496,7 +538,7 @@ func saveInvestigation(investigation Investigation) error {
 		investigation.Suspects[12].UUID,
 		investigation.Suspects[13].UUID,
 		investigation.Suspects[14].UUID,
-		investigation.Criminal,
+		investigation.CriminalUUID,
 	)
 	if err != nil {
 		log.Printf("Could not save investigation: %v", err)
@@ -514,7 +556,6 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 	i.UUID = uuid.New().String()
 	i.GameUUID = gameUUID
 	i.Timestamp = time.Now().String()
-	i.Level = 1
 
 	round, err := newRound(i.UUID)
 	if err != nil {
@@ -529,7 +570,7 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 	i.Suspects = suspects
 
 	cn := rand.Intn(len(suspects))
-	i.Criminal = i.Suspects[cn].UUID
+	i.CriminalUUID = i.Suspects[cn].UUID
 
 	err = saveInvestigation(i)
 	return i, err
@@ -537,11 +578,49 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 
 func getCurrentInvestigation(gameUUID string) (Investigation, error) {
 	var investigation = Investigation{GameUUID: gameUUID}
+	var suspects_uuids = make([]string, 15)
 	log.Printf("Getting investigation for game %s\n", gameUUID)
-	row := database.QueryRow("SELECT uuid, timestamp FROM investigations WHERE game_uuid = $1 ORDER BY timestamp DESC LIMIT 1", gameUUID)
-	err := row.Scan(&investigation.UUID, &investigation.Timestamp)
+	row := database.QueryRow(`SELECT uuid, timestamp, criminal_uuid,
+		sus1_uuid,
+		sus2_uuid,
+		sus3_uuid,
+		sus4_uuid,
+		sus5_uuid,
+		sus6_uuid,
+		sus7_uuid,
+		sus8_uuid,
+		sus9_uuid,
+		sus10_uuid,
+		sus11_uuid,
+		sus12_uuid,
+		sus13_uuid,
+		sus14_uuid,
+		sus15_uuid
+		FROM investigations WHERE game_uuid = $1 ORDER BY timestamp DESC LIMIT 1`, gameUUID)
+	err := row.Scan(&investigation.UUID, &investigation.Timestamp, &investigation.CriminalUUID,
+		&suspects_uuids[0],
+		&suspects_uuids[1],
+		&suspects_uuids[2],
+		&suspects_uuids[3],
+		&suspects_uuids[4],
+		&suspects_uuids[5],
+		&suspects_uuids[6],
+		&suspects_uuids[7],
+		&suspects_uuids[8],
+		&suspects_uuids[9],
+		&suspects_uuids[10],
+		&suspects_uuids[11],
+		&suspects_uuids[12],
+		&suspects_uuids[13],
+		&suspects_uuids[14],
+	)
 	if err != nil {
 		log.Printf("Could not get investigation: %v\n", err)
+		return investigation, err
+	}
+
+	investigation.Suspects, err = getSuspects(suspects_uuids)
+	if err != nil {
 		return investigation, err
 	}
 

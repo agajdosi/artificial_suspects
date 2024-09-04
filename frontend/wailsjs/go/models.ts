@@ -38,7 +38,6 @@ export namespace main {
 	    uuid: string;
 	    game_uuid: string;
 	    suspects: Suspect[];
-	    level: number;
 	    rounds: Round[];
 	
 	    static createFrom(source: any = {}) {
@@ -50,7 +49,6 @@ export namespace main {
 	        this.uuid = source["uuid"];
 	        this.game_uuid = source["game_uuid"];
 	        this.suspects = this.convertValues(source["suspects"], Suspect);
-	        this.level = source["level"];
 	        this.rounds = this.convertValues(source["rounds"], Round);
 	    }
 	
