@@ -7,7 +7,7 @@
 
 <div class="suspects">
     {#each suspects as suspect}
-        <Suspect suspect={suspect} on:message />
+        <Suspect suspect={suspect} on:suspect_freeing />
     {/each}
 </div>
 

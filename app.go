@@ -25,7 +25,7 @@ const (
 	numSuspect        = 15 // How many suspects are in one investigation - there were 12 in original board game.
 )
 
-// MARK: APP
+// MARK: APP HANDLERS
 
 // App struct
 type App struct {
@@ -84,8 +84,15 @@ func (a *App) GetAnswerFromAI() bool {
 }
 
 // User selected suspect to be freed.
-func (a *App) FreeSuspect(uuid string) bool {
-	fmt.Printf("Freeing suspect: %s\n", uuid)
+func (a *App) FreeSuspect(suspectUUID, roundUUID string) bool {
+	fmt.Printf("Freeing suspect: %s\n", suspectUUID)
+	err := saveElimination(suspectUUID, roundUUID)
+	if err != nil {
+		log.Printf("FreeSuspect() error: %v\n", err)
+	}
+
+	// TODO: check if released Suspect weren't a Criminal
+
 	return rand.Intn(2) == 1
 }
 
@@ -247,12 +254,13 @@ func initDB() error {
 	return nil
 }
 
-// MARK: SUSPECTS
+// MARK: SUSPECT
 
 type Suspect struct {
 	UUID      string `json:"UUID"`
 	Image     string `json:"Image"`
 	Free      bool   `json:"Free"`
+	Fled      bool   `json:"Fled"`
 	Timestamp string `json:"Timestamp"`
 }
 
@@ -339,6 +347,7 @@ func SaveSuspect(suspect Suspect) error {
 }
 
 // Get the basic suspect data from the Database without Suspect.Free field!
+// Because Suspect.Free and Suspect.Fled needs information from table Investigation->Rounds->Eliminations.
 func getSuspect(suspectUUID string) (Suspect, error) {
 	var suspect Suspect
 	row := database.QueryRow("SELECT uuid, image, timestamp FROM suspects WHERE uuid = $1 LIMIT 1", suspectUUID)
@@ -351,8 +360,20 @@ func getSuspect(suspectUUID string) (Suspect, error) {
 	return suspect, nil
 }
 
-func getSuspects(suspectUUIDs []string) ([]Suspect, error) {
+// Get all Suspects and their complete data for specified Investigation.
+// It needs Investigation because we need to iterate over its Rounds and Rounds' Eliminations
+// to set Suspect.Free and Suspect.Fled booleans.
+func getSuspects(suspectUUIDs []string, investigation Investigation) ([]Suspect, error) {
 	var suspects []Suspect
+	eliminatedSuspectUUIDs := make(map[string]struct{})
+	for i := range investigation.Rounds {
+		round := investigation.Rounds[i]
+		for x := range round.Eliminations {
+			elimination := round.Eliminations[x]
+			eliminatedSuspectUUIDs[elimination.SuspectUUID] = struct{}{}
+		}
+	}
+
 	var err error
 	for x := range suspectUUIDs {
 		var suspect Suspect
@@ -360,12 +381,21 @@ func getSuspects(suspectUUIDs []string) ([]Suspect, error) {
 		if err != nil {
 			log.Printf("Error iterating over suspects: %v", err)
 		}
+
+		if _, found := eliminatedSuspectUUIDs[suspect.UUID]; found {
+			if suspect.UUID == investigation.CriminalUUID {
+				suspect.Fled = true
+			} else {
+				suspect.Free = true
+			}
+		}
+
 		suspects = append(suspects, suspect)
 	}
+
 	return suspects, err
 }
 
-// DUMMY for now
 func randomSuspects() ([]Suspect, error) {
 	var suspects []Suspect
 	rows, err := database.Query("SELECT uuid, image, timestamp FROM suspects ORDER BY RANDOM() LIMIT $1", numSuspect)
@@ -619,12 +649,12 @@ func getCurrentInvestigation(gameUUID string) (Investigation, error) {
 		return investigation, err
 	}
 
-	investigation.Suspects, err = getSuspects(suspects_uuids)
+	investigation.Rounds, err = getRounds(investigation.UUID)
 	if err != nil {
 		return investigation, err
 	}
 
-	investigation.Rounds, err = getRounds(investigation.UUID)
+	investigation.Suspects, err = getSuspects(suspects_uuids, investigation)
 	if err != nil {
 		return investigation, err
 	}
@@ -632,15 +662,17 @@ func getCurrentInvestigation(gameUUID string) (Investigation, error) {
 	return investigation, nil
 }
 
-// MARK: ROUNDS
+// MARK: ROUND
 
 type Round struct {
-	UUID              string `json:"uuid"`
-	InvestigationUUID string
-	QuestionUUID      string
-	Question          string `json:"question"` // TODO: Question could be actually the whole object
-	Answer            string `json:"answer"`   // TODO: Answer could be actually stored in table
-	Timestamp         string
+	UUID              string        `json:"uuid"`
+	InvestigationUUID string        `json:"InvestigationUUID"`
+	QuestionUUID      string        `json:"QuestionUUID"`
+	Question          string        `json:"question"` // TODO: Question could be actually the whole object
+	AnswerUUID        string        `json:"AnswerUUID"`
+	Answer            string        `json:"answer"` // TODO: Answer could be actually stored in table
+	Eliminations      []Elimination `json:"Eliminations"`
+	Timestamp         string        `json:"Timestamp"`
 }
 
 const createRoundsTable = `
@@ -699,8 +731,15 @@ func getRounds(investigationUUID string) ([]Round, error) {
 		question, err := getQuestion(round.QuestionUUID)
 		if err != nil {
 			log.Printf("Could not get question text for question_uuid=%s: %v", round.QuestionUUID, err)
+			return rounds, err
 		}
 		round.Question = question.Text
+
+		round.Eliminations, err = getEliminationsForRound(round.UUID)
+		if err != nil {
+			log.Printf("Could not get Eliminations for Round (%s): %v\n", round.UUID, err)
+			return rounds, err
+		}
 
 		rounds = append(rounds, round)
 	}
@@ -715,28 +754,63 @@ func getRounds(investigationUUID string) ([]Round, error) {
 	return rounds, nil
 }
 
-// MARK: ELIMINATIONS
+// MARK: ELIMINATION
 
 type Elimination struct {
-	UUID        string `json:"uuid"`
-	RoundUUID   string
-	SuspectUUID string `json:"suspectUUID"`
-	Timestamp   string
+	UUID        string `json:"UUID"`
+	RoundUUID   string `json:"RoundUUID"`
+	SuspectUUID string `json:"SuspectUUID"`
+	Timestamp   string `json:"Timestamp"`
 }
 
 const createEliminationsTable = `
 	CREATE TABLE IF NOT EXISTS eliminations (
-		uuid TEXT PRIMARY KEY,
-		round_uuid TEXT,
-		suspect_uuid TEXT,
-		timestamp TEXT
+		UUID TEXT PRIMARY KEY,
+		RoundUUID TEXT,
+		SuspectUUID TEXT,
+		Timestamp TEXT
 	);`
 
-func saveElimination(e Elimination) error {
-	query := `
-		INSERT OR REPLACE INTO eliminations (uuid, round_uuid, suspect_uuid, timestamp)
-		VALUES (?, ?, ?, ?, ?)
-		`
-	_, err := database.Exec(query, e.UUID, e.RoundUUID, e.SuspectUUID, e.Timestamp)
-	return err
+func saveElimination(suspectUUID, roundUUID string) error {
+	UUID := uuid.New().String()
+	timestamp := time.Now().Format(TimeFormat)
+	query := `INSERT OR REPLACE INTO eliminations (UUID, RoundUUID, SuspectUUID, Timestamp) VALUES (?, ?, ?, ?)`
+	_, err := database.Exec(query, UUID, roundUUID, suspectUUID, timestamp)
+	if err != nil {
+		log.Printf("Could not save elimination of Suspect (%s) on Round (%s): %v\n", suspectUUID, roundUUID, err)
+		return err
+	}
+	return nil
+}
+
+func getEliminationsForRound(roundUUID string) ([]Elimination, error) {
+	var eliminations []Elimination
+	log.Printf("Getting Eliminations for Round (%s)\n", roundUUID)
+
+	rows, err := database.Query("SELECT UUID, RoundUUID, SuspectUUID, Timestamp FROM eliminations WHERE RoundUUID = $1 ORDER BY timestamp DESC", roundUUID)
+	if err != nil {
+		log.Printf("Could not get Eliminations: %v\n", err)
+		return eliminations, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var elimination Elimination
+		err := rows.Scan(&elimination.UUID, &elimination.RoundUUID, &elimination.SuspectUUID, &elimination.Timestamp)
+		if err != nil {
+			log.Printf("Could not scan Elimination: %v\n", err)
+			return eliminations, err
+		}
+
+		eliminations = append(eliminations, elimination)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error during Eliminations rows iteration: %v\n", err)
+		return eliminations, err
+	}
+
+	fmt.Println("GOT ELIMINATIONS:", eliminations)
+
+	return eliminations, nil
 }

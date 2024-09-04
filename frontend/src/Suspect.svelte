@@ -1,6 +1,8 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { FreeSuspect } from '../wailsjs/go/main/App.js';
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
+
     export let suspect: main.Suspect;
 
     const imgDir: string = 'src/assets/images/suspects/';
@@ -9,29 +11,16 @@
 
     async function selected() {
         if (isFree) return;
-
-        try {
-            const isInnocent = await FreeSuspect(suspect.UUID);
-            if (isInnocent) {
-                isFree = true;
-                console.log(`Suspect ${suspect.UUID} freed`);
-                return;
-            }
-            fled = true;
-            console.log(`Criminal ${suspect.UUID} released`);
-            return;
-        } catch (error) {
-            console.error(`Failed to free suspect ${suspect.UUID}:`, error);
-        }
+        dispatch('suspect_freeing', { 'suspect': suspect });
     }
 </script>
 
 <div 
-    class="suspect {isFree ? 'free' : ''} {fled ? 'fled' : ''}"
+    class="suspect {suspect.Free ? 'free' : ''} {suspect.Fled ? 'fled' : ''}"
     id={suspect.UUID} 
     on:click={selected}
     on:keydown={selected}
-    aria-disabled={isFree}
+    aria-disabled={suspect.Free || suspect.Fled}
 >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>
