@@ -2,9 +2,10 @@
     import GamePage from './GamePage.svelte'
     import HomePage from './HomePage.svelte'
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
+    import { main } from '../wailsjs/go/models';
 
     let currentScreen = 'home'; // State to track the current screen
-    let game;
+    let game: main.Game;
 
     async function handleMessage(event) {
         console.log(event)
@@ -26,6 +27,7 @@
             }
             console.log(game)
             currentScreen = 'game'
+            return
         } else if (message === 'goToHome') {
             currentScreen = 'home';
             return
