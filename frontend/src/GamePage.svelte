@@ -16,7 +16,6 @@
     async function nextRound() {
         try {
                 game = await NextLevel();
-
             } catch (error) {
                 console.log(`NewGame() has failed: ${error}`)
             }
@@ -24,21 +23,18 @@
 
     async function handleSuspectFreeing(event) {
         const { suspect } = event.detail;
-        console.log("Freeing suspect:", suspect)
-
         try {
             const isInnocent = await FreeSuspect(suspect.UUID, game.investigation.rounds[0].uuid);
             if (isInnocent) {
-                console.log(`Suspect ${suspect.UUID} freed`);
+                console.log(`Eliminated Suspect ${suspect.UUID}`);
             } else {
-                console.log(`Criminal ${suspect.UUID} released`);
+                console.log(`Eliminated Criminal ${suspect.UUID}`);
             }
         } catch (error) {
             console.error(`Failed to free suspect ${suspect.UUID}:`, error);
         }
 
         game = await GetGame();
-        console.log("GOT GAME:", game)
     }   
 </script>
 

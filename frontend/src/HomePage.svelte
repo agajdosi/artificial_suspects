@@ -4,9 +4,9 @@
 
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
-    function newGame() {
-        dispatch('message', { message: 'goToGame' });
-    }
+    
+    function newGame() {dispatch('message', { message: 'newGame' });}
+    function continueGame() {dispatch('message', { message: 'continueGame' });}
 
     async function getGame(){
         let game: main.Game
@@ -24,7 +24,7 @@
 
 <div class="menu">
     <button on:click={newGame}>NEW GAME</button>
-    <button>CONTINUE GAME</button>
+    <button on:click={continueGame}>CONTINUE GAME</button>
     <button on:click={getGame}>GET GAME</button>
 </div>
 
