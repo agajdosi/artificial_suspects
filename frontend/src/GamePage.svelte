@@ -38,11 +38,17 @@
     function newGame() {dispatch('message', { message: 'newGame' });}
 </script>
 
-<button on:click={goToMenu}>Menu</button>
+<div class="header">
+    <button on:click={goToMenu}>Menu</button>
+</div>
 
 <div class="top">
-    <div>{game.investigation.rounds.at(-1).question}</div>
-    <div>'{game.investigation.rounds.at(-1).answer}'</div>
+    <div class="question">{game.investigation.rounds.at(-1).question}</div>
+    {#if game.investigation.rounds.at(-1).answer != "" }
+        <div>{game.investigation.rounds.at(-1).answer}</div>
+    {:else}
+        <div class="answer">💭</div>
+    {/if}
 </div>
 
 <div class="middle">
@@ -80,12 +86,18 @@
 </div>
 
 <style>
+
+.header {
+    display: flex;
+    justify-content: right;
+}
+
 .top {
     width: 100vw;
     display: flex;
     gap: 2rem;
     padding: 0.5rem 0 0 0;
-    justify-content: center;
+    justify-content: left;
     font-size: 2rem;
 }
 
@@ -96,6 +108,7 @@
     padding: 2rem 0;
 }
 .right {
+    padding: 2rem 0 0 0;
     width: 100%;
     display: flex;
     flex-direction: column;
