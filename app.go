@@ -118,46 +118,13 @@ func GetRandomQuestion() (Question, error) {
 	return question, err
 }
 
-var QS = []Question{
-	{Text: "1?", Topic: "food", Level: 1},
-	{Text: "2?", Topic: "food", Level: 1},
-	{Text: "3?", Topic: "food", Level: 1},
-	{Text: "4?", Topic: "food", Level: 1},
-	{Text: "5?", Topic: "food", Level: 1},
-	{Text: "6?", Topic: "food", Level: 1},
-	{Text: "7?", Topic: "food", Level: 1},
-	{Text: "8?", Topic: "food", Level: 1},
-	{Text: "9?", Topic: "food", Level: 1},
-	{Text: "10?", Topic: "food", Level: 1},
-	{Text: "11?", Topic: "food", Level: 1},
-	{Text: "12?", Topic: "food", Level: 1},
-	{Text: "13?", Topic: "food", Level: 1},
-	{Text: "14?", Topic: "food", Level: 1},
-	{Text: "15?", Topic: "food", Level: 1},
-	{Text: "16?", Topic: "food", Level: 1},
-	{Text: "17?", Topic: "food", Level: 1},
-	{Text: "18?", Topic: "food", Level: 1},
-	{Text: "19?", Topic: "food", Level: 1},
-	{Text: "20?", Topic: "food", Level: 1},
-	{Text: "21?", Topic: "food", Level: 1},
-	{Text: "22?", Topic: "food", Level: 1},
-	{Text: "23?", Topic: "food", Level: 1},
-	{Text: "24?", Topic: "food", Level: 1},
-	{Text: "25?", Topic: "food", Level: 1},
-	{Text: "26?", Topic: "food", Level: 1},
-	{Text: "27?", Topic: "food", Level: 1},
-	{Text: "28?", Topic: "food", Level: 1},
-	{Text: "29?", Topic: "food", Level: 1},
-}
-
 func InitQuestionsTable() error {
 	_, err := database.Exec(createQuestionsTable)
 	if err != nil {
 		return err
 	}
-
-	for i := range QS {
-		err := SaveQuestion(QS[i])
+	for i := range defaultQuestions {
+		err := SaveQuestion(defaultQuestions[i])
 		if err != nil {
 			log.Println("Cannot initialize Question:", err)
 			return err
@@ -293,40 +260,6 @@ const createSuspectsTable = `
 		image TEXT,
 		timestamp TEXT
 	);`
-
-// TODO: Load this from the files at the src/suspects.
-var defaultSuspects = []Suspect{
-	{Image: "1.jpg"},
-	{Image: "2.jpg"},
-	{Image: "3.jpg"},
-	{Image: "4.jpg"},
-	{Image: "5.jpg"},
-	{Image: "6.jpg"},
-	{Image: "7.jpg"},
-	{Image: "8.jpg"},
-	{Image: "9.jpg"},
-	{Image: "10.jpg"},
-	{Image: "11.jpg"},
-	{Image: "12.jpg"},
-	{Image: "13.jpg"},
-	{Image: "14.jpg"},
-	{Image: "15.jpg"},
-	{Image: "16.jpg"},
-	{Image: "17.jpg"},
-	{Image: "18.jpg"},
-	{Image: "19.jpg"},
-	{Image: "20.jpg"},
-	{Image: "21.jpg"},
-	{Image: "22.jpg"},
-	{Image: "23.jpg"},
-	{Image: "24.jpg"},
-	{Image: "25.jpg"},
-	{Image: "26.jpg"},
-	{Image: "27.jpg"},
-	{Image: "28.jpg"},
-	{Image: "29.jpg"},
-	{Image: "30.jpg"},
-}
 
 func InitSuspectsTable() error {
 	_, err := database.Exec(createSuspectsTable)
