@@ -84,10 +84,30 @@ func (a *App) NextRound() Game {
 
 // Wait until the Answer from AI is present in the database.
 // TODO: implement the actuall retrieval from the DB.
-func (a *App) WaitForAnswer(questionUUID string) string {
-	time.Sleep(5 * time.Second)
+func (a *App) WaitForAnswer(roundUUID string) string {
+	pollInterval := 2 * time.Second
+	timeout := 30 * time.Second
+	start := time.Now()
+	for {
+		if time.Since(start) > timeout {
+			log.Printf("timed out waiting for answer to be available on Round (%s)\n", roundUUID)
+			return ""
+		}
 
-	return "yes"
+		var answer string
+		err := database.QueryRow("SELECT answer FROM rounds WHERE uuid = $1", roundUUID).Scan(&answer)
+		if err == sql.ErrNoRows {
+			log.Printf("Answer not available yet for Round (%s). Retrying...\n", roundUUID)
+		} else if err != nil {
+			log.Printf("Error querying answer for Round (%s), err: %v\n", roundUUID, err)
+			return ""
+		} else {
+			return answer
+		}
+
+		// Wait for the polling interval before checking again
+		time.Sleep(pollInterval)
+	}
 }
 
 // User selected suspect to be freed.

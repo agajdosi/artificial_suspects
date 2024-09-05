@@ -5,10 +5,9 @@
     import History from './History.svelte';
 
     export let game: main.Game;
-    let answerPromise: Promise<string>
+    let lastRoundUUID: string;
     let answerIsLoading: boolean;
     let answer: string;
-    let lastQuestionUUID: string;
     let hint: string = "hint...";  // TODO: capture hints
 
     // HOME BUTTON
@@ -39,10 +38,10 @@
         console.log(`GAME OVER: ${game.GameOver}`);
     }
 
-    async function LoadAnswer(questionUUID: string) {
+    async function LoadAnswer(roundUUID: string) {
         answerIsLoading = true;
         try {
-            answer = await WaitForAnswer(questionUUID);
+            answer = await WaitForAnswer(roundUUID);
         } catch (error) {
             console.error("Failed to get the answer:", error);
             answer = "Error fetching answer";
@@ -53,10 +52,10 @@
 
     // Run when ...rounds.at(-1).QuestionUUID changes
     $: if (game.investigation.rounds) {
-        const currentQuestionUUID = game.investigation.rounds.at(-1).QuestionUUID;
-        if (currentQuestionUUID !== lastQuestionUUID) {
-            lastQuestionUUID = currentQuestionUUID;
-            LoadAnswer(currentQuestionUUID)
+        const currentRoundUUID = game.investigation.rounds.at(-1).uuid;
+        if (currentRoundUUID !== lastRoundUUID) {
+            lastRoundUUID = currentRoundUUID;
+            LoadAnswer(currentRoundUUID)
         }
     }
     
