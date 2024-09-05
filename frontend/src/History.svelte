@@ -4,7 +4,7 @@
     export let game: main.Game;
 </script>
 
-{#each [...game.investigation.rounds].reverse() as round}
+{#each [...game.investigation.rounds].reverse().slice(1) as round}
     <div>
         "{round.question}" - "{round.answer}"
     </div>
