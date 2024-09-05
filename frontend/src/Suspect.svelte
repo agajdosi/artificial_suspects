@@ -15,12 +15,12 @@
 </script>
 
 <div 
-class="suspect {suspect.Free ? 'free' : ''} {suspect.Fled ? 'fled' : ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
-id={suspect.UUID} 
-on:click={selected}
-on:keydown={selected}
-aria-disabled={suspect.Free || suspect.Fled || gameOver}
->
+    class="suspect {suspect.Free ? 'free' : ''} {suspect.Fled ? 'fled' : ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
+    id={suspect.UUID}
+    on:click={selected}
+    on:keydown={selected}
+    aria-disabled={suspect.Free || suspect.Fled || gameOver}
+    >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>
 
