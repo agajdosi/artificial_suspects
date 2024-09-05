@@ -5,17 +5,18 @@
 
     export let suspect: main.Suspect;
     export let gameOver: boolean;
+    export let answerIsLoading: boolean;
 
     const imgDir: string = 'src/assets/images/suspects/';
 
     async function selected() {
-        if (suspect.Free || suspect.Fled || gameOver) return;
+        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading) return;
         dispatch('suspect_freeing', { 'suspect': suspect });
     }
 </script>
 
 <div 
-    class="suspect {suspect.Free ? 'free' : ''} {suspect.Fled ? 'fled' : ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
+    class="suspect {suspect.Free ? 'free':''} {suspect.Fled ? 'fled':''} {answerIsLoading ? 'waiting' : ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
     id={suspect.UUID}
     on:click={selected}
     on:keydown={selected}
@@ -32,6 +33,10 @@
         margin: 1%;
         cursor: pointer;
         transition: opacity 0.3s ease, filter 0.3s ease;
+    }
+
+    .waiting {
+        cursor:progress;
     }
 
     .suspect.free .suspect-image {

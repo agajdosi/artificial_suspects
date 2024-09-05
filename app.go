@@ -73,16 +73,21 @@ func (a *App) NextRound() Game {
 	if err != nil {
 		log.Printf("NextRound() could not get new Round: %v\n", err)
 	}
+	go GetAnswerFromAI(round.Question, round.QuestionUUID, game.Investigation.CriminalUUID)
 
 	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
 	game.Level++
+
 	fmt.Printf("New Round %d: %s\n", game.Level, game.Investigation.Rounds[len(game.Investigation.Rounds)-1].Question)
 	return game
 }
 
-// Asks the AI whether it thinks the
-func (a *App) GetAnswerFromAI() bool {
-	return true
+// Wait until the Answer from AI is present in the database.
+// TODO: implement the actuall retrieval from the DB.
+func (a *App) WaitForAnswer(questionUUID string) string {
+	time.Sleep(5 * time.Second)
+
+	return "yes"
 }
 
 // User selected suspect to be freed.
@@ -92,80 +97,6 @@ func (a *App) FreeSuspect(suspectUUID, roundUUID string) {
 	if err != nil {
 		log.Printf("FreeSuspect() error: %v\n", err)
 	}
-}
-
-// MARK: QUESTION
-
-type Question struct {
-	UUID  string `json:"uuid"`
-	Text  string `json:"text"`
-	Topic string `json:"topic"`
-	Level int    `json:"level"`
-}
-
-var createQuestionsTable = `
-	CREATE TABLE IF NOT EXISTS questions (
-		uuid TEXT PRIMARY KEY,
-		question TEXT,
-		topic TEXT,
-		level INT
-	);`
-
-func GetRandomQuestion() (Question, error) {
-	var question Question
-	row := database.QueryRow("SELECT uuid, question, topic, level FROM questions ORDER BY RANDOM() LIMIT 1")
-	err := row.Scan(&question.UUID, &question.Text, &question.Topic, &question.Level)
-	return question, err
-}
-
-func InitQuestionsTable() error {
-	_, err := database.Exec(createQuestionsTable)
-	if err != nil {
-		return err
-	}
-	for i := range defaultQuestions {
-		err := SaveQuestion(defaultQuestions[i])
-		if err != nil {
-			log.Println("Cannot initialize Question:", err)
-			return err
-		}
-	}
-
-	return nil
-}
-
-func SaveQuestion(q Question) error {
-	var exists bool
-	checkQuery := "SELECT EXISTS(SELECT 1 FROM questions WHERE question = ?)"
-	err := database.QueryRow(checkQuery, q.Text).Scan(&exists)
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		return nil
-	}
-
-	UUID := uuid.New().String()
-	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
-	_, err = database.Exec(query, UUID, q.Text, q.Topic, q.Level)
-	if err != nil {
-		log.Printf("Could not save Question %s (%s): %v", q.Text, UUID, err)
-		return err
-	}
-
-	return nil
-}
-
-func getQuestion(questionUUID string) (Question, error) {
-	var question = Question{UUID: questionUUID}
-	row := database.QueryRow("SELECT question, topic, level FROM questions WHERE uuid = $1 LIMIT 1", questionUUID)
-	err := row.Scan(&question.Text, &question.Topic, &question.Level)
-	if err != nil {
-		log.Printf("Could not scan question (%s): %v", questionUUID, err)
-		return question, err
-	}
-	return question, nil
 }
 
 // MARK: DATABASE
@@ -788,4 +719,87 @@ func getEliminationsForRound(roundUUID string) ([]Elimination, error) {
 	fmt.Println("GOT ELIMINATIONS:", eliminations)
 
 	return eliminations, nil
+}
+
+// MARK: QUESTION
+
+type Question struct {
+	UUID  string `json:"uuid"`
+	Text  string `json:"text"`
+	Topic string `json:"topic"`
+	Level int    `json:"level"`
+}
+
+var createQuestionsTable = `
+	CREATE TABLE IF NOT EXISTS questions (
+		uuid TEXT PRIMARY KEY,
+		question TEXT,
+		topic TEXT,
+		level INT
+	);`
+
+func GetRandomQuestion() (Question, error) {
+	var question Question
+	row := database.QueryRow("SELECT uuid, question, topic, level FROM questions ORDER BY RANDOM() LIMIT 1")
+	err := row.Scan(&question.UUID, &question.Text, &question.Topic, &question.Level)
+	return question, err
+}
+
+func InitQuestionsTable() error {
+	_, err := database.Exec(createQuestionsTable)
+	if err != nil {
+		return err
+	}
+	for i := range defaultQuestions {
+		err := SaveQuestion(defaultQuestions[i])
+		if err != nil {
+			log.Println("Cannot initialize Question:", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func SaveQuestion(q Question) error {
+	var exists bool
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM questions WHERE question = ?)"
+	err := database.QueryRow(checkQuery, q.Text).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
+	}
+
+	UUID := uuid.New().String()
+	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
+	_, err = database.Exec(query, UUID, q.Text, q.Topic, q.Level)
+	if err != nil {
+		log.Printf("Could not save Question %s (%s): %v", q.Text, UUID, err)
+		return err
+	}
+
+	return nil
+}
+
+func getQuestion(questionUUID string) (Question, error) {
+	var question = Question{UUID: questionUUID}
+	row := database.QueryRow("SELECT question, topic, level FROM questions WHERE uuid = $1 LIMIT 1", questionUUID)
+	err := row.Scan(&question.Text, &question.Topic, &question.Level)
+	if err != nil {
+		log.Printf("Could not scan question (%s): %v", questionUUID, err)
+		return question, err
+	}
+	return question, nil
+}
+
+// MARK: ANSWER
+
+// Get the Answer to Question from the AI model and save it into the database.
+// Does not return anything, for retrieval App later uses WaitForAnswer().
+// TODO: actually implement this.
+func GetAnswerFromAI(question, questionUUID, criminalUUID string) {
+	fmt.Println(">>> GetAnswerFromAI called!")
 }

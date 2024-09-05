@@ -1,11 +1,15 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { NextRound, FreeSuspect, GetGame } from '../wailsjs/go/main/App.js';
-    import Suspects from './Suspects.svelte'
+    import { NextRound, FreeSuspect, GetGame, WaitForAnswer } from '../wailsjs/go/main/App.js';
+    import Suspects from './Suspects.svelte';
     import History from './History.svelte';
 
     export let game: main.Game;
-    let hint: string = "hint..."; // TODO: capture hints
+    let answerPromise: Promise<string>
+    let answerIsLoading: boolean;
+    let answer: string;
+    let lastQuestionUUID: string;
+    let hint: string = "hint...";  // TODO: capture hints
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
@@ -19,9 +23,9 @@
         try {
             game = await NextRound();
         } catch (error) {
-            console.log(`NextRound() has failed: ${error}`)
+            console.log(`NextRound() has failed: ${error}`);
         }
-        console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`)
+        console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`);
     }
 
     async function handleSuspectFreeing(event) {
@@ -34,8 +38,31 @@
         game = await GetGame();
         console.log(`GAME OVER: ${game.GameOver}`);
     }
+
+    async function LoadAnswer(questionUUID: string) {
+        answerIsLoading = true;
+        try {
+            answer = await WaitForAnswer(questionUUID);
+        } catch (error) {
+            console.error("Failed to get the answer:", error);
+            answer = "Error fetching answer";
+        } finally {
+            answerIsLoading = false;
+        }
+    }
+
+    // Run when ...rounds.at(-1).QuestionUUID changes
+    $: if (game.investigation.rounds) {
+        const currentQuestionUUID = game.investigation.rounds.at(-1).QuestionUUID;
+        if (currentQuestionUUID !== lastQuestionUUID) {
+            lastQuestionUUID = currentQuestionUUID;
+            LoadAnswer(currentQuestionUUID)
+        }
+    }
     
-    function newGame() {dispatch('message', { message: 'newGame' });}
+    function newGame() {
+        dispatch('message', { message: 'newGame' });
+    }
 </script>
 
 <div class="header">
@@ -44,16 +71,16 @@
 
 <div class="top">
     <div class="question">{game.investigation.rounds.at(-1).question}</div>
-    {#if game.investigation.rounds.at(-1).answer != "" }
-        <div>{game.investigation.rounds.at(-1).answer}</div>
+    {#if answerIsLoading}
+        <div class="waiting">...waiting for answer</div>
     {:else}
-        <div class="answer">💭</div>
+        <div class="answer">{answer}</div>
     {/if}
 </div>
 
 <div class="middle">
     <div class="left">
-        <Suspects suspects={game.investigation.suspects} gameOver={game.GameOver} on:suspect_freeing={handleSuspectFreeing} />
+        <Suspects suspects={game.investigation.suspects} gameOver={game.GameOver} {answerIsLoading} on:suspect_freeing={handleSuspectFreeing} />
 
         <div class="actions">
             {#if !game.GameOver }
@@ -86,7 +113,6 @@
 </div>
 
 <style>
-
 .header {
     display: flex;
     justify-content: right;

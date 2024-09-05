@@ -4,10 +4,10 @@ import {main} from '../models';
 
 export function FreeSuspect(arg1:string,arg2:string):Promise<void>;
 
-export function GetAnswerFromAI():Promise<boolean>;
-
 export function GetGame():Promise<main.Game>;
 
 export function NewGame():Promise<main.Game>;
 
 export function NextRound():Promise<main.Game>;
+
+export function WaitForAnswer(arg1:string):Promise<string>;
