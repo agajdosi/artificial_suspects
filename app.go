@@ -73,7 +73,7 @@ func (a *App) NextRound() Game {
 	if err != nil {
 		log.Printf("NextRound() could not get new Round: %v\n", err)
 	}
-	go GetAnswerFromAI(round.Question, round.QuestionUUID, game.Investigation.CriminalUUID)
+	go GetAnswerFromAI(round, game.Investigation.CriminalUUID)
 
 	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
 	game.Level++
@@ -343,6 +343,8 @@ func newGame() (Game, error) {
 	if err != nil {
 		return game, err
 	}
+
+	GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
 
 	return game, err
 }
@@ -800,6 +802,36 @@ func getQuestion(questionUUID string) (Question, error) {
 // Get the Answer to Question from the AI model and save it into the database.
 // Does not return anything, for retrieval App later uses WaitForAnswer().
 // TODO: actually implement this.
-func GetAnswerFromAI(question, questionUUID, criminalUUID string) {
+func GetAnswerFromAI(round Round, criminalUUID string) {
 	fmt.Println(">>> GetAnswerFromAI called!")
+	var answer string
+	n := rand.Intn(2)
+	if n%2 == 0 {
+		answer = "yes"
+	} else {
+		answer = "no"
+	}
+
+	fmt.Println("Answer is:", answer)
+	SaveAnswer(answer, round.UUID)
+}
+
+func SaveAnswer(answer, roundUUID string) error {
+	query := "UPDATE rounds SET answer = $1 WHERE uuid = $2"
+	result, err := database.Exec(query, answer, roundUUID)
+	if err != nil {
+		log.Printf("Error updating answer for round %s: %v", roundUUID, err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error fetching rows affected for round %s: %v", roundUUID, err)
+		return err
+	}
+	if rowsAffected == 0 {
+		log.Printf("No rows were updated for round %s", roundUUID)
+	}
+
+	return nil
 }
