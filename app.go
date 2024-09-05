@@ -86,16 +86,12 @@ func (a *App) GetAnswerFromAI() bool {
 }
 
 // User selected suspect to be freed.
-func (a *App) FreeSuspect(suspectUUID, roundUUID string) bool {
-	fmt.Printf("Freeing suspect: %s\n", suspectUUID)
+func (a *App) FreeSuspect(suspectUUID, roundUUID string) {
+	fmt.Printf(">>> Freeing suspect: %s\n", suspectUUID)
 	err := saveElimination(suspectUUID, roundUUID)
 	if err != nil {
 		log.Printf("FreeSuspect() error: %v\n", err)
 	}
-
-	// TODO: check if released Suspect weren't a Criminal
-
-	return rand.Intn(2) == 1
 }
 
 // MARK: QUESTION
@@ -509,6 +505,8 @@ func getCurrentGame() (Game, error) {
 		return game, err
 	}
 
+	game.GameOver = isGameOver(game)
+
 	return game, nil
 }
 
@@ -516,6 +514,19 @@ func saveGame(game Game) error {
 	query := `INSERT INTO games (uuid, timestamp)VALUES (?, ?)`
 	_, err := database.Exec(query, game.UUID, game.Timestamp)
 	return err
+}
+
+func isGameOver(game Game) bool {
+	for x := range game.Investigation.Rounds {
+		round := game.Investigation.Rounds[x]
+		for y := range round.Eliminations {
+			elimination := round.Eliminations[y]
+			if elimination.SuspectUUID == game.Investigation.CriminalUUID {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // MARK: INVESTIGATION

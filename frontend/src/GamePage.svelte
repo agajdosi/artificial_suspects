@@ -17,25 +17,20 @@
         try {
             game = await NextRound();
         } catch (error) {
-            console.log(`NewGame() has failed: ${error}`)
+            console.log(`NextRound() has failed: ${error}`)
         }
-        console.log("GOT ROUNDS", game.investigation.rounds)
+        console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`)
     }
 
     async function handleSuspectFreeing(event) {
         const { suspect } = event.detail;
         try {
-            const isInnocent = await FreeSuspect(suspect.UUID, game.investigation.rounds.at(-1).uuid);
-            if (isInnocent) {
-                console.log(`Eliminated Suspect ${suspect.UUID}`);
-            } else {
-                console.log(`Eliminated Criminal ${suspect.UUID}`);
-            }
+            await FreeSuspect(suspect.UUID, game.investigation.rounds.at(-1).uuid);
         } catch (error) {
             console.error(`Failed to free suspect ${suspect.UUID}:`, error);
         }
-
         game = await GetGame();
+        console.log(`GAME OVER: ${game.GameOver}`);
     }   
 </script>
 
@@ -43,7 +38,11 @@
 <h1>{game.investigation.rounds.at(-1).question} '{game.investigation.rounds.at(-1).answer}'</h1>
 <Suspects suspects={game.investigation.suspects} on:suspect_freeing={handleSuspectFreeing} />
 
-<button on:click={nextRound} disabled={!game.investigation.rounds.at(-1).Eliminations} aria-disabled="{!game.investigation.rounds.at(-1).Eliminations ? 'true': 'false'}">
+<button
+on:click={nextRound}
+disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
+aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
+>
     Next Question
 </button>
 
