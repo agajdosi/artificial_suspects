@@ -340,12 +340,15 @@ type Game struct {
 	Level         int           `json:"level"`         // aka number of Investigations done + 1
 	Score         int           `json:"Score"`         // TODO: implement
 	GameOver      bool          `json:"GameOver"`      // TODO: when true, Game is over
+	Investigator  string        `json:"Investigator"`  // aka the Player's nickname
 	Timestamp     string        `json:"Timestamp"`     // when game was created
 }
 
 const createGamesTable = `
 	CREATE TABLE IF NOT EXISTS games (
 		uuid TEXT PRIMARY KEY,
+		score INT,
+		investigator TEXT,
 		timestamp TEXT
 	);`
 
@@ -353,6 +356,7 @@ func newGame() (Game, error) {
 	var game Game
 	game.UUID = uuid.New().String()
 	game.Timestamp = time.Now().String()
+	game.Score = 0
 	err := saveGame(game)
 	if err != nil {
 		return game, err
@@ -406,8 +410,8 @@ func getCurrentGame() (Game, error) {
 }
 
 func saveGame(game Game) error {
-	query := `INSERT INTO games (uuid, timestamp)VALUES (?, ?)`
-	_, err := database.Exec(query, game.UUID, game.Timestamp)
+	query := `INSERT INTO games (uuid, timestamp, score) VALUES (?, ?, ?)`
+	_, err := database.Exec(query, game.UUID, game.Timestamp, game.Score)
 	return err
 }
 
@@ -868,7 +872,7 @@ func SaveAnswer(answer, roundUUID string) error {
 	return nil
 }
 
-// MARK: SCORE
+// MARK: LEVEL & SCORE
 
 func getLevel(gameUUID string) (int, error) {
 	var count int
@@ -880,4 +884,14 @@ func getLevel(gameUUID string) (int, error) {
 	}
 
 	return count, nil
+}
+
+func increaseScore(gameUUID string, amount int) error {
+	query := "UPDATE games SET score = score + $1 WHERE uuid = $2"
+	_, err := database.Exec(query, amount, gameUUID)
+	if err != nil {
+		return fmt.Errorf("error increasing score for gameUUID %s: %v", gameUUID, err)
+	}
+
+	return nil
 }

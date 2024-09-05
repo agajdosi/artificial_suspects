@@ -128,6 +128,7 @@ export namespace main {
 	    level: number;
 	    Score: number;
 	    GameOver: boolean;
+	    Investigator: string;
 	    Timestamp: string;
 	
 	    static createFrom(source: any = {}) {
@@ -141,6 +142,7 @@ export namespace main {
 	        this.level = source["level"];
 	        this.Score = source["Score"];
 	        this.GameOver = source["GameOver"];
+	        this.Investigator = source["Investigator"];
 	        this.Timestamp = source["Timestamp"];
 	    }
 	
