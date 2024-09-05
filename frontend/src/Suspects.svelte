@@ -3,11 +3,12 @@
     import Suspect from './Suspect.svelte'
     
     export let suspects: main.Suspect[];
+    export let gameOver: boolean;
 </script>
 
 <div class="suspects">
     {#each suspects as suspect}
-        <Suspect suspect={suspect} on:suspect_freeing />
+        <Suspect suspect={suspect} {gameOver} on:suspect_freeing />
     {/each}
 </div>
 

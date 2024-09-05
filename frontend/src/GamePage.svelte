@@ -36,7 +36,9 @@
 
 <button on:click={goToMenu}>Menu</button>
 <h1>{game.investigation.rounds.at(-1).question} '{game.investigation.rounds.at(-1).answer}'</h1>
-<Suspects suspects={game.investigation.suspects} on:suspect_freeing={handleSuspectFreeing} />
+
+
+<Suspects suspects={game.investigation.suspects} gameOver={game.GameOver} on:suspect_freeing={handleSuspectFreeing} />
 
 <button
 on:click={nextRound}
@@ -47,5 +49,8 @@ aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver 
 </button>
 
 <style>
-
+.disabled-suspects {
+    pointer-events: none;
+    opacity: 0.5; /* Optional: To make it look visually disabled */
+}
 </style>

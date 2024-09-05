@@ -4,23 +4,22 @@
     const dispatch = createEventDispatcher();
 
     export let suspect: main.Suspect;
+    export let gameOver: boolean;
 
     const imgDir: string = 'src/assets/images/suspects/';
-    let isFree = false; // innocent suspects can be free
-    let fled = false; // if it was criminal
 
     async function selected() {
-        if (isFree) return;
+        if (suspect.Free || suspect.Fled || gameOver) return;
         dispatch('suspect_freeing', { 'suspect': suspect });
     }
 </script>
 
 <div 
-    class="suspect {suspect.Free ? 'free' : ''} {suspect.Fled ? 'fled' : ''}"
-    id={suspect.UUID} 
-    on:click={selected}
-    on:keydown={selected}
-    aria-disabled={suspect.Free || suspect.Fled}
+class="suspect {suspect.Free ? 'free' : ''} {suspect.Fled ? 'fled' : ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
+id={suspect.UUID} 
+on:click={selected}
+on:keydown={selected}
+aria-disabled={suspect.Free || suspect.Fled || gameOver}
 >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>
@@ -55,8 +54,9 @@
     }
 
     .suspect.fled .suspect-image {
-        opacity: 0.2;
-        filter: grayscale(100%);
+        opacity: 0.6;
+        filter: grayscale(20%);
+        cursor: not-allowed;
     }
 
     .suspect.fled::before {
@@ -70,6 +70,12 @@
         background-position: center;
         background-repeat: no-repeat;
         transition: opacity 0.3s ease, filter 0.3s ease;
+        
+    }
+
+    .suspect.accused{
+        cursor: not-allowed;
+        filter: invert(65%);
     }
 </style>
 
