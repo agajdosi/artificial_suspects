@@ -18,6 +18,6 @@ export function NewGame() {
   return window['go']['main']['App']['NewGame']();
 }
 
-export function NextLevel() {
-  return window['go']['main']['App']['NextLevel']();
+export function NextRound() {
+  return window['go']['main']['App']['NextRound']();
 }

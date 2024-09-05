@@ -1,6 +1,6 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { NextLevel, FreeSuspect, GetGame } from '../wailsjs/go/main/App.js';
+    import { NextRound, FreeSuspect, GetGame } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte'
     
     export let game: main.Game;
@@ -15,16 +15,17 @@
     // NEXT QUESTION
     async function nextRound() {
         try {
-                game = await NextLevel();
-            } catch (error) {
-                console.log(`NewGame() has failed: ${error}`)
-            }
+            game = await NextRound();
+        } catch (error) {
+            console.log(`NewGame() has failed: ${error}`)
+        }
+        console.log("GOT ROUNDS", game.investigation.rounds)
     }
 
     async function handleSuspectFreeing(event) {
         const { suspect } = event.detail;
         try {
-            const isInnocent = await FreeSuspect(suspect.UUID, game.investigation.rounds[0].uuid);
+            const isInnocent = await FreeSuspect(suspect.UUID, game.investigation.rounds.at(-1).uuid);
             if (isInnocent) {
                 console.log(`Eliminated Suspect ${suspect.UUID}`);
             } else {
@@ -39,10 +40,10 @@
 </script>
 
 <button on:click={goToMenu}>Menu</button>
-<h1>{game.investigation.rounds[0].question} '{game.investigation.rounds[0].answer}'</h1>
+<h1>{game.investigation.rounds.at(-1).question} '{game.investigation.rounds.at(-1).answer}'</h1>
 <Suspects suspects={game.investigation.suspects} on:suspect_freeing={handleSuspectFreeing} />
 
-<button on:click={nextRound} disabled={!game.investigation.rounds[0].Eliminations} aria-disabled="{!game.investigation.rounds[0].Eliminations ? 'true': 'false'}">
+<button on:click={nextRound} disabled={!game.investigation.rounds.at(-1).Eliminations} aria-disabled="{!game.investigation.rounds.at(-1).Eliminations ? 'true': 'false'}">
     Next Question
 </button>
 

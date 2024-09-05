@@ -126,6 +126,7 @@ export namespace main {
 	    uuid: string;
 	    level: number;
 	    investigation: Investigation;
+	    Timestamp: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Game(source);
@@ -136,6 +137,7 @@ export namespace main {
 	        this.uuid = source["uuid"];
 	        this.level = source["level"];
 	        this.investigation = this.convertValues(source["investigation"], Investigation);
+	        this.Timestamp = source["Timestamp"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

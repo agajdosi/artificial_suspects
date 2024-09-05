@@ -63,18 +63,20 @@ func (a *App) GetGame() Game {
 }
 
 // Next level is requested. Updates the question and level for the game object.
-func (a *App) NextLevel() Game {
-	var game Game
-
-	q, err := GetRandomQuestion()
+func (a *App) NextRound() Game {
+	game, err := getCurrentGame()
 	if err != nil {
-		fmt.Println("GetRandomQuestion() error:", err)
-		return game
+		log.Printf("NextRound() could not get current game: %v\n", err)
 	}
 
-	game.Investigation.Rounds[0].Question = q.Text
+	round, err := newRound(game.Investigation.UUID)
+	if err != nil {
+		log.Printf("NextRound() could not get new Round: %v\n", err)
+	}
+
+	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
 	game.Level++
-	fmt.Printf("New level %d: %s\n", game.Level, game.Investigation.Rounds[0].Question)
+	fmt.Printf("New Round %d: %s\n", game.Level, game.Investigation.Rounds[len(game.Investigation.Rounds)-1].Question)
 	return game
 }
 
@@ -121,10 +123,35 @@ func GetRandomQuestion() (Question, error) {
 }
 
 var QS = []Question{
-	{Text: "Does the suspect love pizza?", Topic: "food", Level: 1},
-	{Text: "Does the suspect love spicy food?", Topic: "food", Level: 1},
-	{Text: "Does the suspect hate immigrants?", Topic: "political", Level: 1},
-	{Text: "Is the suspect a leftist?", Topic: "political", Level: 1},
+	{Text: "1?", Topic: "food", Level: 1},
+	{Text: "2?", Topic: "food", Level: 1},
+	{Text: "3?", Topic: "food", Level: 1},
+	{Text: "4?", Topic: "food", Level: 1},
+	{Text: "5?", Topic: "food", Level: 1},
+	{Text: "6?", Topic: "food", Level: 1},
+	{Text: "7?", Topic: "food", Level: 1},
+	{Text: "8?", Topic: "food", Level: 1},
+	{Text: "9?", Topic: "food", Level: 1},
+	{Text: "10?", Topic: "food", Level: 1},
+	{Text: "11?", Topic: "food", Level: 1},
+	{Text: "12?", Topic: "food", Level: 1},
+	{Text: "13?", Topic: "food", Level: 1},
+	{Text: "14?", Topic: "food", Level: 1},
+	{Text: "15?", Topic: "food", Level: 1},
+	{Text: "16?", Topic: "food", Level: 1},
+	{Text: "17?", Topic: "food", Level: 1},
+	{Text: "18?", Topic: "food", Level: 1},
+	{Text: "19?", Topic: "food", Level: 1},
+	{Text: "20?", Topic: "food", Level: 1},
+	{Text: "21?", Topic: "food", Level: 1},
+	{Text: "22?", Topic: "food", Level: 1},
+	{Text: "23?", Topic: "food", Level: 1},
+	{Text: "24?", Topic: "food", Level: 1},
+	{Text: "25?", Topic: "food", Level: 1},
+	{Text: "26?", Topic: "food", Level: 1},
+	{Text: "27?", Topic: "food", Level: 1},
+	{Text: "28?", Topic: "food", Level: 1},
+	{Text: "29?", Topic: "food", Level: 1},
 }
 
 func InitQuestionsTable() error {
@@ -426,11 +453,13 @@ func randomSuspects() ([]Suspect, error) {
 // MARK: GAME
 
 // User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
+// TODO: add Score.
+// TODO: add Name, so the player can sign their high score.
 type Game struct {
 	UUID          string        `json:"uuid"`
 	Level         int           `json:"level"`
-	Investigation Investigation `json:"investigation"`
-	Timestamp     string
+	Investigation Investigation `json:"investigation"` // TODO: actually this could be Investigations []Investigation
+	Timestamp     string        `json:"Timestamp"`
 }
 
 const createGamesTable = `
@@ -494,7 +523,7 @@ type Investigation struct {
 	UUID         string    `json:"uuid"`
 	GameUUID     string    `json:"game_uuid"`
 	Suspects     []Suspect `json:"suspects"`
-	Rounds       []Round   `json:"rounds"`
+	Rounds       []Round   `json:"rounds"` // Ordered from oldest (first) to newest (last), 1st round is [0], 2nd [1] etc.
 	CriminalUUID string    `json:"CriminalUUID"`
 	Timestamp    string    `json:"Timestamp"`
 }
@@ -713,7 +742,7 @@ func getRounds(investigationUUID string) ([]Round, error) {
 	var rounds []Round
 	log.Println("Getting rounds for investigation", investigationUUID)
 
-	rows, err := database.Query("SELECT uuid, investigation_uuid, question_uuid, answer, timestamp FROM rounds WHERE investigation_uuid = $1 ORDER BY timestamp DESC", investigationUUID)
+	rows, err := database.Query("SELECT uuid, investigation_uuid, question_uuid, answer, timestamp FROM rounds WHERE investigation_uuid = $1 ORDER BY timestamp ASC", investigationUUID)
 	if err != nil {
 		log.Printf("Could not get rounds: %v\n", err)
 		return rounds, err

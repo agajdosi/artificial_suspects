@@ -10,4 +10,4 @@ export function GetGame():Promise<main.Game>;
 
 export function NewGame():Promise<main.Game>;
 
-export function NextLevel():Promise<main.Game>;
+export function NextRound():Promise<main.Game>;
