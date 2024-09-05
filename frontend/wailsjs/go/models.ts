@@ -126,6 +126,8 @@ export namespace main {
 	    uuid: string;
 	    level: number;
 	    investigation: Investigation;
+	    Score: number;
+	    GameOver: boolean;
 	    Timestamp: string;
 	
 	    static createFrom(source: any = {}) {
@@ -137,6 +139,8 @@ export namespace main {
 	        this.uuid = source["uuid"];
 	        this.level = source["level"];
 	        this.investigation = this.convertValues(source["investigation"], Investigation);
+	        this.Score = source["Score"];
+	        this.GameOver = source["GameOver"];
 	        this.Timestamp = source["Timestamp"];
 	    }
 	

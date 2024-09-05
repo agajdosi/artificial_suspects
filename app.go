@@ -457,9 +457,11 @@ func randomSuspects() ([]Suspect, error) {
 // TODO: add Name, so the player can sign their high score.
 type Game struct {
 	UUID          string        `json:"uuid"`
-	Level         int           `json:"level"`
+	Level         int           `json:"level"`         // TODO: aka number of Investigations done
 	Investigation Investigation `json:"investigation"` // TODO: actually this could be Investigations []Investigation
-	Timestamp     string        `json:"Timestamp"`
+	Score         int           `json:"Score"`         // TODO: implement
+	GameOver      bool          `json:"GameOver"`      // TODO: when true, Game is over
+	Timestamp     string        `json:"Timestamp"`     // when game was created
 }
 
 const createGamesTable = `
