@@ -124,8 +124,8 @@ export namespace main {
 	}
 	export class Game {
 	    uuid: string;
-	    level: number;
 	    investigation: Investigation;
+	    level: number;
 	    Score: number;
 	    GameOver: boolean;
 	    Timestamp: string;
@@ -137,8 +137,8 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.uuid = source["uuid"];
-	        this.level = source["level"];
 	        this.investigation = this.convertValues(source["investigation"], Investigation);
+	        this.level = source["level"];
 	        this.Score = source["Score"];
 	        this.GameOver = source["GameOver"];
 	        this.Timestamp = source["Timestamp"];

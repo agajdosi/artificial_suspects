@@ -76,7 +76,6 @@ func (a *App) NextRound() Game {
 	go GetAnswerFromAI(round, game.Investigation.CriminalUUID)
 
 	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
-	game.Level++
 
 	fmt.Printf("New Round %d: %s\n", game.Level, game.Investigation.Rounds[len(game.Investigation.Rounds)-1].Question)
 	return game
@@ -337,8 +336,8 @@ func randomSuspects() ([]Suspect, error) {
 // TODO: add Name, so the player can sign their high score.
 type Game struct {
 	UUID          string        `json:"uuid"`
-	Level         int           `json:"level"`         // TODO: aka number of Investigations done
 	Investigation Investigation `json:"investigation"` // TODO: actually this could be Investigations []Investigation
+	Level         int           `json:"level"`         // aka number of Investigations done + 1
 	Score         int           `json:"Score"`         // TODO: implement
 	GameOver      bool          `json:"GameOver"`      // TODO: when true, Game is over
 	Timestamp     string        `json:"Timestamp"`     // when game was created
@@ -360,6 +359,10 @@ func newGame() (Game, error) {
 	}
 
 	game.Investigation, err = newInvestigation(game.UUID)
+	if err != nil {
+		return game, err
+	}
+	game.Level, err = getLevel(game.UUID)
 	if err != nil {
 		return game, err
 	}
@@ -388,6 +391,12 @@ func getCurrentGame() (Game, error) {
 	game.Investigation, err = getCurrentInvestigation(game.UUID)
 	if err != nil {
 		fmt.Println("GetGame()->getCurrentInvestigation(): ", err)
+		return game, err
+	}
+
+	game.Level, err = getLevel(game.UUID)
+	if err != nil {
+		log.Printf("GetCurrentGame() could not get Level: %v\n", err)
 		return game, err
 	}
 
@@ -857,4 +866,18 @@ func SaveAnswer(answer, roundUUID string) error {
 	}
 
 	return nil
+}
+
+// MARK: SCORE
+
+func getLevel(gameUUID string) (int, error) {
+	var count int
+	query := "SELECT COUNT(*) FROM investigations WHERE game_uuid = $1"
+
+	err := database.QueryRow(query, gameUUID).Scan(&count)
+	if err != nil {
+		return -1, fmt.Errorf("error counting investigations records for game_uuid %s: %v", gameUUID, err)
+	}
+
+	return count, nil
 }
