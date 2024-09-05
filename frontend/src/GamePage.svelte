@@ -1,6 +1,6 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { NextRound, FreeSuspect, GetGame } from '../wailsjs/go/main/App.js';
+    import { NextRound, FreeSuspect, GetGame, NewGame } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte'
     
     export let game: main.Game;
@@ -31,7 +31,9 @@
         }
         game = await GetGame();
         console.log(`GAME OVER: ${game.GameOver}`);
-    }   
+    }
+    
+    function newGame() {dispatch('message', { message: 'newGame' });}
 </script>
 
 <button on:click={goToMenu}>Menu</button>
@@ -40,17 +42,20 @@
 
 <Suspects suspects={game.investigation.suspects} gameOver={game.GameOver} on:suspect_freeing={handleSuspectFreeing} />
 
-<button
-on:click={nextRound}
-disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
-aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
->
-    Next Question
-</button>
+{#if !game.GameOver }
+    <button
+        on:click={nextRound}
+        disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
+        aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
+        >
+        Next Question
+    </button>
+{:else}
+    <button on:click={newGame}>
+        New Game
+    </button>
+{/if}
 
 <style>
-.disabled-suspects {
-    pointer-events: none;
-    opacity: 0.5; /* Optional: To make it look visually disabled */
-}
+
 </style>
