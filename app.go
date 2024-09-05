@@ -836,6 +836,9 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 	SaveAnswer(answer, round.UUID)
 }
 
+// Save the Answer to the Round record in the database. There is then func WaitForAnswer()
+// which is called from frontend once new Round is found (and so Question can be shown ASAP).
+// But Answer takes time and when it is saved here the WaitForAnswer() retrieves it later.
 func SaveAnswer(answer, roundUUID string) error {
 	query := "UPDATE rounds SET answer = $1 WHERE uuid = $2"
 	result, err := database.Exec(query, answer, roundUUID)
