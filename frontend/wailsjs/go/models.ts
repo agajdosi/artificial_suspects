@@ -88,6 +88,7 @@ export namespace main {
 	    suspects: Suspect[];
 	    rounds: Round[];
 	    CriminalUUID: string;
+	    InvestigationOver: boolean;
 	    Timestamp: string;
 	
 	    static createFrom(source: any = {}) {
@@ -101,6 +102,7 @@ export namespace main {
 	        this.suspects = this.convertValues(source["suspects"], Suspect);
 	        this.rounds = this.convertValues(source["rounds"], Round);
 	        this.CriminalUUID = source["CriminalUUID"];
+	        this.InvestigationOver = source["InvestigationOver"];
 	        this.Timestamp = source["Timestamp"];
 	    }
 	

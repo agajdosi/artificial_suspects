@@ -1,6 +1,6 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { NextRound, EliminateSuspect, GetGame, WaitForAnswer } from '../wailsjs/go/main/App.js';
+    import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
 
@@ -58,6 +58,11 @@
             LoadAnswer(currentRoundUUID)
         }
     }
+
+    async function nextInvestigation(){
+        game = await NextInvestigation();
+        console.log("GOT NEW INVESTIGATION", game)
+    }
     
     function newGame() {
         dispatch('message', { message: 'newGame' });
@@ -82,17 +87,17 @@
         <Suspects suspects={game.investigation.suspects} gameOver={game.GameOver} {answerIsLoading} on:suspect_freeing={handleSuspectFreeing} />
 
         <div class="actions">
-            {#if !game.GameOver }
-                <button
+            {#if game.GameOver}
+                <button on:click={newGame}>New Game</button>
+            {:else if game.investigation.InvestigationOver}
+                <button on:click={nextInvestigation}>Put to Jail!</button>
+            {:else}
+            <button
                     on:click={nextRound}
                     disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
                     aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
                     >
                     Next Question
-                </button>
-            {:else}
-                <button on:click={newGame}>
-                    New Game
                 </button>
             {/if}
         </div>

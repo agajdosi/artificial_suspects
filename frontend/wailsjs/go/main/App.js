@@ -14,6 +14,10 @@ export function NewGame() {
   return window['go']['main']['App']['NewGame']();
 }
 
+export function NextInvestigation() {
+  return window['go']['main']['App']['NextInvestigation']();
+}
+
 export function NextRound() {
   return window['go']['main']['App']['NextRound']();
 }

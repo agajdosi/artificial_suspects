@@ -8,6 +8,8 @@ export function GetGame():Promise<main.Game>;
 
 export function NewGame():Promise<main.Game>;
 
+export function NextInvestigation():Promise<main.Game>;
+
 export function NextRound():Promise<main.Game>;
 
 export function WaitForAnswer(arg1:string):Promise<string>;

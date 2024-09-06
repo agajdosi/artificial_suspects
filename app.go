@@ -58,7 +58,18 @@ func (a *App) GetGame() Game {
 	if err != nil {
 		fmt.Println("GetGame()->getCurrentGame() error: ", err)
 	}
+	return game
+}
 
+func (a *App) NextInvestigation() Game {
+	game, err := getCurrentGame()
+	if err != nil {
+		log.Printf("NextInvestigation() could not get current game: %v\n", err)
+	}
+	game.Investigation, err = newInvestigation(game.UUID)
+	if err != nil {
+		log.Printf("NextInvestigation() could not get new investigation: %v\n", err)
+	}
 	return game
 }
 
@@ -433,12 +444,13 @@ func isGameOver(game Game) bool {
 
 // Investigation is a set of X Suspects, User needs to find a Criminal among them.
 type Investigation struct {
-	UUID         string    `json:"uuid"`
-	GameUUID     string    `json:"game_uuid"`
-	Suspects     []Suspect `json:"suspects"`
-	Rounds       []Round   `json:"rounds"` // Ordered from oldest (first) to newest (last), 1st round is [0], 2nd [1] etc.
-	CriminalUUID string    `json:"CriminalUUID"`
-	Timestamp    string    `json:"Timestamp"`
+	UUID              string    `json:"uuid"`
+	GameUUID          string    `json:"game_uuid"`
+	Suspects          []Suspect `json:"suspects"`
+	Rounds            []Round   `json:"rounds"` // Ordered from oldest (first) to newest (last), 1st round is [0], 2nd [1] etc.
+	CriminalUUID      string    `json:"CriminalUUID"`
+	InvestigationOver bool      `json:"InvestigationOver"` // Last standing is the Criminal
+	Timestamp         string    `json:"Timestamp"`
 }
 
 // Original has 12 suspects, for now I plan 15.
@@ -544,6 +556,8 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 	cn := rand.Intn(len(suspects))
 	i.CriminalUUID = i.Suspects[cn].UUID
 
+	log.Printf("NEW INVESTIGATION, criminal is: no. %d\n", cn+1)
+
 	err = saveInvestigation(i)
 	return i, err
 }
@@ -599,6 +613,14 @@ func getCurrentInvestigation(gameUUID string) (Investigation, error) {
 	investigation.Suspects, err = getSuspects(suspects_uuids, investigation)
 	if err != nil {
 		return investigation, err
+	}
+
+	eliminated := 0
+	for x := range investigation.Rounds {
+		eliminated += len(investigation.Rounds[x].Eliminations)
+	}
+	if eliminated == (numSuspect - 1) {
+		investigation.InvestigationOver = true
 	}
 
 	return investigation, nil
