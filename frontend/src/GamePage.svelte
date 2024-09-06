@@ -74,11 +74,15 @@
 </div>
 
 <div class="top">
-    <div class="question">{game.investigation.rounds.at(-1).question}</div>
-    {#if answerIsLoading}
-        <div class="waiting">...waiting for answer</div>
+    {#if game.investigation.InvestigationOver}
+        <div class="jailtime">Arrest the Perp!</div>
     {:else}
-        <div class="answer">{answer}</div>
+        <div class="question">{game.investigation.rounds.at(-1).question}</div>
+        {#if answerIsLoading}
+            <div class="waiting">...waiting for answer</div>
+        {:else}
+            <div class="answer">{answer}</div>
+        {/if}
     {/if}
 </div>
 
