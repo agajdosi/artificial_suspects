@@ -109,12 +109,13 @@ func (a *App) WaitForAnswer(roundUUID string) string {
 	}
 }
 
-// User selected suspect to be freed.
-func (a *App) FreeSuspect(suspectUUID, roundUUID string) {
-	fmt.Printf(">>> Freeing suspect: %s\n", suspectUUID)
-	err := saveElimination(suspectUUID, roundUUID)
+// User selected Suspect to be eliminated from the Investigation.
+// This will save the Elimination to Eliminatios table. Also it
+func (a *App) EliminateSuspect(suspectUUID, roundUUID, investigationUUID string) {
+	fmt.Printf(">>> Eliminating suspect (%s) on Investigation (%s) in Round (%s)\n", suspectUUID, investigationUUID, roundUUID)
+	err := saveElimination(suspectUUID, roundUUID, investigationUUID)
 	if err != nil {
-		log.Printf("FreeSuspect() error: %v\n", err)
+		log.Printf("EliminateSuspect() error: %v\n", err)
 	}
 }
 
@@ -378,8 +379,8 @@ func newGame() (Game, error) {
 
 func getCurrentGame() (Game, error) {
 	var game Game
-	row := database.QueryRow("SELECT uuid, timestamp FROM games ORDER BY timestamp DESC LIMIT 1")
-	err := row.Scan(&game.UUID, &game.Timestamp)
+	row := database.QueryRow("SELECT uuid, timestamp, score FROM games ORDER BY timestamp DESC LIMIT 1")
+	err := row.Scan(&game.UUID, &game.Timestamp, &game.Score)
 
 	// No game found - first play
 	if err == sql.ErrNoRows {
@@ -712,7 +713,9 @@ const createEliminationsTable = `
 		Timestamp TEXT
 	);`
 
-func saveElimination(suspectUUID, roundUUID string) error {
+// Save the Elimination, check if Criminal was not released
+// and if not update the Game.Score accordingly.
+func saveElimination(suspectUUID, roundUUID, investigationUUID string) error {
 	UUID := uuid.New().String()
 	timestamp := time.Now().Format(TimeFormat)
 	query := `INSERT OR REPLACE INTO eliminations (UUID, RoundUUID, SuspectUUID, Timestamp) VALUES (?, ?, ?, ?)`
@@ -721,6 +724,22 @@ func saveElimination(suspectUUID, roundUUID string) error {
 		log.Printf("Could not save elimination of Suspect (%s) on Round (%s): %v\n", suspectUUID, roundUUID, err)
 		return err
 	}
+
+	var criminalUUID string
+	var gameUUID string
+	row := database.QueryRow(`SELECT criminal_uuid, game_uuid FROM investigations WHERE uuid = $1`, investigationUUID)
+	err = row.Scan(&criminalUUID, &gameUUID)
+	if err != nil {
+		log.Printf("Could not get criminal_uuid on Investigation (%s): %v\n", investigationUUID, err)
+	}
+
+	if criminalUUID != suspectUUID {
+
+		increaseScore(gameUUID, roundUUID)
+	} else {
+		log.Println("Guilty criminal was released :(")
+	}
+
 	return nil
 }
 
@@ -886,12 +905,29 @@ func getLevel(gameUUID string) (int, error) {
 	return count, nil
 }
 
-func increaseScore(gameUUID string, amount int) error {
-	query := "UPDATE games SET score = score + $1 WHERE uuid = $2"
-	_, err := database.Exec(query, amount, gameUUID)
+// Increase the game.Score in the database after successful Elimination.
+// Amount of increase is based on in which level we are and if it is 1st, 2nd or Nth
+// Elimination in this round. Players are rewarded for risky behaviour - eliminating more than one suspect.
+// But also they are rewarded for longevity - how much investigations they have solved.
+func increaseScore(gameUUID string, roundUUID string) {
+	level, err := getLevel(gameUUID)
 	if err != nil {
-		return fmt.Errorf("error increasing score for gameUUID %s: %v", gameUUID, err)
+		log.Println("Could not get level and increase score:", err)
+		return
+	}
+	eliminations, err := getEliminationsForRound(roundUUID)
+	if err != nil {
+		log.Println("Could not get eliminations for this round and increase score:", err)
+		return
 	}
 
-	return nil
+	amount := level * len(eliminations)
+
+	query := "UPDATE games SET score = score + $1 WHERE uuid = $2"
+	_, err = database.Exec(query, amount, gameUUID)
+	if err != nil {
+		log.Printf("error increasing score for gameUUID %s: %v", gameUUID, err)
+		return
+	}
+	fmt.Printf("Score increased by %d\n", amount)
 }

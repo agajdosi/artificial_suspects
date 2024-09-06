@@ -1,6 +1,6 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { NextRound, FreeSuspect, GetGame, WaitForAnswer } from '../wailsjs/go/main/App.js';
+    import { NextRound, EliminateSuspect, GetGame, WaitForAnswer } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
 
@@ -30,7 +30,7 @@
     async function handleSuspectFreeing(event) {
         const { suspect } = event.detail;
         try {
-            await FreeSuspect(suspect.UUID, game.investigation.rounds.at(-1).uuid);
+            await EliminateSuspect(suspect.UUID, game.investigation.rounds.at(-1).uuid, game.investigation.uuid);
         } catch (error) {
             console.error(`Failed to free suspect ${suspect.UUID}:`, error);
         }
