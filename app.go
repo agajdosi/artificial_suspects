@@ -92,6 +92,14 @@ func (a *App) NextRound() Game {
 	return game
 }
 
+func (a *App) GetScores() []FinalScore {
+	scores, err := getScores()
+	if err != nil {
+		log.Println("GetScores()", err)
+	}
+	return scores
+}
+
 // Wait until the Answer from AI is present in the database.
 // TODO: implement the actuall retrieval from the DB.
 func (a *App) WaitForAnswer(roundUUID string) string {
@@ -952,4 +960,48 @@ func increaseScore(gameUUID string, roundUUID string) {
 		return
 	}
 	fmt.Printf("Score increased by %d\n", amount)
+}
+
+// This is used for High Scores list.
+type FinalScore struct {
+	Score        int    `json:"Score"`
+	Position     int    `json:"Position"`
+	Investigator string `json:"Investigator"`
+	GameUUID     string `json:"GameUUID"`
+	Timestamp    string `json:"Timestamp"`
+}
+
+func getScores() ([]FinalScore, error) {
+	var scores []FinalScore
+	query := "SELECT uuid, score, investigator FROM games ORDER BY score DESC"
+	rows, err := database.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get scores: %w", err)
+	}
+	defer rows.Close()
+
+	// Loop through the result set and scan into the games slice
+	var position int
+	for rows.Next() {
+		position++
+		var finalScore FinalScore
+		var investigator sql.NullString
+		var score sql.NullInt64
+		err := rows.Scan(&finalScore.GameUUID, &score, &investigator)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		finalScore.Position = position
+		finalScore.Investigator = investigator.String
+		if score.Valid {
+			finalScore.Score = int(score.Int64)
+		}
+		scores = append(scores, finalScore)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return scores, nil
 }

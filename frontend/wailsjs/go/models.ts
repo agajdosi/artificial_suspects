@@ -18,6 +18,26 @@ export namespace main {
 	        this.Timestamp = source["Timestamp"];
 	    }
 	}
+	export class FinalScore {
+	    Score: number;
+	    Position: number;
+	    Investigator: string;
+	    GameUUID: string;
+	    Timestamp: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FinalScore(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Score = source["Score"];
+	        this.Position = source["Position"];
+	        this.Investigator = source["Investigator"];
+	        this.GameUUID = source["GameUUID"];
+	        this.Timestamp = source["Timestamp"];
+	    }
+	}
 	export class Round {
 	    uuid: string;
 	    InvestigationUUID: string;

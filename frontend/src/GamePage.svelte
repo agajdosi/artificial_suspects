@@ -3,6 +3,7 @@
     import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
+    import Scores from './Scores.svelte';
 
     export let game: main.Game;
     let lastRoundUUID: string;
@@ -61,11 +62,12 @@
 
     async function nextInvestigation(){
         game = await NextInvestigation();
+        game.GameOver = false;
         console.log("GOT NEW INVESTIGATION", game)
     }
     
-    function newGame() {
-        dispatch('message', { message: 'newGame' });
+    function endGame() {
+        dispatch('end_game', { 'game_uuid': game.uuid });
     }
 </script>
 
@@ -100,7 +102,7 @@
         <div class="actions">
             {#if !game.investigation.InvestigationOver}
                 {#if game.GameOver}
-                    <button on:click={newGame}>New Game</button>
+                    <button on:click={endGame}>End Game</button>
                 {:else}
                 <button
                         on:click={nextRound}
@@ -126,6 +128,17 @@
         <div>score: {game.Score}</div>
     </div>
 </div>
+
+{#if game.GameOver}
+    <div class="infobox">
+        <h1>Game Over!</h1>
+        <p>
+            You've mistakenly released a criminal, while innocent suspects have been unjustly persecuted.
+            Next time, try to delve deeper into the mindset of the AI during its interrogation.
+        </p>
+        <Scores {game}/>    
+    </div>
+{/if}
 
 <style>
 .header {
@@ -167,6 +180,18 @@
 .stats {
     display: flex;
     gap: 1rem;
+}
+
+.infobox {
+    position: absolute;
+    left: 25vw;
+    top: 10vh;
+    background-color: grey;
+    width: 50vw;
+    height: 80vh;
+}
+.infobox p {
+    padding: 0 2rem;
 }
 
 </style>

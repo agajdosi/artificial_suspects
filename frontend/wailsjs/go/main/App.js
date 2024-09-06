@@ -10,6 +10,10 @@ export function GetGame() {
   return window['go']['main']['App']['GetGame']();
 }
 
+export function GetScores() {
+  return window['go']['main']['App']['GetScores']();
+}
+
 export function NewGame() {
   return window['go']['main']['App']['NewGame']();
 }
