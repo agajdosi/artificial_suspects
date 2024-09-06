@@ -84,21 +84,28 @@
 
 <div class="middle">
     <div class="left">
-        <Suspects suspects={game.investigation.suspects} gameOver={game.GameOver} {answerIsLoading} on:suspect_freeing={handleSuspectFreeing} />
+        <Suspects
+            suspects={game.investigation.suspects}
+            gameOver={game.GameOver}
+            investigationOver={game.investigation.InvestigationOver}
+            {answerIsLoading}
+            on:suspect_freeing={handleSuspectFreeing}
+            on:suspect_jailing={nextInvestigation}
+        />
 
         <div class="actions">
-            {#if game.GameOver}
-                <button on:click={newGame}>New Game</button>
-            {:else if game.investigation.InvestigationOver}
-                <button on:click={nextInvestigation}>Put to Jail!</button>
-            {:else}
-            <button
-                    on:click={nextRound}
-                    disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
-                    aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
-                    >
-                    Next Question
-                </button>
+            {#if !game.investigation.InvestigationOver}
+                {#if game.GameOver}
+                    <button on:click={newGame}>New Game</button>
+                {:else}
+                <button
+                        on:click={nextRound}
+                        disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
+                        aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
+                        >
+                        Next Question
+                    </button>
+                {/if}
             {/if}
         </div>
     </div>

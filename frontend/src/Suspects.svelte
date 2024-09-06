@@ -4,12 +4,13 @@
     
     export let suspects: main.Suspect[];
     export let gameOver: boolean;
+    export let investigationOver: boolean;
     export let answerIsLoading: boolean;
 </script>
 
 <div class="suspects">
     {#each suspects as suspect}
-        <Suspect suspect={suspect} {gameOver} {answerIsLoading} on:suspect_freeing />
+        <Suspect suspect={suspect} {gameOver} {investigationOver} {answerIsLoading} on:suspect_freeing on:suspect_jailing />
     {/each}
 </div>
 

@@ -5,18 +5,23 @@
 
     export let suspect: main.Suspect;
     export let gameOver: boolean;
+    export let investigationOver: boolean;
     export let answerIsLoading: boolean;
 
     const imgDir: string = 'src/assets/images/suspects/';
 
     async function selected() {
         if (suspect.Free || suspect.Fled || gameOver || answerIsLoading) return;
+        if (investigationOver) { // last suspect = click to jail, new Investigation coming
+            dispatch('suspect_jailing', { 'suspect': suspect})
+            return
+        }
         dispatch('suspect_freeing', { 'suspect': suspect });
     }
 </script>
 
 <div 
-    class="suspect {suspect.Free ? 'free':''} {suspect.Fled ? 'fled':''} {answerIsLoading ? 'waiting' : ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
+    class="suspect {suspect.Free ? 'free':''} {suspect.Fled ? 'fled':''} {answerIsLoading ? 'waiting' : ''} {investigationOver && !suspect.Free ? 'to_jail': ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
     id={suspect.UUID}
     on:click={selected}
     on:keydown={selected}
@@ -75,12 +80,15 @@
         background-position: center;
         background-repeat: no-repeat;
         transition: opacity 0.3s ease, filter 0.3s ease;
-        
     }
 
     .suspect.accused{
         cursor: not-allowed;
         filter: invert(65%);
+    }
+
+    .suspect.to_jail :hover{
+        filter: contrast(200%);
     }
 </style>
 
