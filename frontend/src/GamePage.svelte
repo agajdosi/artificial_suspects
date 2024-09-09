@@ -67,8 +67,8 @@
         console.log("GOT NEW INVESTIGATION", game)
     }
     
-    function endGame() {
-        dispatch('end_game', { 'game_uuid': game.uuid });
+    function newGame() {
+        dispatch('newGame', { 'game_uuid': game.uuid });
     }
 
     // Scores
@@ -108,7 +108,7 @@
         <div class="actions">
             {#if !game.investigation.InvestigationOver}
                 {#if game.GameOver}
-                    <button on:click={endGame}>End Game</button>
+                    <button on:click={newGame}>New Game</button>
                 {:else}
                 <button
                         on:click={nextRound}
@@ -136,7 +136,7 @@
 </div>
 
 {#if game.GameOver && scoresVisible}
-    <Scores {game} on:toggleScores={handleToggleScores} on:end_game/>    
+    <Scores {game} on:toggleScores={handleToggleScores} on:newGame/>    
 {/if}
 
 <style>

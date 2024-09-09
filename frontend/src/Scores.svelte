@@ -13,8 +13,8 @@
         dispatch('toggleScores', { scoresVisible });
     }
 
-    function endGame() {
-        dispatch('end_game', { 'game_uuid': game.uuid });
+    function newGameDispatcher() {
+        dispatch('newGame', { 'game_uuid': game.uuid });
     }
 </script>
 
@@ -60,7 +60,7 @@
     {/await }
 
     <button on:click={closeScores}>Close</button>
-    <button on:click={endGame}>Try Again</button>  
+    <button on:click={newGameDispatcher}>New Game</button>  
 </div>
 
 <style>

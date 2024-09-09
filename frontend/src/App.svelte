@@ -7,20 +7,21 @@
     let screen = 'home'; // State to track the current screen
     let game: main.Game;
 
+    async function newGameHandler(event) {
+        try {
+            game = await NewGame();
+        } catch (error) {
+            console.log(`NewGame() has failed: ${error}`)
+        }
+        console.log(game)
+        screen = 'game';
+        return
+    }
+
     async function handleMessage(event) {
         console.log(event)
         const { message } = event.detail;
-        if (message === 'newGame') {
-            try {
-                game = await NewGame();
-            } catch (error) {
-                console.log(`NewGame() has failed: ${error}`)
-            }
-            console.log(game)
-            screen = 'game';
-            return
-
-        } else if (message === 'continueGame') {
+        if (message === 'continueGame') {
             try {
                 game = await GetGame();
             } catch (error) {
@@ -29,7 +30,6 @@
             console.log(game)
             screen = 'game'
             return
-        
         } else if (message === 'goToHome') {
             screen = 'home';
             return
@@ -39,8 +39,8 @@
 
 <main>
     {#if screen === 'home'}
-        <HomePage on:message={handleMessage} />
+        <HomePage on:message={handleMessage} on:newGame={newGameHandler} />
     {:else if screen === 'game'}
-        <GamePage on:message={handleMessage} {game}/>
+        <GamePage on:message={handleMessage} on:newGame={newGameHandler} {game}/>
     {/if}
 </main>
