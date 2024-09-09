@@ -138,6 +138,15 @@ func (a *App) EliminateSuspect(suspectUUID, roundUUID, investigationUUID string)
 	}
 }
 
+func (a *App) SaveScore(name, gameUUID string) {
+	fmt.Println("SaveScore:", name, gameUUID)
+	query := "UPDATE games SET investigator = $1 WHERE uuid = $2"
+	_, err := database.Exec(query, name, gameUUID)
+	if err != nil {
+		log.Printf("error saving investigator for gameUUID %s: %v", gameUUID, err)
+	}
+}
+
 // MARK: DATABASE
 
 func GetDataDirPath() string {

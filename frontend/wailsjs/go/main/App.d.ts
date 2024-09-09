@@ -14,4 +14,6 @@ export function NextInvestigation():Promise<main.Game>;
 
 export function NextRound():Promise<main.Game>;
 
+export function SaveScore(arg1:string,arg2:string):Promise<void>;
+
 export function WaitForAnswer(arg1:string):Promise<string>;

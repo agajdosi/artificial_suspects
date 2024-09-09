@@ -1,6 +1,6 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
-    import { GetScores } from '../wailsjs/go/main/App.js';
+    import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher } from 'svelte';
 
     export let game: main.Game;
@@ -15,6 +15,10 @@
 
     function newGameDispatcher() {
         dispatch('newGame', { 'game_uuid': game.uuid });
+    }
+
+    function saveScore() {
+        SaveScore(name, game.uuid);
     }
 </script>
 
@@ -52,7 +56,7 @@
                     <div class="score-item" class:highlighted={score.GameUUID == game.uuid}>
                         {score.Position}. {score.Score}
                         <input bind:value={name} placeholder="enter your name"/>
-                        <button>Confirm</button>  
+                        <button on:click={saveScore}>Confirm</button>  
                     </div>
                 {/if}
             {/each}
@@ -77,7 +81,6 @@
     margin: 0 0 0 2rem;
 }
 
-/* Style for the first, second, and third places */
 .scores .score-item:nth-child(1) {
     font-weight: bold;
     font-size: 1.6rem;
@@ -93,7 +96,6 @@
     font-size: 1.3rem;
 }
 
-/* Style for highlighted current player's score */
 .highlighted {
     background-color: rgb(255, 89, 0);
     padding: 5px;
