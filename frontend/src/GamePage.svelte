@@ -10,6 +10,7 @@
     let answerIsLoading: boolean;
     let answer: string;
     let hint: string = "hint...";  // TODO: capture hints
+    let scoresVisible: boolean = true;
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
@@ -68,6 +69,11 @@
     
     function endGame() {
         dispatch('end_game', { 'game_uuid': game.uuid });
+    }
+
+    // Scores
+    function handleToggleScores(event) {
+        scoresVisible = event.detail.scoresVisible;
     }
 </script>
 
@@ -129,15 +135,8 @@
     </div>
 </div>
 
-{#if game.GameOver}
-    <div class="infobox">
-        <h1>Game Over!</h1>
-        <p>
-            You've mistakenly released a criminal, while innocent suspects have been unjustly persecuted.
-            Next time, try to delve deeper into the mindset of the AI during its interrogation.
-        </p>
-        <Scores {game}/>    
-    </div>
+{#if game.GameOver && scoresVisible}
+    <Scores {game} on:toggleScores={handleToggleScores} on:end_game/>    
 {/if}
 
 <style>
@@ -180,18 +179,6 @@
 .stats {
     display: flex;
     gap: 1rem;
-}
-
-.infobox {
-    position: absolute;
-    left: 25vw;
-    top: 10vh;
-    background-color: grey;
-    width: 50vw;
-    height: 80vh;
-}
-.infobox p {
-    padding: 0 2rem;
 }
 
 </style>
