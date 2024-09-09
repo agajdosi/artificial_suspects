@@ -3,7 +3,7 @@
     import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
-    import Scores from './Scores.svelte';
+    import Scores from './Scores2.svelte';
 
     export let game: main.Game;
     let lastRoundUUID: string;
