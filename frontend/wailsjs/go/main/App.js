@@ -14,6 +14,10 @@ export function GetScores() {
   return window['go']['main']['App']['GetScores']();
 }
 
+export function GetServices() {
+  return window['go']['main']['App']['GetServices']();
+}
+
 export function NewGame() {
   return window['go']['main']['App']['NewGame']();
 }
@@ -28,6 +32,10 @@ export function NextRound() {
 
 export function SaveScore(arg1, arg2) {
   return window['go']['main']['App']['SaveScore'](arg1, arg2);
+}
+
+export function SaveToken(arg1, arg2) {
+  return window['go']['main']['App']['SaveToken'](arg1, arg2);
 }
 
 export function WaitForAnswer(arg1) {

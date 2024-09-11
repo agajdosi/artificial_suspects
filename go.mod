@@ -8,6 +8,7 @@ require (
 	github.com/adrg/xdg v0.5.0
 	github.com/google/uuid v1.3.0
 	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/sashabaranov/go-openai v1.29.1
 	github.com/wailsapp/wails/v2 v2.9.1
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 )

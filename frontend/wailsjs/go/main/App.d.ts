@@ -8,6 +8,8 @@ export function GetGame():Promise<main.Game>;
 
 export function GetScores():Promise<Array<main.FinalScore>>;
 
+export function GetServices():Promise<Array<main.Service>>;
+
 export function NewGame():Promise<main.Game>;
 
 export function NextInvestigation():Promise<main.Game>;
@@ -15,5 +17,7 @@ export function NextInvestigation():Promise<main.Game>;
 export function NextRound():Promise<main.Game>;
 
 export function SaveScore(arg1:string,arg2:string):Promise<void>;
+
+export function SaveToken(arg1:string,arg2:string):Promise<void>;
 
 export function WaitForAnswer(arg1:string):Promise<string>;

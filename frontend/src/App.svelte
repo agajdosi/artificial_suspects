@@ -1,6 +1,7 @@
 <script lang="ts">
     import GamePage from './GamePage.svelte'
     import HomePage from './HomePage.svelte'
+    import ConfigPage from './ConfigPage.svelte'
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
     import { main } from '../wailsjs/go/models';
 
@@ -16,6 +17,10 @@
         console.log(game)
         screen = 'game';
         return
+    }
+
+    async function enterConfigHandler(event) {
+        screen = "config";
     }
 
     async function handleMessage(event) {
@@ -39,8 +44,10 @@
 
 <main>
     {#if screen === 'home'}
-        <HomePage on:message={handleMessage} on:newGame={newGameHandler} />
+        <HomePage on:message={handleMessage} on:newGame={newGameHandler} on:enterConfig={enterConfigHandler}/>
     {:else if screen === 'game'}
         <GamePage on:message={handleMessage} on:newGame={newGameHandler} {game}/>
+    {:else if screen === 'config'}
+        <ConfigPage on:message={handleMessage}/>
     {/if}
 </main>

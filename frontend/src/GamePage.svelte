@@ -15,9 +15,7 @@
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
-    function goToMenu() {
-        dispatch('message', { message: 'goToHome' });
-    }
+    function goToMenu() {dispatch('message', { message: 'goToHome' });}
 
     // NEXT QUESTION
     async function nextRound() {
