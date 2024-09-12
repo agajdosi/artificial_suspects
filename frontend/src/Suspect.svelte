@@ -8,7 +8,7 @@
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;
 
-    const imgDir: string = 'src/assets/images/suspects/';
+    const imgDir: string = 'suspects/';
 
     async function selected() {
         if (suspect.Free || suspect.Fled || gameOver || answerIsLoading) return;
