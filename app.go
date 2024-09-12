@@ -21,9 +21,10 @@ import (
 var database *sql.DB
 
 const (
-	appName           = "suspects"
-	TimeFormat string = time.RFC3339Nano
-	numSuspect        = 15 // How many suspects are in one investigation - there were 12 in original board game.
+	appName           string = "suspects"
+	TimeFormat        string = time.RFC3339Nano
+	numSuspect        int    = 15 // How many suspects are in one investigation - there were 12 in original board game.
+	defaultPlayerName string = "anonymous"
 )
 
 // MARK: APP HANDLERS
@@ -418,6 +419,7 @@ func newGame() (Game, error) {
 	game.UUID = uuid.New().String()
 	game.Timestamp = time.Now().String()
 	game.Score = 0
+	game.Investigator = defaultPlayerName
 	err := saveGame(game)
 	if err != nil {
 		return game, err
@@ -471,8 +473,8 @@ func getCurrentGame() (Game, error) {
 }
 
 func saveGame(game Game) error {
-	query := `INSERT INTO games (uuid, timestamp, score) VALUES (?, ?, ?)`
-	_, err := database.Exec(query, game.UUID, game.Timestamp, game.Score)
+	query := `INSERT INTO games (uuid, timestamp, score, investigator) VALUES (?, ?, ?, ?)`
+	_, err := database.Exec(query, game.UUID, game.Timestamp, game.Score, game.Investigator)
 	return err
 }
 

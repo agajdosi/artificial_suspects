@@ -1,16 +1,28 @@
 <script lang="ts">
     import { main } from '../wailsjs/go/models';
     import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
 
     export let game: main.Game;
     let name: string;
+    let scores: main.FinalScore[] = [];
+    let loading: boolean = true;
 
     const dispatch = createEventDispatcher();
 
+    // Fetch the scores when the component is mounted
+    onMount(async () => {
+        try {
+            scores = await GetScores();
+        } catch (error) {
+            console.error('Error fetching scores:', error);
+        } finally {
+            loading = false;
+        }
+    });
+
     function closeScores() {
-        let scoresVisible: boolean = false;
-        dispatch('toggleScores', { scoresVisible });
+        dispatch('toggleScores', { scoresVisible: false });
     }
 
     function newGameDispatcher() {
@@ -20,81 +32,88 @@
     function saveScore() {
         SaveScore(name, game.uuid);
     }
+
+    // Helper function to return the position label (medal or rank)
+    function getPositionLabel(position: number): string {
+        if (position === 1) return '🥇';
+        if (position === 2) return '🥈';
+        if (position === 3) return '🥉';
+        return `${position}.`;
+    }
+
+    // Function to check if the current score belongs to the current game
+    function isCurrentGame(scoreUUID: string): boolean {
+        return scoreUUID === game.uuid;
+    }
 </script>
 
 <div class="infobox">
     <h1>Game Over!</h1>
-    <p>
+    <div class="riptext">
         You've mistakenly released a criminal, while innocent suspects have been unjustly persecuted.
         Next time, try to delve deeper into the mindset of the AI during its interrogation.
-    </p>
+    </div>
 
     <h2>High Scores</h2>
-    {#await GetScores() }
+    {#if loading}
         Loading High Scores...
-    {:then scores}
+    {:else}
         <div class="scores">
-            {#each scores as score}
-                {#if score.Position == 1}
-                    <div class="score-item">🥇 {score.Score} {score.Investigator}</div>
-                {:else if score.Position == 2}
-                    <div class="score-item">🥈 {score.Score} {score.Investigator}</div>
-                {:else if score.Position == 3}
-                    <div class="score-item">🥉  {score.Score} {score.Investigator}</div>
-                {:else if score.Position <= 10}
-                    {#if score.GameUUID == game.uuid}
-                        <div class="score-item" class:highlighted={score.GameUUID == game.uuid}>
-                            {score.Position}. {score.Score} <input bind:value={name} placeholder="enter your name" />
-                        </div>
-                    {:else}
-                        <div class="score-item">
-                            {score.Position}.  {score.Score} {score.Investigator}
-                        </div>
+            {#each scores as score, index}
+                {#if index < 10 || isCurrentGame(score.GameUUID)}                
+                    {#if index >= 10 && isCurrentGame(score.GameUUID)}
+                        <div class="score-item">...</div>
                     {/if}
-                {:else if score.GameUUID === game.uuid}
-                    <div class="score-item">...</div>
-                    <div class="score-item" class:highlighted={score.GameUUID == game.uuid}>
-                        {score.Position}. {score.Score}
-                        <input bind:value={name} placeholder="enter your name"/>
-                        <button on:click={saveScore}>Confirm</button>  
+                    <div class="score-item" class:highlighted={isCurrentGame(score.GameUUID)}>
+                        <span class="position">{getPositionLabel(index + 1)}</span>
+                        
+                        {#if isCurrentGame(score.GameUUID)}
+                            <span>
+                            <input bind:value={name} placeholder="enter your name" />
+                            <button on:click={saveScore}>Confirm</button>
+                            </span>
+                        {:else}
+                            {score.Investigator}
+                        {/if}
+                        <span class="score">{score.Score}</span>
                     </div>
+
                 {/if}
             {/each}
         </div>
-    {/await }
+    {/if}
 
     <button on:click={closeScores}>Close</button>
     <button on:click={newGameDispatcher}>New Game</button>  
 </div>
 
 <style>
+h1 {
+    margin: 10px 0 0 0;
+}
+
 .scores {
-    margin-top: 20px;
+    margin: 30px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align items horizontally */
+    text-align: center;  /* Center align text */
 }
 
 .score-item {
+    max-width: 90%;
     margin-bottom: 8px;
     font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;  /* Align items vertically in the center */
+    width: 100%;  /* Make sure it spans the full width */
 }
 
 .score-item input {
     margin: 0 0 0 2rem;
 }
 
-.scores .score-item:nth-child(1) {
-    font-weight: bold;
-    font-size: 1.6rem;
-}
-
-.scores .score-item:nth-child(2) {
-    font-weight: bold;
-    font-size: 1.4rem;
-}
-
-.scores .score-item:nth-child(3) {
-    font-weight: bold;
-    font-size: 1.3rem;
-}
 
 .highlighted {
     background-color: rgb(255, 89, 0);
@@ -110,7 +129,7 @@
     width: 50vw;
     height: 80vh;
 }
-.infobox p {
+.riptext {
     padding: 0 2rem;
 }
 </style>
