@@ -66,6 +66,7 @@
     }
     
     function newGame() {
+        scoresVisible = true;
         dispatch('newGame', { 'game_uuid': game.uuid });
     }
 
