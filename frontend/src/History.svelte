@@ -6,7 +6,7 @@
 
 {#each [...game.investigation.rounds].reverse().slice(1) as round}
     <div>
-        {round.question} - {round.answer}
+        {round.Question.English} - {round.answer}
     </div>
 {/each}
 

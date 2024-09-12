@@ -528,8 +528,7 @@ func getCurrentInvestigation(gameUUID string) (Investigation, error) {
 type Round struct {
 	UUID              string        `json:"uuid"`
 	InvestigationUUID string        `json:"InvestigationUUID"`
-	QuestionUUID      string        `json:"QuestionUUID"`
-	Question          string        `json:"question"` // TODO: Question could be actually the whole object
+	Question          Question      `json:"Question"`
 	AnswerUUID        string        `json:"AnswerUUID"`
 	Answer            string        `json:"answer"` // TODO: Answer could be actually stored in table
 	Eliminations      []Elimination `json:"Eliminations"`
@@ -550,7 +549,7 @@ func saveRound(r Round) error {
 		INSERT OR REPLACE INTO rounds (uuid, investigation_uuid, question_uuid, answer, timestamp)
 		VALUES (?, ?, ?, ?, ?)
 		`
-	_, err := database.Exec(query, r.UUID, r.InvestigationUUID, r.QuestionUUID, r.Answer, r.Timestamp)
+	_, err := database.Exec(query, r.UUID, r.InvestigationUUID, r.Question.UUID, r.Answer, r.Timestamp)
 	return err
 }
 
@@ -563,8 +562,7 @@ func NewRound(investigationUUID string) (Round, error) {
 	if err != nil {
 		return r, err
 	}
-	r.Question = question.Text
-	r.QuestionUUID = question.UUID
+	r.Question = question
 
 	err = saveRound(r)
 	return r, err
@@ -583,18 +581,18 @@ func getRounds(investigationUUID string) ([]Round, error) {
 
 	for rows.Next() {
 		var round Round
-		err := rows.Scan(&round.UUID, &round.InvestigationUUID, &round.QuestionUUID, &round.Answer, &round.Timestamp)
+		err := rows.Scan(&round.UUID, &round.InvestigationUUID, &round.Question.UUID, &round.Answer, &round.Timestamp)
 		if err != nil {
 			log.Printf("Could not scan round: %v\n", err)
 			return rounds, err
 		}
 
-		question, err := getQuestion(round.QuestionUUID)
+		question, err := getQuestion(round.Question.UUID)
 		if err != nil {
-			log.Printf("Could not get question text for question_uuid=%s: %v", round.QuestionUUID, err)
+			log.Printf("Could not get question text for question_uuid=%s: %v", round.Question.UUID, err)
 			return rounds, err
 		}
-		round.Question = question.Text
+		round.Question = question
 
 		round.Eliminations, err = getEliminationsForRound(round.UUID)
 		if err != nil {
@@ -697,24 +695,28 @@ func getEliminationsForRound(roundUUID string) ([]Elimination, error) {
 // MARK: QUESTION
 
 type Question struct {
-	UUID  string `json:"uuid"`
-	Text  string `json:"text"`
-	Topic string `json:"topic"`
-	Level int    `json:"level"`
+	UUID    string `json:"UUID"`
+	English string `json:"English"`
+	Czech   string `json:"Czech"`
+	Polish  string `json:"Polish"`
+	Topic   string `json:"Topic"`
+	Level   int    `json:"Level"`
 }
 
 var createQuestionsTable = `
 	CREATE TABLE IF NOT EXISTS questions (
-		uuid TEXT PRIMARY KEY,
-		question TEXT,
-		topic TEXT,
-		level INT
+		UUID TEXT PRIMARY KEY,
+		English TEXT,
+		Czech TEXT,
+		Polish TEXT,
+		Topic TEXT,
+		Level INT
 	);`
 
 func GetRandomQuestion() (Question, error) {
 	var question Question
-	row := database.QueryRow("SELECT uuid, question, topic, level FROM questions ORDER BY RANDOM() LIMIT 1")
-	err := row.Scan(&question.UUID, &question.Text, &question.Topic, &question.Level)
+	row := database.QueryRow("SELECT UUID, English, Czech, Polish, Topic, Level FROM questions ORDER BY RANDOM() LIMIT 1")
+	err := row.Scan(&question.UUID, &question.English, &question.Czech, &question.Polish, &question.Topic, &question.Level)
 	return question, err
 }
 
@@ -734,10 +736,11 @@ func InitQuestionsTable() error {
 	return nil
 }
 
+// English is the cannonical text. If question with same English version exists, it will not overwrite.
 func SaveQuestion(q Question) error {
 	var exists bool
-	checkQuery := "SELECT EXISTS(SELECT 1 FROM questions WHERE question = ?)"
-	err := database.QueryRow(checkQuery, q.Text).Scan(&exists)
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM questions WHERE English = ?)"
+	err := database.QueryRow(checkQuery, q.English).Scan(&exists)
 	if err != nil {
 		return err
 	}
@@ -747,10 +750,10 @@ func SaveQuestion(q Question) error {
 	}
 
 	UUID := uuid.New().String()
-	query := "INSERT into questions (uuid, question, topic, level) VALUES (?, ?, ?, ?)"
-	_, err = database.Exec(query, UUID, q.Text, q.Topic, q.Level)
+	query := "INSERT into questions (UUID, English, Czech, Polish, Topic, Level) VALUES (?, ?, ?, ?, ?, ?)"
+	_, err = database.Exec(query, UUID, q.English, q.Czech, q.Polish, q.Topic, q.Level)
 	if err != nil {
-		log.Printf("Could not save Question %s (%s): %v", q.Text, UUID, err)
+		log.Printf("Could not save Question %s (%s): %v", q.English, UUID, err)
 		return err
 	}
 
@@ -759,8 +762,8 @@ func SaveQuestion(q Question) error {
 
 func getQuestion(questionUUID string) (Question, error) {
 	var question = Question{UUID: questionUUID}
-	row := database.QueryRow("SELECT question, topic, level FROM questions WHERE uuid = $1 LIMIT 1", questionUUID)
-	err := row.Scan(&question.Text, &question.Topic, &question.Level)
+	row := database.QueryRow("SELECT English, Czech, Polish, Topic, Level FROM questions WHERE UUID = $1 LIMIT 1", questionUUID)
+	err := row.Scan(&question.English, &question.Czech, &question.Polish, &question.Topic, &question.Level)
 	if err != nil {
 		log.Printf("Could not scan question (%s): %v", questionUUID, err)
 		return question, err

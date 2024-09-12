@@ -38,11 +38,32 @@ export namespace database {
 	        this.Timestamp = source["Timestamp"];
 	    }
 	}
+	export class Question {
+	    UUID: string;
+	    English: string;
+	    Czech: string;
+	    Polish: string;
+	    Topic: string;
+	    Level: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Question(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.UUID = source["UUID"];
+	        this.English = source["English"];
+	        this.Czech = source["Czech"];
+	        this.Polish = source["Polish"];
+	        this.Topic = source["Topic"];
+	        this.Level = source["Level"];
+	    }
+	}
 	export class Round {
 	    uuid: string;
 	    InvestigationUUID: string;
-	    QuestionUUID: string;
-	    question: string;
+	    Question: Question;
 	    AnswerUUID: string;
 	    answer: string;
 	    Eliminations: Elimination[];
@@ -56,8 +77,7 @@ export namespace database {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.uuid = source["uuid"];
 	        this.InvestigationUUID = source["InvestigationUUID"];
-	        this.QuestionUUID = source["QuestionUUID"];
-	        this.question = source["question"];
+	        this.Question = this.convertValues(source["Question"], Question);
 	        this.AnswerUUID = source["AnswerUUID"];
 	        this.answer = source["answer"];
 	        this.Eliminations = this.convertValues(source["Eliminations"], Elimination);
@@ -186,6 +206,7 @@ export namespace database {
 		    return a;
 		}
 	}
+	
 	
 	
 	export class Service {

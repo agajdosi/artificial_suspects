@@ -35,14 +35,47 @@ var defaultSuspects = []Suspect{
 }
 
 var defaultQuestions = []Question{
-	{Text: "Does the suspect like pizza?", Topic: "basic", Level: 1},
-	{Text: "Is the suspect leftist?", Topic: "political", Level: 1},
-	{Text: "Does the suspect have depressions?", Topic: "psychological", Level: 1},
-	{Text: "Is the suspect a fan of social media?", Topic: "sociological", Level: 1},
-	{Text: "Does the suspect enjoy traveling?", Topic: "basic", Level: 1},
-	{Text: "Is the suspect environmentally conscious?", Topic: "political", Level: 1},
-	{Text: "Does the suspect attend therapy?", Topic: "psychological", Level: 1},
-	{Text: "Does the suspect believe in traditional family values?", Topic: "sociological", Level: 1},
+	{
+		English: "Does the suspect like pizza?",
+		Czech:   "Má podezřelý rád pizzu?",
+		Polish:  "Czy podejrzany lubi pizzę?",
+		Topic:   "basic",
+		Level:   1,
+	},
+	{
+		English: "Is the suspect leftist?",
+		Czech:   "Je podezřelý levičák?",
+		Polish:  "Czy podejrzany jest lewicowy?",
+		Topic:   "political",
+		Level:   1,
+	},
+	{
+		English: "Does the suspect have depressions?",
+		Czech:   "Má podezřelý deprese?",
+		Polish:  "Czy podejrzany ma depresje?",
+		Topic:   "psychological",
+		Level:   1,
+	},
+	{
+		English: "Is the suspect a fan of social media?",
+		Czech:   "Je podezřelý fanouškem sociálních sítí?",
+		Polish:  "Czy podejrzany jest fanem mediów społecznościowych?",
+		Topic:   "sociological",
+		Level:   1,
+	},
+	{
+		English: "Does the suspect enjoy traveling?",
+		Czech:   "Má podezřelý rád cestování?",
+		Polish:  "Czy podejrzany lubi podróże?",
+		Topic:   "basic",
+		Level:   1,
+	},
+}
+
+/*
+	{English: "Is the suspect environmentally conscious?", Topic: "political", Level: 1},
+	{English: "Does the suspect attend therapy?", Topic: "psychological", Level: 1},
+	{English: "Does the suspect believe in traditional family values?", Topic: "sociological", Level: 1},
 	{Text: "Is the suspect vegetarian?", Topic: "basic", Level: 1},
 	{Text: "Does the suspect vote regularly?", Topic: "political", Level: 1},
 	{Text: "Does the suspect struggle with anxiety?", Topic: "psychological", Level: 1},
@@ -122,3 +155,4 @@ var defaultQuestions = []Question{
 	{Text: "Does the suspect have tattoos?", Topic: "basic", Level: 1},
 	{Text: "Does the suspect advocate for stricter gun laws?", Topic: "political", Level: 1},
 }
+*/
