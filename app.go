@@ -369,10 +369,6 @@ func newGame() (Game, error) {
 	if err != nil {
 		return game, err
 	}
-	game.Level, err = getLevel(game.UUID)
-	if err != nil {
-		return game, err
-	}
 
 	GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
 
@@ -490,7 +486,7 @@ func newInvestigation(gameUUID string) (Investigation, error) {
 	cn := rand.Intn(len(suspects))
 	i.CriminalUUID = i.Suspects[cn].UUID
 
-	log.Printf("NEW INVESTIGATION, criminal is: no. %d\n", cn+1)
+	log.Printf("NEW INVESTIGATION: criminal is %s\n", i.CriminalUUID)
 
 	err = saveInvestigation(i)
 	return i, err

@@ -98,6 +98,7 @@
             suspects={game.investigation.suspects}
             gameOver={game.GameOver}
             investigationOver={game.investigation.InvestigationOver}
+            criminalUUID={game.investigation.CriminalUUID}
             {answerIsLoading}
             on:suspect_freeing={handleSuspectFreeing}
             on:suspect_jailing={nextInvestigation}

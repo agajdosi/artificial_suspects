@@ -4,6 +4,7 @@
     const dispatch = createEventDispatcher();
 
     export let suspect: main.Suspect;
+    export let criminalUUID: string;
     export let gameOver: boolean;
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;
@@ -21,7 +22,7 @@
 </script>
 
 <div 
-    class="suspect {suspect.Free ? 'free':''} {suspect.Fled ? 'fled':''} {answerIsLoading ? 'waiting' : ''} {investigationOver && !suspect.Free ? 'to_jail': ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
+    class="suspect {suspect.Free ? 'free':''} {suspect.Fled ? 'fled':''} {answerIsLoading ? 'waiting' : ''} {investigationOver && !suspect.Free ? 'to_jail': ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''} {suspect.UUID == criminalUUID ? 'criminal':''}"
     id={suspect.UUID}
     on:click={selected}
     on:keydown={selected}
@@ -89,6 +90,10 @@
 
     .suspect.to_jail :hover{
         filter: contrast(200%);
+    }
+
+    .criminal {
+        box-shadow: 0 0 10px red;
     }
 </style>
 

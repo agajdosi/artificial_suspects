@@ -3,6 +3,7 @@
     import Suspect from './Suspect.svelte'
     
     export let suspects: main.Suspect[];
+    export let criminalUUID: string;
     export let gameOver: boolean;
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;
@@ -10,7 +11,7 @@
 
 <div class="suspects">
     {#each suspects as suspect}
-        <Suspect suspect={suspect} {gameOver} {investigationOver} {answerIsLoading} on:suspect_freeing on:suspect_jailing />
+        <Suspect suspect={suspect} {gameOver} {investigationOver} {answerIsLoading} {criminalUUID} on:suspect_freeing on:suspect_jailing />
     {/each}
 </div>
 
