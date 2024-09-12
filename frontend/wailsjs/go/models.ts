@@ -4,7 +4,8 @@ export namespace main {
 	    UUID: string;
 	    RoundUUID: string;
 	    SuspectUUID: string;
-	    Timestamp: string;
+	    // Go type: time
+	    Timestamp: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Elimination(source);
@@ -15,28 +16,26 @@ export namespace main {
 	        this.UUID = source["UUID"];
 	        this.RoundUUID = source["RoundUUID"];
 	        this.SuspectUUID = source["SuspectUUID"];
-	        this.Timestamp = source["Timestamp"];
-	    }
-	}
-	export class FinalScore {
-	    Score: number;
-	    Position: number;
-	    Investigator: string;
-	    GameUUID: string;
-	    Timestamp: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new FinalScore(source);
+	        this.Timestamp = this.convertValues(source["Timestamp"], null);
 	    }
 	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.Score = source["Score"];
-	        this.Position = source["Position"];
-	        this.Investigator = source["Investigator"];
-	        this.GameUUID = source["GameUUID"];
-	        this.Timestamp = source["Timestamp"];
-	    }
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class Round {
 	    uuid: string;
@@ -46,7 +45,8 @@ export namespace main {
 	    AnswerUUID: string;
 	    answer: string;
 	    Eliminations: Elimination[];
-	    Timestamp: string;
+	    // Go type: time
+	    Timestamp: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Round(source);
@@ -61,7 +61,7 @@ export namespace main {
 	        this.AnswerUUID = source["AnswerUUID"];
 	        this.answer = source["answer"];
 	        this.Eliminations = this.convertValues(source["Eliminations"], Elimination);
-	        this.Timestamp = source["Timestamp"];
+	        this.Timestamp = this.convertValues(source["Timestamp"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -87,7 +87,8 @@ export namespace main {
 	    Image: string;
 	    Free: boolean;
 	    Fled: boolean;
-	    Timestamp: string;
+	    // Go type: time
+	    Timestamp: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Suspect(source);
@@ -99,17 +100,36 @@ export namespace main {
 	        this.Image = source["Image"];
 	        this.Free = source["Free"];
 	        this.Fled = source["Fled"];
-	        this.Timestamp = source["Timestamp"];
+	        this.Timestamp = this.convertValues(source["Timestamp"], null);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class Investigation {
 	    uuid: string;
 	    game_uuid: string;
-	    suspects: Suspect[];
-	    rounds: Round[];
 	    CriminalUUID: string;
 	    InvestigationOver: boolean;
-	    Timestamp: string;
+	    suspects: Suspect[];
+	    rounds: Round[];
+	    // Go type: time
+	    Timestamp: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Investigation(source);
@@ -119,11 +139,11 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.uuid = source["uuid"];
 	        this.game_uuid = source["game_uuid"];
-	        this.suspects = this.convertValues(source["suspects"], Suspect);
-	        this.rounds = this.convertValues(source["rounds"], Round);
 	        this.CriminalUUID = source["CriminalUUID"];
 	        this.InvestigationOver = source["InvestigationOver"];
-	        this.Timestamp = source["Timestamp"];
+	        this.suspects = this.convertValues(source["suspects"], Suspect);
+	        this.rounds = this.convertValues(source["rounds"], Round);
+	        this.Timestamp = this.convertValues(source["Timestamp"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -151,7 +171,8 @@ export namespace main {
 	    Score: number;
 	    GameOver: boolean;
 	    Investigator: string;
-	    Timestamp: string;
+	    // Go type: time
+	    Timestamp: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Game(source);
@@ -165,7 +186,7 @@ export namespace main {
 	        this.Score = source["Score"];
 	        this.GameOver = source["GameOver"];
 	        this.Investigator = source["Investigator"];
-	        this.Timestamp = source["Timestamp"];
+	        this.Timestamp = this.convertValues(source["Timestamp"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

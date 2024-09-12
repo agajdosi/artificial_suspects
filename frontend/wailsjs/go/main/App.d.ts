@@ -6,7 +6,7 @@ export function EliminateSuspect(arg1:string,arg2:string,arg3:string):Promise<vo
 
 export function GetGame():Promise<main.Game>;
 
-export function GetScores():Promise<Array<main.FinalScore>>;
+export function GetScores():Promise<Array<main.Game>>;
 
 export function GetServices():Promise<Array<main.Service>>;
 

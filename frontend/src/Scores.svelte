@@ -31,37 +31,39 @@
 
     <h2>High Scores</h2>
     {#await GetScores() }
-        Loading High Scores...
+    Loading High Scores...
     {:then scores}
         <div class="scores">
-            {#each scores as score}
-                {#if score.Position == 1}
+            {#each scores as score, index}
+                {#if index + 1 == 1}
                     <div class="score-item">🥇 {score.Score} {score.Investigator}</div>
-                {:else if score.Position == 2}
+                {:else if index + 1 == 2}
                     <div class="score-item">🥈 {score.Score} {score.Investigator}</div>
-                {:else if score.Position == 3}
-                    <div class="score-item">🥉  {score.Score} {score.Investigator}</div>
-                {:else if score.Position <= 10}
-                    {#if score.GameUUID == game.uuid}
-                        <div class="score-item" class:highlighted={score.GameUUID == game.uuid}>
-                            {score.Position}. {score.Score} <input bind:value={name} placeholder="enter your name" />
+                {:else if index + 1 == 3}
+                    <div class="score-item">🥉 {score.Score} {score.Investigator}</div>
+                {:else if index + 1 <= 10}
+                    {#if score.uuid == game.uuid}
+                        <div class="score-item" class:highlighted={score.uuid == game.uuid}>
+                            {index + 1}. {score.Score}
+                            <input bind:value={name} placeholder="enter your name" />
+                            <button on:click={saveScore}>Confirm</button>  
                         </div>
                     {:else}
                         <div class="score-item">
-                            {score.Position}.  {score.Score} {score.Investigator}
+                            {index + 1}.  {score.Score} {score.Investigator}
                         </div>
                     {/if}
-                {:else if score.GameUUID === game.uuid}
+                {:else if score.uuid === game.uuid}
                     <div class="score-item">...</div>
-                    <div class="score-item" class:highlighted={score.GameUUID == game.uuid}>
-                        {score.Position}. {score.Score}
+                    <div class="score-item" class:highlighted={score.uuid == game.uuid}>
+                        {index + 1}. {score.Score}
                         <input bind:value={name} placeholder="enter your name"/>
                         <button on:click={saveScore}>Confirm</button>  
                     </div>
                 {/if}
             {/each}
         </div>
-    {/await }
+    {/await}
 
     <button on:click={closeScores}>Close</button>
     <button on:click={newGameDispatcher}>New Game</button>  
