@@ -11,6 +11,7 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/sashabaranov/go-openai"
 	"golang.org/x/exp/rand"
 )
@@ -801,7 +802,7 @@ Do not write I'm sorry, I can't identify or analyze personal traits from images.
 `
 	fmt.Println("Sending prompt to AI:", prompt)
 
-	service, err := getService("openai")
+	service, err := GetService("openai")
 	if err != nil {
 		return "", err
 	}
@@ -974,7 +975,7 @@ VALUES
 	('OpenAI', '');
 COMMIT;` // list would be: ('OpenAI', ''), ('Google', ''), ('AWS', ''), ('Azure', '');
 
-func getService(name string) (Service, error) {
+func GetService(name string) (Service, error) {
 	var service Service
 	query := "SELECT Name, Token FROM services WHERE name = $1"
 	err := database.QueryRow(query, name).Scan(&service.Name, &service.Token)

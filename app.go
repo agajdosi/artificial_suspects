@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"suspects/database"
 )
 
@@ -73,7 +71,7 @@ func (a *App) NextRound() database.Game {
 
 	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
 
-	fmt.Printf("New Round %d: %s\n", game.Level, game.Investigation.Rounds[len(game.Investigation.Rounds)-1].Question)
+	fmt.Printf("New Round %d: %s\n", game.Level, game.Investigation.Rounds[len(game.Investigation.Rounds)-1].Question.English)
 	return game
 }
 
