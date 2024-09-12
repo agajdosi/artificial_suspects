@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import GamePage from './GamePage.svelte'
     import HomePage from './HomePage.svelte'
     import ConfigPage from './ConfigPage.svelte'
@@ -7,6 +8,19 @@
 
     let screen = 'home'; // State to track the current screen
     let game: main.Game;
+
+    function handleKeyDown (event: KeyboardEvent) {
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'm') {
+            console.log('Ctrl+Shift+M or Cmd+Shift+M was pressed');
+            event.preventDefault();
+            screen = 'home';
+        }
+    };
+
+    onMount(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {window.removeEventListener('keydown', handleKeyDown);};
+    });
 
     async function newGameHandler(event) {
         try {
