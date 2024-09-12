@@ -7,18 +7,20 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+
+	"suspects/database"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func init() {
-	err := EnsureConfigDirAvailable()
+	err := database.EnsureConfigDirAvailable()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = EnsureDBAvailable()
+	err = database.EnsureDBAvailable()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    export let suspect: main.Suspect;
+    export let suspect: database.Suspect;
     export let gameOver: boolean;
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;

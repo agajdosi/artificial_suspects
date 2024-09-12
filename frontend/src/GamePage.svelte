@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
     import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
     import Scores from './Scores.svelte';
 
-    export let game: main.Game;
+    export let game: database.Game;
     let lastRoundUUID: string;
     let answerIsLoading: boolean;
     let answer: string;

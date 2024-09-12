@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
 
-    export let game: main.Game;
+    export let game: database.Game;
 </script>
 
 {#each [...game.investigation.rounds].reverse().slice(1) as round}

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
     import Suspect from './Suspect.svelte'
     
-    export let suspects: main.Suspect[];
+    export let suspects: database.Suspect[];
     export let gameOver: boolean;
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;

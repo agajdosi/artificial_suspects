@@ -4,10 +4,10 @@
     import HomePage from './HomePage.svelte'
     import ConfigPage from './ConfigPage.svelte'
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
 
     let screen = 'home'; // State to track the current screen
-    let game: main.Game;
+    let game: database.Game;
 
     function handleKeyDown (event: KeyboardEvent) {
         if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'm') {

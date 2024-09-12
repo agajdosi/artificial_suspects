@@ -1,4 +1,4 @@
-package main
+package database
 
 // TODO: Load this from the files at the src/suspects.
 var defaultSuspects = []Suspect{
@@ -35,7 +35,6 @@ var defaultSuspects = []Suspect{
 }
 
 var defaultQuestions = []Question{
-
 	{Text: "Does the suspect like pizza?", Topic: "basic", Level: 1},
 	{Text: "Is the suspect leftist?", Topic: "political", Level: 1},
 	{Text: "Does the suspect have depressions?", Topic: "psychological", Level: 1},

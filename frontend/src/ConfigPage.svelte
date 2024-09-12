@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
     import { GetServices, SaveToken } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    let services: main.Service[] = [];
+    let services: database.Service[] = [];
     let hasErrors: boolean = false; // Track if there are validation errors
 
     // Fetch services when the component is loaded

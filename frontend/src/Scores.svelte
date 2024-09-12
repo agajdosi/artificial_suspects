@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { main } from '../wailsjs/go/models';
+    import { database } from '../wailsjs/go/models';
     import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher, onMount } from 'svelte';
 
-    export let game: main.Game;
+    export let game: database.Game;
     let name: string;
-    let scores: main.FinalScore[] = [];
+    let scores: database.FinalScore[] = [];
     let loading: boolean = true;
 
     const dispatch = createEventDispatcher();
