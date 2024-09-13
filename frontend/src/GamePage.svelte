@@ -81,16 +81,25 @@
 </div>
 
 <div class="top">
+    <div class="main">
     {#if game.investigation.InvestigationOver}
         <div class="jailtime">Arrest the Perp!</div>
     {:else}
-        <div class="question">{game.investigation.rounds.at(-1).Question.English}</div>
+        <div class="question">{game.investigation.rounds.length}. {game.investigation.rounds.at(-1).Question.English}</div>
         {#if answerIsLoading}
             <div class="waiting">...waiting for answer</div>
         {:else}
-            <div class="answer">{answer}</div>
+            <div class="answer">{answer.toUpperCase()}!</div>
         {/if}
     {/if}
+    </div>
+    <div class="instruction">
+        {#if !answerIsLoading}
+            {#if answer == "yes"}Release those who are not.
+            {:else}Release those who are.
+            {/if}
+        {/if}
+    </div>
 </div>
 
 <div class="middle">
@@ -147,9 +156,7 @@
 .top {
     width: 100vw;
     display: flex;
-    gap: 2rem;
-    padding: 0.5rem 0 0 0;
-    justify-content: left;
+    flex-direction: column;
     font-size: 2rem;
 }
 
@@ -178,6 +185,19 @@
 .stats {
     display: flex;
     gap: 1rem;
+}
+
+.top .main {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin: 0 0 0 1rem;
+}
+
+.top .instruction {
+    font-size: 1.2rem;
+    display: flex;
+    margin: 0 0 0 1.1rem;
 }
 
 </style>
