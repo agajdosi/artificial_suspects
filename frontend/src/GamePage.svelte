@@ -167,7 +167,7 @@
     padding: 2rem 0;
 }
 .right {
-    padding: 2rem 0 0 0;
+    padding: 0.2rem 0 0 0;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -198,6 +198,11 @@
     font-size: 1.2rem;
     display: flex;
     margin: 0 0 0 1.1rem;
+}
+
+.history {
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 </style>
