@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"log"
 
 	"github.com/wailsapp/wails/v2"
@@ -15,6 +16,7 @@ import (
 var assets embed.FS
 
 func init() {
+	fmt.Println("App initializing")
 	err := database.EnsureConfigDirAvailable()
 	if err != nil {
 		log.Fatal(err)
@@ -27,7 +29,7 @@ func init() {
 }
 
 func main() {
-	// Create an instance of the app structure
+	fmt.Println("Main function starting")
 	app := NewApp()
 
 	// Create application with options
