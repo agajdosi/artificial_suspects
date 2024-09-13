@@ -1,0 +1,81 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+      branches: [ '**' ]
+  workflow_dispatch:
+
+jobs:
+  windows_on_windows_amd:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: './go.sum'
+        id: go
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Install Wails Dependencies
+        run: choco install nsis
+      - name: Wails Doctor
+        run: wails doctor
+      - name: BUILD
+        run: wails build -platform windows/amd64
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-amd-build
+          path: ./build
+
+  windows_on_windows_amd_winconsole:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: './go.sum'
+        id: go
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Install Wails Dependencies
+        run: choco install nsis
+      - name: Wails Doctor
+        run: wails doctor
+      - name: BUILD
+        run: wails build -platform windows/amd64 -windowsconsole
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-amd-build-winconsole
+          path: ./build
+
+  windows_amd-console-debug:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: './go.sum'
+        id: go
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Install Wails Dependencies
+        run: choco install nsis
+      - name: Wails Doctor
+        run: wails doctor
+      - name: BUILD
+        run: wails build -platform windows/amd64 -windowsconsole -debug
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-amd-build-console-debug
+          path: ./build
