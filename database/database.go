@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/adrg/xdg"
@@ -126,8 +127,23 @@ func InitSuspectsTable() error {
 		return err
 	}
 
-	for i := range defaultSuspects {
-		err := SaveSuspect(defaultSuspects[i])
+	imagePaths, err := loadSuspectImages()
+	if err != nil {
+		return err
+	}
+
+	for _, imagePath := range imagePaths {
+		filename := filepath.Base(imagePath)
+		ext := filepath.Ext(filename)
+		name := strings.TrimSuffix(filename, ext)
+
+		fmt.Println(imagePath, name, ext)
+
+		suspect := Suspect{
+			UUID:  name,
+			Image: filename,
+		}
+		err := SaveSuspect(suspect)
 		if err != nil {
 			log.Println("Cannot initialize Suspect:", err)
 			return err
@@ -139,6 +155,10 @@ func InitSuspectsTable() error {
 
 func SaveSuspect(suspect Suspect) error {
 	var exists bool
+	if suspect.UUID == "" {
+		return fmt.Errorf("suspect.UUID cannot be empty")
+	}
+
 	checkQuery := "SELECT EXISTS(SELECT 1 FROM suspects WHERE image = ?)"
 	err := database.QueryRow(checkQuery, suspect.Image).Scan(&exists)
 	if err != nil {
@@ -149,12 +169,11 @@ func SaveSuspect(suspect Suspect) error {
 		return nil
 	}
 
-	UUID := uuid.New().String()
 	timestamp := time.Now().String()
 	query := "INSERT into suspects (uuid, image, timestamp) VALUES (?, ?, ?)"
-	_, err = database.Exec(query, UUID, suspect.Image, timestamp)
+	_, err = database.Exec(query, suspect.UUID, suspect.Image, timestamp)
 	if err != nil {
-		log.Printf("Could not save Suspect %s (%s): %v", suspect.Image, UUID, err)
+		log.Printf("Could not save Suspect %s (%s): %v", suspect.Image, suspect.UUID, err)
 		return err
 	}
 

@@ -1,39 +1,5 @@
 package database
 
-// TODO: Load this from the files at the src/suspects.
-var defaultSuspects = []Suspect{
-	{Image: "1.jpg"},
-	{Image: "2.jpg"},
-	{Image: "3.jpg"},
-	{Image: "4.jpg"},
-	{Image: "5.jpg"},
-	{Image: "6.jpg"},
-	{Image: "7.jpg"},
-	{Image: "8.jpg"},
-	{Image: "9.jpg"},
-	{Image: "10.jpg"},
-	{Image: "11.jpg"},
-	{Image: "12.jpg"},
-	{Image: "13.jpg"},
-	{Image: "14.jpg"},
-	{Image: "15.jpg"},
-	{Image: "16.jpg"},
-	{Image: "17.jpg"},
-	{Image: "18.jpg"},
-	{Image: "19.jpg"},
-	{Image: "20.jpg"},
-	{Image: "21.jpg"},
-	{Image: "22.jpg"},
-	{Image: "23.jpg"},
-	{Image: "24.jpg"},
-	{Image: "25.jpg"},
-	{Image: "26.jpg"},
-	{Image: "27.jpg"},
-	{Image: "28.jpg"},
-	{Image: "29.jpg"},
-	{Image: "30.jpg"},
-}
-
 var defaultQuestions = []Question{
 	{
 		English: "Does the suspect like pizza?",
