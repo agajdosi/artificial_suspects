@@ -18,7 +18,7 @@ To build a redistributable, production mode package, use `wails build`.
 ## Adding new suspect
 
 1. place the suspect images into `./frontend/public/input` directory
-2. run `go run dev/main.go import` - this will iterate over all images in `input` directory and parse them
+2. run `go run dev/dev.go import` - this will iterate over all images in `input` directory and parse them
 3. take parsed images from `./frontend/public/input` and place them to `.frontend/public/suspects`
 4. filename of the image is its sha256 sum
 
