@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"suspects/database"
 
 	"github.com/urfave/cli/v2"
@@ -57,7 +56,7 @@ func renameToSha256() {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && isJpegImage(info.Name()) {
+		if !info.IsDir() && database.IsImage(info.Name()) {
 			// Open the file
 			file, err := os.Open(path)
 			if err != nil {
@@ -114,16 +113,6 @@ func copyFile(src, dst string) error {
 	// Copy the contents of the source file to the destination file
 	_, err = io.Copy(destFile, sourceFile)
 	return err
-}
-
-func isJpegImage(filename string) bool {
-	extensions := []string{".jpeg", ".jpg"}
-	for _, ext := range extensions {
-		if strings.HasSuffix(strings.ToLower(filename), ext) {
-			return true
-		}
-	}
-	return false
 }
 
 func generateDescription(cCtx *cli.Context) error {

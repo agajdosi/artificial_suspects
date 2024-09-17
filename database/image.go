@@ -17,7 +17,7 @@ func loadSuspectImages() ([]string, error) {
 
 	var imageFiles []string
 	for _, file := range files {
-		if !file.IsDir() && isImage(file.Name()) {
+		if !file.IsDir() && IsImage(file.Name()) {
 			imageFiles = append(imageFiles, filepath.Join(directory, file.Name()))
 		}
 	}
@@ -26,7 +26,7 @@ func loadSuspectImages() ([]string, error) {
 }
 
 // isImage checks if the file has an image extension.
-func isImage(filename string) bool {
+func IsImage(filename string) bool {
 	extensions := []string{".jpeg", ".jpg"}
 	for _, ext := range extensions {
 		if strings.HasSuffix(strings.ToLower(filename), ext) {
