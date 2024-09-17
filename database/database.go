@@ -136,9 +136,6 @@ func InitSuspectsTable() error {
 		filename := filepath.Base(imagePath)
 		ext := filepath.Ext(filename)
 		name := strings.TrimSuffix(filename, ext)
-
-		fmt.Println(imagePath, name, ext)
-
 		suspect := Suspect{
 			UUID:  name,
 			Image: filename,
