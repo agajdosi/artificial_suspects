@@ -1,8 +1,5 @@
 package main
 
-// JUST FOR TESTING NOW
-// GONNA BE A HELPER BINARY TO GENERATE AI DESCRIPTIONS ETC...
-
 import (
 	"crypto/sha256"
 	"encoding/hex"
@@ -13,6 +10,7 @@ import (
 	"path/filepath"
 	"suspects/database"
 
+	"github.com/google/uuid"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,17 +20,31 @@ func main() {
 			{
 				Name:    "description",
 				Aliases: []string{"d"},
-				Usage:   "Generate description for image",
-				Action:  generateDescription,
+				Usage:   "Generate description for image of the Suspect.",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "suspect-id",
+						Usage:    "UUID of the Suspect",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "service",
+						Usage:    "Service name for the description generation",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "model",
+						Usage:    "Model name to use for description generation",
+						Required: true,
+					},
+				},
+				Action: generateDescription,
 			},
 			{
 				Name:    "import",
 				Aliases: []string{"c"},
 				Usage:   "import images from ./src/input",
-				Action: func(cCtx *cli.Context) error {
-					renameToSha256()
-					return nil
-				},
+				Action:  renameToSha256,
 			},
 		},
 	}
@@ -41,7 +53,7 @@ func main() {
 	}
 }
 
-func renameToSha256() {
+func renameToSha256(cCtx *cli.Context) error {
 	inputDir := "./frontend/public/input"   // Input directory
 	outputDir := "./frontend/public/output" // Output directory
 
@@ -93,6 +105,7 @@ func renameToSha256() {
 	if err != nil {
 		log.Fatalf("Error walking through the directory: %v", err)
 	}
+	return nil
 }
 
 // copyFile copies the file from src to dst
@@ -116,15 +129,28 @@ func copyFile(src, dst string) error {
 }
 
 func generateDescription(cCtx *cli.Context) error {
-	fmt.Println("Description for: ", cCtx.Args().First())
+	suspectID := cCtx.String("suspect-id")
+	serviceName := cCtx.String("service")
+	modelName := cCtx.String("model")
+
+	fmt.Printf("Description for SuspectID: '%s'\n", suspectID)
 	database.EnsureDBAvailable()
 
-	service, err := database.GetService("OpenAI")
+	service, err := database.GetService(serviceName)
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Token:", service.Token)
 
-	return nil
+	description := database.Description{
+		UUID:        uuid.New().String(),
+		SuspectUUID: suspectID,
+		Service:     service.Name,
+		Model:       modelName,
+		Timestamp:   database.TimestampNow(),
+	}
+	err = database.SaveDescription(description)
+
+	return err
 }
