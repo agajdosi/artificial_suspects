@@ -133,15 +133,14 @@ func generateDescription(cCtx *cli.Context) error {
 	serviceName := cCtx.String("service")
 	modelName := cCtx.String("model")
 
-	fmt.Printf("Description for SuspectID: '%s'\n", suspectID)
 	database.EnsureDBAvailable()
-
 	service, err := database.GetService(serviceName)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Token:", service.Token)
+	if service.Token == "" {
+		return fmt.Errorf("token for service %s not set", serviceName)
+	}
 
 	description := database.Description{
 		UUID:        uuid.New().String(),
