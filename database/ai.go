@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -119,4 +121,58 @@ Do not write I'm sorry, but I can't help with identifying or describing the pers
 	}
 
 	return resp.Choices[0].Message.Content, prompt, nil
+}
+
+func GenerateDescription(suspectUUID, serviceName, modelName string) error {
+	EnsureDBAvailable()
+	service, err := GetService(serviceName)
+	if err != nil {
+		return err
+	}
+	if service.Token == "" {
+		return fmt.Errorf("token for service %s not set", serviceName)
+	}
+
+	suspect, err := GetSuspect(suspectUUID)
+	if err != nil {
+		return err
+	}
+
+	imgPath := filepath.Join("frontend", "public", "suspects", suspect.Image)
+	text, prompt, err := OpenAIDescribeImage(imgPath, modelName, service.Token)
+	if err != nil {
+		return err
+	}
+
+	description := Description{
+		UUID:        uuid.New().String(),
+		SuspectUUID: suspectUUID,
+		Service:     service.Name,
+		Model:       modelName,
+		Description: text,
+		Prompt:      prompt,
+		Timestamp:   TimestampNow(),
+	}
+
+	fmt.Printf("Saving description: %+v\n", description)
+
+	err = SaveDescription(description)
+	return err
+}
+
+// Generate descriptions by Model of Service for all Suspects who have less than Limit of descriptions by the Model of Service.
+// Generation runs in series to keep this simple.
+// TODO: Could be improved to run concurrently but who cares 6 days before exhibition opening?
+// TODO: Finalize
+func GenerateDescriptionsForAll(limit int, serviceName, modelName string) error {
+	EnsureDBAvailable()
+	suspects, err := GetSuspectsByDescriptions(limit, serviceName, modelName)
+	if err != nil {
+		return err
+	}
+	for i, suspect := range suspects {
+		fmt.Printf("%d. Suspect: %s\n", i, suspect.UUID)
+	}
+
+	return nil
 }

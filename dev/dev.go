@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"suspects/database"
 
-	"github.com/google/uuid"
 	"github.com/urfave/cli/v2"
 )
 
@@ -18,9 +17,9 @@ func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:    "description",
+				Name:    "describe",
 				Aliases: []string{"d"},
-				Usage:   "Generate description for image of the Suspect.",
+				Usage:   "Describe the image of specified suspect.",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "suspect-id",
@@ -38,7 +37,29 @@ func main() {
 						Required: true,
 					},
 				},
-				Action: generateDescription,
+				Action: describe,
+			},
+			{
+				Name:  "describe-all",
+				Usage: "Describe the image of specified suspect.",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "service",
+						Usage:    "Service name for the description generation",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "model",
+						Usage:    "Model name to use for description generation",
+						Required: true,
+					},
+					&cli.IntFlag{
+						Name:     "limit",
+						Usage:    "Only describe those whose number of descriptions is below the limit",
+						Required: true,
+					},
+				},
+				Action: describeAll,
 			},
 			{
 				Name:    "import",
@@ -128,46 +149,16 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-func generateDescription(cCtx *cli.Context) error {
+func describe(cCtx *cli.Context) error {
 	suspectUUID := cCtx.String("suspect-id")
 	serviceName := cCtx.String("service")
 	modelName := cCtx.String("model")
+	return database.GenerateDescription(suspectUUID, serviceName, modelName)
+}
 
-	database.EnsureDBAvailable()
-	service, err := database.GetService(serviceName)
-	if err != nil {
-		return err
-	}
-	if service.Token == "" {
-		return fmt.Errorf("token for service %s not set", serviceName)
-	}
-
-	suspect, err := database.GetSuspect(suspectUUID)
-	if err != nil {
-		return err
-	}
-
-	imgPath := filepath.Join("frontend", "public", "suspects", suspect.Image)
-	fmt.Println("image path is:", imgPath)
-
-	text, prompt, err := database.OpenAIDescribeImage(imgPath, modelName, service.Token)
-	if err != nil {
-		return err
-	}
-
-	description := database.Description{
-		UUID:        uuid.New().String(),
-		SuspectUUID: suspectUUID,
-		Service:     service.Name,
-		Model:       modelName,
-		Description: text,
-		Prompt:      prompt,
-		Timestamp:   database.TimestampNow(),
-	}
-
-	fmt.Printf("Saving description: %+v\n", description)
-
-	err = database.SaveDescription(description)
-
-	return err
+func describeAll(cCtx *cli.Context) error {
+	limit := cCtx.Int("limit")
+	serviceName := cCtx.String("service")
+	modelName := cCtx.String("model")
+	return database.GenerateDescriptionsForAll(limit, serviceName, modelName)
 }

@@ -192,7 +192,7 @@ func GetSuspect(suspectUUID string) (Suspect, error) {
 // Get all Suspects and their complete data for specified Investigation.
 // It needs Investigation because we need to iterate over its Rounds and Rounds' Eliminations
 // to set Suspect.Free and Suspect.Fled booleans.
-func getSuspects(suspectUUIDs []string, investigation Investigation) ([]Suspect, error) {
+func getSuspectsInInvestigation(suspectUUIDs []string, investigation Investigation) ([]Suspect, error) {
 	var suspects []Suspect
 	eliminatedSuspectUUIDs := make(map[string]struct{})
 	for i := range investigation.Rounds {
@@ -223,6 +223,56 @@ func getSuspects(suspectUUIDs []string, investigation Investigation) ([]Suspect,
 	}
 
 	return suspects, err
+}
+
+func GetAllSuspects() ([]Suspect, error) {
+	var suspects []Suspect
+	rows, err := database.Query("SELECT uuid, image, timestamp FROM suspects", numSuspect)
+	if err != nil {
+		log.Printf("Could not get random suspects: %v\n", err)
+		return suspects, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var suspect Suspect
+		err := rows.Scan(&suspect.UUID, &suspect.Image, &suspect.Timestamp)
+		if err != nil {
+			log.Printf("Could not scan suspect: %v\n", err)
+			return suspects, err
+		}
+		suspects = append(suspects, suspect)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error during suspects rows iteration: %v\n", err)
+		return suspects, err
+	}
+
+	return suspects, nil
+}
+
+// Get suspects and filter them by number of their descriptions by selected model.
+// Only suspects with less than limit number of descriptions will be returned.
+// Mostly used just for generation of descriptions in dev.go.
+func GetSuspectsByDescriptions(limit int, serviceName, modelName string) ([]Suspect, error) {
+	var suspects []Suspect
+	allSuspects, err := GetAllSuspects()
+	if err != nil {
+		return suspects, err
+	}
+	for _, suspect := range allSuspects {
+		descriptions, err := GetDescriptionsForSuspect(suspect.UUID, serviceName, modelName)
+		if err != nil {
+			fmt.Printf("Error getting descriptions for suspect (%s): %v", suspect.UUID, err)
+			continue
+		}
+		if len(descriptions) >= limit {
+			continue
+		}
+		suspects = append(suspects, suspect)
+	}
+	return suspects, nil
 }
 
 func randomSuspects() ([]Suspect, error) {
@@ -522,7 +572,7 @@ func getCurrentInvestigation(gameUUID string) (Investigation, error) {
 		return investigation, err
 	}
 
-	investigation.Suspects, err = getSuspects(suspects_uuids, investigation)
+	investigation.Suspects, err = getSuspectsInInvestigation(suspects_uuids, investigation)
 	if err != nil {
 		return investigation, err
 	}
@@ -1059,8 +1109,8 @@ func SaveDescription(d Description) error {
 
 func GetDescriptionsForSuspect(suspectUUID, service, model string) ([]Description, error) {
 	var descriptions []Description
-	query := "SELECT UUID, Description, Prompt, Timestamp FROM descriptions WHERE Service = $1 AND Model = $2"
-	rows, err := database.Query(query, service, model)
+	query := "SELECT UUID, Description, Prompt, Timestamp FROM descriptions WHERE SuspectUUID = $1 AND Service = $2 AND Model = $3"
+	rows, err := database.Query(query, suspectUUID, service, model)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get descriptions: %w", err)
 	}
