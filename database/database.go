@@ -20,7 +20,6 @@ import (
 var database *sql.DB
 
 const (
-	TimeFormat        string = time.RFC3339Nano
 	defaultPlayerName string = "anonymous"
 	appName           string = "suspects"
 	numSuspect        int    = 15 // How many suspects are in one investigation - there were 12 in original board game.
@@ -167,7 +166,7 @@ func SaveSuspect(suspect Suspect) error {
 		return nil
 	}
 
-	timestamp := time.Now().String()
+	timestamp := TimestampNow()
 	query := "INSERT into suspects (uuid, image, timestamp) VALUES (?, ?, ?)"
 	_, err = database.Exec(query, suspect.UUID, suspect.Image, timestamp)
 	if err != nil {
@@ -281,7 +280,7 @@ const createGamesTable = `
 func NewGame() (Game, error) {
 	var game Game
 	game.UUID = uuid.New().String()
-	game.Timestamp = time.Now().String()
+	game.Timestamp = TimestampNow()
 	game.Score = 0
 	game.Investigator = defaultPlayerName
 	err := saveGame(game)
@@ -454,7 +453,7 @@ func NewInvestigation(gameUUID string) (Investigation, error) {
 	var i Investigation
 	i.UUID = uuid.New().String()
 	i.GameUUID = gameUUID
-	i.Timestamp = time.Now().String()
+	i.Timestamp = TimestampNow()
 
 	round, err := NewRound(i.UUID)
 	if err != nil {
@@ -575,7 +574,7 @@ func NewRound(investigationUUID string) (Round, error) {
 	var r Round
 	r.UUID = uuid.New().String()
 	r.InvestigationUUID = investigationUUID
-	r.Timestamp = time.Now().Format(TimeFormat)
+	r.Timestamp = TimestampNow()
 	question, err := GetRandomQuestion()
 	if err != nil {
 		return r, err
@@ -652,7 +651,7 @@ const createEliminationsTable = `
 // and if not update the Game.Score accordingly.
 func SaveElimination(suspectUUID, roundUUID, investigationUUID string) error {
 	UUID := uuid.New().String()
-	timestamp := time.Now().Format(TimeFormat)
+	timestamp := TimestampNow()
 	query := `INSERT OR REPLACE INTO eliminations (UUID, RoundUUID, SuspectUUID, Timestamp) VALUES (?, ?, ?, ?)`
 	_, err := database.Exec(query, UUID, roundUUID, suspectUUID, timestamp)
 	if err != nil {
@@ -1102,7 +1101,7 @@ func SaveDescription(d Description) error {
 		INSERT OR REPLACE INTO descriptions (UUID, SuspectUUID, Service, Model, Description, Prompt, Timestamp)
 		VALUES (?, ?, ?, ?, ?, ?, ?)`
 
-	timestamp := time.Now().Format(TimeFormat)
+	timestamp := TimestampNow()
 	if d.UUID == "" {
 		d.UUID = uuid.New().String()
 	}
