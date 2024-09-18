@@ -83,6 +83,7 @@ func initDB(database *sql.DB) error {
 		createRoundsTable,
 		createEliminationsTable,
 		createServicesTable,
+		createDescriptionsTable,
 	}
 	for i := range tables {
 		_, err := database.Exec(tables[i])
@@ -1069,4 +1070,71 @@ func WaitForAnswer(roundUUID string) string {
 		// Wait for the polling interval before checking again
 		time.Sleep(pollInterval)
 	}
+}
+
+// MARK: DESCRIPTIONS
+
+// Holds description of the Suspect image. There can be multiple descriptions for one Suspect.
+// Descriptions can be made by different Services and different Models.
+type Description struct {
+	UUID        string `json:"UUID"`
+	SuspectUUID string `json:"SuspectUUID"`
+	Service     string `json:"Service"`
+	Model       string `json:"Model"`
+	Description string `json:"Description"`
+	Prompt      string `json:"Prompt"`
+	Timestamp   string `json:"Timestamp"`
+}
+
+const createDescriptionsTable = `
+	CREATE TABLE IF NOT EXISTS descriptions (
+		UUID TEXT PRIMARY KEY,
+		SuspectUUID TEXT,
+		Service TEXT,
+		Model TEXT,
+		Description TEXT,
+		Prompt TEXT,
+		Timestamp TEXT
+	);`
+
+func SaveDescription(d Description) error {
+	query := `
+		INSERT OR REPLACE INTO descriptions (UUID, SuspectUUID, Service, Model, Description, Prompt, Timestamp)
+		VALUES (?, ?, ?, ?, ?, ?, ?)`
+
+	timestamp := time.Now().Format(TimeFormat)
+	if d.UUID == "" {
+		d.UUID = uuid.New().String()
+	}
+	_, err := database.Exec(query, d.UUID, d.SuspectUUID, d.Service, d.Model, d.Description, d.Prompt, timestamp)
+	return err
+}
+
+func GetDescriptionsForSuspect(suspectUUID, service, model string) ([]Description, error) {
+	var descriptions []Description
+	query := "SELECT UUID, Description, Prompt, Timestamp FROM descriptions WHERE Service = $1 AND Model = $2"
+	rows, err := database.Query(query, service, model)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get descriptions: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var d = Description{
+			SuspectUUID: suspectUUID,
+			Service:     service,
+			Model:       model,
+		}
+		err := rows.Scan(&d.UUID, &d.Description, &d.Prompt, &d.Timestamp)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan description row: %w", err)
+		}
+		descriptions = append(descriptions, d)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("description rows iteration error: %w", err)
+	}
+
+	return descriptions, nil
 }
