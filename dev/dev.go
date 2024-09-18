@@ -129,7 +129,7 @@ func copyFile(src, dst string) error {
 }
 
 func generateDescription(cCtx *cli.Context) error {
-	suspectID := cCtx.String("suspect-id")
+	suspectUUID := cCtx.String("suspect-id")
 	serviceName := cCtx.String("service")
 	modelName := cCtx.String("model")
 
@@ -142,13 +142,31 @@ func generateDescription(cCtx *cli.Context) error {
 		return fmt.Errorf("token for service %s not set", serviceName)
 	}
 
+	suspect, err := database.GetSuspect(suspectUUID)
+	if err != nil {
+		return err
+	}
+
+	imgPath := filepath.Join("frontend", "public", "suspects", suspect.Image)
+	fmt.Println("image path is:", imgPath)
+
+	text, prompt, err := database.OpenAIDescribeImage(imgPath, modelName, service.Token)
+	if err != nil {
+		return err
+	}
+
 	description := database.Description{
 		UUID:        uuid.New().String(),
-		SuspectUUID: suspectID,
+		SuspectUUID: suspectUUID,
 		Service:     service.Name,
 		Model:       modelName,
+		Description: text,
+		Prompt:      prompt,
 		Timestamp:   database.TimestampNow(),
 	}
+
+	fmt.Printf("Saving description: %+v\n", description)
+
 	err = database.SaveDescription(description)
 
 	return err

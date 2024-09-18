@@ -177,7 +177,7 @@ func SaveSuspect(suspect Suspect) error {
 
 // Get the basic suspect data from the Database without Suspect.Free field!
 // Because Suspect.Free and Suspect.Fled needs information from table Investigation->Rounds->Eliminations.
-func getSuspect(suspectUUID string) (Suspect, error) {
+func GetSuspect(suspectUUID string) (Suspect, error) {
 	var suspect Suspect
 	row := database.QueryRow("SELECT uuid, image, timestamp FROM suspects WHERE uuid = $1 LIMIT 1", suspectUUID)
 	err := row.Scan(&suspect.UUID, &suspect.Image, &suspect.Timestamp)
@@ -206,7 +206,7 @@ func getSuspects(suspectUUIDs []string, investigation Investigation) ([]Suspect,
 	var err error
 	for x := range suspectUUIDs {
 		var suspect Suspect
-		suspect, err = getSuspect(suspectUUIDs[x])
+		suspect, err = GetSuspect(suspectUUIDs[x])
 		if err != nil {
 			log.Printf("Error iterating over suspects: %v", err)
 		}
