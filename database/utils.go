@@ -18,6 +18,14 @@ func TimestampNow() string {
 	return time.Now().Format(TimeFormat)
 }
 
+func DescriptionsToString(descriptions []Description) string {
+	var output string
+	for _, description := range descriptions {
+		output += description.Description + ""
+	}
+	return output
+}
+
 // Get the base46 string of the image at the specified imagePath.
 func ImageToBase64(imagePath string) (string, error) {
 	ext := filepath.Ext(imagePath)

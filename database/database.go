@@ -12,6 +12,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/sashabaranov/go-openai"
 	"golang.org/x/exp/rand"
 )
 
@@ -843,12 +844,35 @@ func getQuestion(questionUUID string) (Question, error) {
 // TODO: actually implement this.
 func GetAnswerFromAI(round Round, criminalUUID string) {
 	fmt.Println(">>> GetAnswerFromAI called!")
-	var answer string
-	n := rand.Intn(2)
-	if n%2 == 0 {
-		answer = "yes"
-	} else {
-		answer = "no"
+	modelName := openai.GPT4o20240806 // TODO: do this dynamically
+	serviceName := "OpenAI"           // TODO: do this dynamically
+	service, err := GetService(serviceName)
+	if err != nil {
+		fmt.Printf("GetAnswerFromAI at Round (%s) with Criminal (%s) - GetService() error: %v\n", round.UUID, criminalUUID, err)
+		SaveAnswer("failed GetService()", round.UUID)
+		return
+	}
+
+	descriptions, err := GetDescriptionsForSuspect(criminalUUID, service.Name, modelName)
+	if err != nil {
+		fmt.Printf("GetAnswerFromAI at Round (%s) with Criminal (%s) - GetDescriptionsForSuspect() error: %v\n", round.UUID, criminalUUID, err)
+		SaveAnswer("failed GetDescriptionsForSuspect()", round.UUID)
+		return
+	}
+	description := DescriptionsToString(descriptions)
+
+	question, err := getQuestion(round.Question.UUID)
+	if err != nil {
+		fmt.Printf("GetAnswerFromAI at Round (%s) with Criminal (%s) - getQuestion() error: %v\n", round.UUID, criminalUUID, err)
+		SaveAnswer("failed getQuestion()", round.UUID)
+		return
+	}
+
+	answer, err := OpenAIGetAnswer(question.English, description, modelName, service.Token)
+	if err != nil {
+		fmt.Printf("GetAnswerFromAI at Round (%s) with Criminal (%s) - OpenAIGetAnswer() error: %v\n", round.UUID, criminalUUID, err)
+		SaveAnswer("failed OpenAIGetAnswer()", round.UUID)
+		return
 	}
 
 	fmt.Println("Answer is:", answer)
