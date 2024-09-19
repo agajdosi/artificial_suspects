@@ -97,7 +97,7 @@ jobs:
       - name: Wails Doctor
         run: wails doctor
       - name: BUILD
-        run: wails build -platform darwin/amd64,darwin/arm64
+        run: GOPROXY=direct wails build -platform darwin/amd64,darwin/arm64
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
