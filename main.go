@@ -20,12 +20,16 @@ var assets embed.FS
 
 func init() {
 	fmt.Println("App initializing")
+	database.PrintEmbededAssets(assets)
 	err := database.EnsureConfigDirAvailable()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = database.EnsureDBAvailable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = database.InitDB(assets)
 	if err != nil {
 		log.Fatal(err)
 	}

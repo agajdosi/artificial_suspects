@@ -1,8 +1,11 @@
 package database
 
 import (
+	"embed"
 	"encoding/base64"
 	"fmt"
+	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,4 +51,18 @@ func ImageToBase64(imagePath string) (string, error) {
 	base64Image := base64.StdEncoding.EncodeToString(imageBytes)
 
 	return base64Image, nil
+}
+
+func PrintEmbededAssets(assets embed.FS) {
+	fmt.Println("Listing all files in the embedded assets:")
+	err := fs.WalkDir(assets, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		fmt.Println(path)
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("Failed to list embedded assets: %v", err)
+	}
 }

@@ -1,16 +1,16 @@
 package database
 
 import (
+	"embed"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 )
 
 // loadSuspectImages reads all jpeg image files (e.g., JPEG, jpeg, JPG, jpg) from the suspects directory.
-func loadSuspectImages() ([]string, error) {
-	directory := "./frontend/public/suspects"
-	files, err := os.ReadDir(directory)
+func loadSuspectImages(assets embed.FS) ([]string, error) {
+	directory := "frontend/dist/suspects"
+	files, err := assets.ReadDir(directory)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory: %v", err)
 	}

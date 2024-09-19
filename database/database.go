@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
 	"log"
 	"os"
@@ -65,16 +66,10 @@ func EnsureDBAvailable() error {
 	database = db
 	fmt.Println("Database successfully opened!")
 
-	err = initDB(db)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Database prepared and available!")
 	return nil
 }
 
-func initDB(database *sql.DB) error {
+func InitDB(assets embed.FS) error {
 	var tables = []string{
 		createGamesTable,
 		createInvestigationsTable,
@@ -95,10 +90,11 @@ func initDB(database *sql.DB) error {
 		return err
 	}
 
-	err = InitSuspectsTable()
+	err = InitSuspectsTable(assets)
 	if err != nil {
 		return err
 	}
+	log.Println("Database successfully initiated.")
 
 	return nil
 }
@@ -120,13 +116,13 @@ const createSuspectsTable = `
 		timestamp TEXT
 	);`
 
-func InitSuspectsTable() error {
+func InitSuspectsTable(assets embed.FS) error {
 	_, err := database.Exec(createSuspectsTable)
 	if err != nil {
 		return err
 	}
 
-	imagePaths, err := loadSuspectImages()
+	imagePaths, err := loadSuspectImages(assets)
 	if err != nil {
 		return err
 	}
