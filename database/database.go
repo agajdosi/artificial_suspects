@@ -1067,29 +1067,34 @@ func SaveToken(serviceName, token string) error {
 	return nil
 }
 
+// Wait until non-empty Answer appears on the Round record in Rounds table.
+// Timeouts in 60 seconds, retries every 1 second. Answer is not modified anyhow,
+// needs to be handled after return. On error returned answer is "". On error during
+// generation of the answer, it is something like "failed OpenAI()". If everything was
+// ok, the answer should be YES or NO, or lowercase variant - parse it later!
 func WaitForAnswer(roundUUID string) string {
-	pollInterval := 2 * time.Second
-	timeout := 30 * time.Second
+	pollInterval := 1 * time.Second
+	timeout := 60 * time.Second
 	start := time.Now()
+	var answer string
 	for {
-		if time.Since(start) > timeout {
-			log.Printf("timed out waiting for answer to be available on Round (%s)\n", roundUUID)
-			return ""
-		}
-
-		var answer string
 		err := database.QueryRow("SELECT answer FROM rounds WHERE uuid = $1", roundUUID).Scan(&answer)
 		if err == sql.ErrNoRows {
 			log.Printf("Answer not available yet for Round (%s). Retrying...\n", roundUUID)
 		} else if err != nil {
 			log.Printf("Error querying answer for Round (%s), err: %v\n", roundUUID, err)
 			return ""
+		} else if answer == "" {
+			log.Printf("Answer is still empty, lets sleep for a while...")
 		} else {
+			log.Printf("Answer found: %s", answer)
 			return answer
 		}
-
-		// Wait for the polling interval before checking again
-		time.Sleep(pollInterval)
+		if time.Since(start) > timeout {
+			log.Printf("timed out waiting for answer to be available on Round (%s)\n", roundUUID)
+			return ""
+		}
+		time.Sleep(pollInterval) // Wait for the polling interval before checking again
 	}
 }
 
