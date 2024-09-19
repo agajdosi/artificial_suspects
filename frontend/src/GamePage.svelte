@@ -14,6 +14,7 @@
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
+    import App from './App.svelte';
     const dispatch = createEventDispatcher();
     function goToMenu() {dispatch('message', { message: 'goToHome' });}
 
@@ -87,7 +88,7 @@
     {:else}
         <div class="question">{game.investigation.rounds.length}. {game.investigation.rounds.at(-1).Question.English}</div>
         {#if answerIsLoading}
-            <div class="waiting">...waiting for answer</div>
+            <div class="waiting">*thinking*</div>
         {:else}
             <div class="answer">{answer.toUpperCase()}!</div>
         {/if}
@@ -95,9 +96,10 @@
     </div>
     <div class="instruction">
         {#if !answerIsLoading}
-            {#if answer == "yes"}Release those who are not.
-            {:else}Release those who are.
+            {#if answer == "yes"}Release those who aren't/doesn't.
+            {:else}Release those who are/do.
             {/if}
+        {:else}Waiting for the answer...
         {/if}
     </div>
 </div>
