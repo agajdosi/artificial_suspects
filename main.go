@@ -8,6 +8,9 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
 	"suspects/database"
 )
@@ -37,6 +40,7 @@ func main() {
 		Title:  "Suspects",
 		Width:  1024,
 		Height: 768,
+		// Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -44,6 +48,14 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
+		},
+		Linux:   &linux.Options{},
+		Windows: &windows.Options{},
+		Mac: &mac.Options{
+			About: &mac.AboutInfo{
+				Title:   "Suspects",
+				Message: "Conceptual game by Andreas Gajdosik.",
+			},
 		},
 	})
 
