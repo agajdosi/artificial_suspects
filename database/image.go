@@ -2,7 +2,7 @@ package database
 
 import (
 	"embed"
-	"fmt"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -12,7 +12,7 @@ func loadSuspectImages(assets embed.FS) ([]string, error) {
 	directory := "frontend/dist/suspects"
 	files, err := assets.ReadDir(directory)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read directory: %v", err)
+		log.Printf("FAILED TO READ DIRECTORY %s: %v, if this is outside bindings step, there is huge problem!", directory, err)
 	}
 
 	var imageFiles []string
