@@ -103,7 +103,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build
+          name: macos-amd64-build
           path: ./builded.tar
 
   macos_arm64_build:
@@ -127,5 +127,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build
+          name: macos-arm64-build
           path: ./builded.tar
