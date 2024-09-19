@@ -82,7 +82,7 @@ jobs:
           name: linux-build
           path: ./build/bin
         
-  macos_build:
+  macos_amd64_build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -97,7 +97,31 @@ jobs:
       - name: Wails Doctor
         run: wails doctor
       - name: BUILD
-        run: GOPROXY=direct wails build -platform darwin/amd64,darwin/arm64
+        run: wails build -platform darwin/amd64
+      - name: 'Tar files'
+        run: tar -cvf ./builded.tar ./build/bin
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: ./builded.tar
+
+  macos_arm64_build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: './go.sum'
+        id: go
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Wails Doctor
+        run: wails doctor
+      - name: BUILD
+        run: wails build -platform darwin/arm64
       - name: 'Tar files'
         run: tar -cvf ./builded.tar ./build/bin
       - name: Upload Artifact
