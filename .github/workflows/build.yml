@@ -27,7 +27,7 @@ jobs:
       - name: BUILD
         run: wails build -platform windows/amd64,windows/arm64
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: ./build/bin
@@ -51,7 +51,7 @@ jobs:
       - name: BUILD
         run: wails build -platform windows -windowsconsole -debug
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build-console-debug
           path: ./build/bin
@@ -77,7 +77,7 @@ jobs:
       - name: BUILD
         run: wails build -platform linux/amd64
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: ./build/bin
@@ -99,7 +99,7 @@ jobs:
       - name: BUILD
         run: GOPROXY=direct wails build -platform darwin/amd64,darwin/arm64
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: ./build/bin
