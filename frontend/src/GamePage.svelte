@@ -4,6 +4,7 @@
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
     import Scores from './Scores.svelte';
+    import { locale, t } from 'svelte-i18n';
 
     export let game: database.Game;
     let lastRoundUUID: string;
@@ -11,11 +12,6 @@
     let answer: string;
     let hint: string = "hint...";  // TODO: capture hints
     let scoresVisible: boolean = true;
-
-    const czech: string = "cz";
-    const polish: string = "pl";
-    const english: string = "en";
-    let language: string = english; // TODO: probably should be set in App.svelte to make it global
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
@@ -81,7 +77,7 @@
     }
 
     function changeLanguage(code: string) {
-        language = code;
+        $locale = code;
     }
 
 </script>
@@ -94,9 +90,9 @@
         {:else}
             <div class="question">
                 {game.investigation.rounds.length}.
-                {#if language == czech}
+                {#if $locale == "cz"}
                     {game.investigation.rounds.at(-1).Question.Czech}
-                {:else if language == polish}
+                {:else if $locale == "pl"}
                     {game.investigation.rounds.at(-1).Question.Polish}
                 {:else}
                     {game.investigation.rounds.at(-1).Question.English}
@@ -105,23 +101,25 @@
             {#if answerIsLoading}
                 <div class="waiting">*thinking*</div>
             {:else}
-                <div class="answer">{answer.toUpperCase()}!</div>
+                <div class="answer">
+                    {$t(answer.toLocaleLowerCase())}!
+                </div>
             {/if}
         {/if}
         </div>
         <div class="instruction">
             {#if !answerIsLoading}
-                {#if answer == "yes"}Release those who aren't/doesn't.
-                {:else}Release those who are/do.
+                {#if answer.toLowerCase() == "yes"}{$t('release-no')}
+                {:else}{$t('release-yes')}
                 {/if}
             {:else}Waiting for the answer...
             {/if}
         </div>
     </div>
     <div class="top-right">
-        <button on:click={() => changeLanguage('en')} class="langbtn" class:active={language === 'en'}>en</button>
-        <button on:click={() => changeLanguage('cz')} class="langbtn" class:active={language === 'cz'}>cz</button>
-        <button on:click={() => changeLanguage('pl')} class="langbtn" class:active={language === 'pl'}>pl</button>
+        <button on:click={() => changeLanguage('en')} class="langbtn" class:active={$locale === 'en'}>en</button>
+        <button on:click={() => changeLanguage('cz')} class="langbtn" class:active={$locale === 'cz'}>cz</button>
+        <button on:click={() => changeLanguage('pl')} class="langbtn" class:active={$locale === 'pl'}>pl</button>
     </div>
 </div>
 
@@ -139,14 +137,14 @@
         <div class="actions">
             {#if !game.investigation.InvestigationOver}
                 {#if game.GameOver}
-                    <button on:click={newGame}>New Game</button>
+                    <button on:click={newGame}>{$t('buttons.newGame')}</button>
                 {:else}
                 <button
                     on:click={nextRound}
                     disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
                     aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
                     >
-                    Next Question
+                    {$t('buttons.nextQuestion')}
                 </button>
                 {/if}
             {/if}
@@ -154,7 +152,7 @@
     </div>
 
     <div class="right">
-        <div class="history"><History {game} {language}/></div>
+        <div class="history"><History {game}/></div>
     </div>
 </div>
 
@@ -244,6 +242,10 @@
 .history {
     display: flex;
     flex-direction: column-reverse;
+}
+
+.answer {
+    text-transform: uppercase;
 }
 
 </style>

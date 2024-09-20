@@ -1,0 +1,16 @@
+{
+    "yes": "yes",
+    "no": "no",
+    "greeting": "Hello",
+    "release-no": "Release those who aren't/doesn't.",
+    "release-yes": "Release those who are/do.",
+    "thinking": "AI is thinking",
+    "buttons": {
+        "newGame": "New Game",
+        "continueGame": "Continue Game",
+        "configuration": "Configuration",
+        "nextQuestion": "Next Question",
+        "close": "Close",
+        "confirm": "Confirm"
+    }
+}

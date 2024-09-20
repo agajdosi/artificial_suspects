@@ -2,6 +2,7 @@
     import { database } from '../wailsjs/go/models';
     import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher, onMount } from 'svelte';
+    import { t } from 'svelte-i18n';
 
     export let game: database.Game;
     let name: string;
@@ -83,8 +84,8 @@
         </div>
     {/if}
 
-    <button on:click={closeScores}>Close</button>
-    <button on:click={newGameDispatcher}>New Game</button>  
+    <button on:click={closeScores}>{$t('buttons.close')}</button>
+    <button on:click={newGameDispatcher}>{$t('buttons.newGame')}</button>  
 </div>
 
 <style>

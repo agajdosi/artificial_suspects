@@ -1,23 +1,25 @@
 <script lang="ts">
     import { database } from '../wailsjs/go/models';
+    import { locale, t } from 'svelte-i18n';
 
     export let game: database.Game;
-    export let language: string;
 </script>
 
 {#each [...game.investigation.rounds].reverse().slice(1).reverse() as round, index}
     <div class="round">
         <div class="question">
             {index+1}.
-            {#if language == "cz"}
+            {#if $locale == "cz"}
                 {round.Question.Czech}
-            {:else if language == "pl"}
+            {:else if $locale == "pl"}
                 {round.Question.Polish}
             {:else}
                 {round.Question.English}
             {/if}
         </div>
-        <div class="answer">{round.answer}</div>
+        <div class="answer">
+            {$t(round.answer.toLocaleLowerCase())}!
+        </div>
     </div>
 {/each}
 
@@ -46,5 +48,6 @@
     background-color: #3c1c54;
     align-self: flex-end;
     border-bottom-right-radius: 0;
+    text-transform: capitalize;
 }
 </style>

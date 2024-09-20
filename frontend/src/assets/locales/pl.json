@@ -1,0 +1,16 @@
+{
+    "yes": "tak",
+    "no": "nie",
+    "greeting": "Cześć",
+    "release-no": "Zwolnić tych, którzy nie.",
+    "release-yes": "Zwolnij tych, którzy to robią/tacy są.",
+    "thinking": "SI myśli",
+    "buttons": {
+        "newGame": "Nowa gra",
+        "continueGame": "Kontynuacja gry",
+        "configuration": "Konfiguracja",
+        "nextQuestion": "Następne pytanie",
+        "close": "Zamknij",
+        "confirm": "Potwierdź"
+    }
+}

@@ -5,6 +5,15 @@
     import ConfigPage from './ConfigPage.svelte'
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
     import { database } from '../wailsjs/go/models';
+    import { register, init} from 'svelte-i18n';
+
+    register('en', () => import('./assets/locales/en.json'));
+    register('cz', () => import('./assets/locales/cz.json'));
+    register('pl', () => import('./assets/locales/pl.json'));
+    init({
+        fallbackLocale: 'en',
+        initialLocale: 'en'
+    });
 
     let screen = 'home'; // State to track the current screen
     let game: database.Game;

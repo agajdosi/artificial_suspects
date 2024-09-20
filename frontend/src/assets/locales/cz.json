@@ -1,0 +1,20 @@
+{
+    "yes": "ano",
+    "no": "ne",
+    "greeting": "Ahoj",
+    "release-no": "Propusťte ty, kteří ne.",
+    "release-yes": "Propusťte ty, kteří ano.",
+    "thinking": "AI přemýšlí",
+    "buttons": {
+        "newGame": "Nová hra",
+        "continueGame": "Pokračovat ve hře",
+        "configuration": "Konfigurace",
+        "nextQuestion": "Další otázka",
+        "close": "Zavřít",
+        "confirm": "Potvrdit"
+    }
+}
+
+
+
+
