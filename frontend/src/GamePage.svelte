@@ -11,7 +11,11 @@
     let answer: string;
     let hint: string = "hint...";  // TODO: capture hints
     let scoresVisible: boolean = true;
-    let language: string = "english";
+
+    const czech: string = "cz";
+    const polish: string = "pl";
+    const english: string = "en";
+    let language: string = english; // TODO: probably should be set in App.svelte to make it global
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
@@ -75,6 +79,11 @@
     function handleToggleScores(event) {
         scoresVisible = event.detail.scoresVisible;
     }
+
+    function changeLanguage(code: string) {
+        language = code;
+    }
+
 </script>
 
 <div class="top">
@@ -83,7 +92,16 @@
         {#if game.investigation.InvestigationOver}
             <div class="jailtime">Arrest the Perp!</div>
         {:else}
-            <div class="question">{game.investigation.rounds.length}. {game.investigation.rounds.at(-1).Question.English}</div>
+            <div class="question">
+                {game.investigation.rounds.length}.
+                {#if language == czech}
+                    {game.investigation.rounds.at(-1).Question.Czech}
+                {:else if language == polish}
+                    {game.investigation.rounds.at(-1).Question.Polish}
+                {:else}
+                    {game.investigation.rounds.at(-1).Question.English}
+                {/if}
+            </div>
             {#if answerIsLoading}
                 <div class="waiting">*thinking*</div>
             {:else}
@@ -101,9 +119,9 @@
         </div>
     </div>
     <div class="top-right">
-        <button class="langbtn">en</button>
-        <button class="langbtn">cz</button>
-        <button class="langbtn">pl</button>
+        <button on:click={() => changeLanguage('en')} class="langbtn" class:active={language === 'en'}>en</button>
+        <button on:click={() => changeLanguage('cz')} class="langbtn" class:active={language === 'cz'}>cz</button>
+        <button on:click={() => changeLanguage('pl')} class="langbtn" class:active={language === 'pl'}>pl</button>
     </div>
 </div>
 
@@ -208,11 +226,19 @@
 }
 
 .top-right {
-
+    padding: 3px 7px 0 0;
 }
 
 .langbtn {
     all: unset;
+    text-decoration: underline;
+    min-width: 20px;
+}
+.langbtn:hover{
+    cursor: pointer;
+}
+.langbtn.active {
+    text-transform: uppercase;
 }
 
 .history {

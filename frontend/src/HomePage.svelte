@@ -10,9 +10,9 @@
 <h1>Unusual Suspects</h1>
 
 <div class="menu">
-    <button on:click={newGameDispatcher}>NEW GAME</button>
-    <button on:click={continueGameDispatcher}>CONTINUE GAME</button>
-    <button on:click={enterConfigDispatcher}>CONFIGURATION</button>
+    <button on:click={newGameDispatcher}>New Game</button>
+    <button on:click={continueGameDispatcher}>Continue Game</button>
+    <button on:click={enterConfigDispatcher}>Configuration</button>
 </div>
 
 <style>
