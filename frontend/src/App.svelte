@@ -65,3 +65,26 @@
         <ConfigPage on:message={handleMessage}/>
     {/if}
 </main>
+
+<style>
+:global(button) {
+    display: inline-block;
+    outline: 0;
+    text-align: center;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: 0;
+    color: #fff;
+    font-size: 17.5px;
+    border: 2px solid transparent;
+    border-color: #ffffff;
+    color: #ffffff;
+    background: transparent;
+    transition: background,color .1s ease-in-out;
+}
+                
+:global(button:hover) {
+    background-color: #ffffff;
+    color: #000000;
+}
+</style>

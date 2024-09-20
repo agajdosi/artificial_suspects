@@ -11,10 +11,10 @@
     let answer: string;
     let hint: string = "hint...";  // TODO: capture hints
     let scoresVisible: boolean = true;
+    let language: string = "english";
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
-    import App from './App.svelte';
     const dispatch = createEventDispatcher();
     function goToMenu() {dispatch('message', { message: 'goToHome' });}
 
@@ -77,30 +77,33 @@
     }
 </script>
 
-<div class="header">
-    <button on:click={goToMenu}>Menu</button>
-</div>
-
 <div class="top">
-    <div class="main">
-    {#if game.investigation.InvestigationOver}
-        <div class="jailtime">Arrest the Perp!</div>
-    {:else}
-        <div class="question">{game.investigation.rounds.length}. {game.investigation.rounds.at(-1).Question.English}</div>
-        {#if answerIsLoading}
-            <div class="waiting">*thinking*</div>
+    <div class="top-left">
+        <div class="main">
+        {#if game.investigation.InvestigationOver}
+            <div class="jailtime">Arrest the Perp!</div>
         {:else}
-            <div class="answer">{answer.toUpperCase()}!</div>
-        {/if}
-    {/if}
-    </div>
-    <div class="instruction">
-        {#if !answerIsLoading}
-            {#if answer == "yes"}Release those who aren't/doesn't.
-            {:else}Release those who are/do.
+            <div class="question">{game.investigation.rounds.length}. {game.investigation.rounds.at(-1).Question.English}</div>
+            {#if answerIsLoading}
+                <div class="waiting">*thinking*</div>
+            {:else}
+                <div class="answer">{answer.toUpperCase()}!</div>
             {/if}
-        {:else}Waiting for the answer...
         {/if}
+        </div>
+        <div class="instruction">
+            {#if !answerIsLoading}
+                {#if answer == "yes"}Release those who aren't/doesn't.
+                {:else}Release those who are/do.
+                {/if}
+            {:else}Waiting for the answer...
+            {/if}
+        </div>
+    </div>
+    <div class="top-right">
+        <button class="langbtn">en</button>
+        <button class="langbtn">cz</button>
+        <button class="langbtn">pl</button>
     </div>
 </div>
 
@@ -121,12 +124,12 @@
                     <button on:click={newGame}>New Game</button>
                 {:else}
                 <button
-                        on:click={nextRound}
-                        disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
-                        aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
-                        >
-                        Next Question
-                    </button>
+                    on:click={nextRound}
+                    disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
+                    aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
+                    >
+                    Next Question
+                </button>
                 {/if}
             {/if}
         </div>
@@ -153,13 +156,6 @@
 .header {
     display: flex;
     justify-content: right;
-}
-
-.top {
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    font-size: 2rem;
 }
 
 .middle {
@@ -189,17 +185,34 @@
     gap: 1rem;
 }
 
+.top {
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .top .main {
+    padding: 1rem 0 0 0;
     display: flex;
     flex-direction: row;
     gap: 1rem;
     margin: 0 0 0 1rem;
+    font-size: 2rem;
 }
 
 .top .instruction {
     font-size: 1.2rem;
     display: flex;
     margin: 0 0 0 1.1rem;
+}
+
+.top-right {
+
+}
+
+.langbtn {
+    all: unset;
 }
 
 .history {
