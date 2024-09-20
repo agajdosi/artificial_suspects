@@ -86,7 +86,9 @@
     <div class="top-left">
         <div class="main">
         {#if game.investigation.InvestigationOver}
-            <div class="jailtime">Arrest the Perp!</div>
+            <div class="jailtime">
+                {$t('arrest')}
+            </div>
         {:else}
             <div class="question">
                 {game.investigation.rounds.length}.
@@ -99,7 +101,7 @@
                 {/if}
             </div>
             {#if answerIsLoading}
-                <div class="waiting">*thinking*</div>
+                <div class="waiting">*{$t('thinking')}*</div>
             {:else}
                 <div class="answer">
                     {$t(answer.toLocaleLowerCase())}!
@@ -108,11 +110,14 @@
         {/if}
         </div>
         <div class="instruction">
-            {#if !answerIsLoading}
+            {#if game.investigation.InvestigationOver}
+                {$t('arrestInstruction')}
+            {:else if !answerIsLoading}
                 {#if answer.toLowerCase() == "yes"}{$t('release-no')}
                 {:else}{$t('release-yes')}
                 {/if}
-            {:else}Waiting for the answer...
+            {:else}
+                {$t('waiting')}...
             {/if}
         </div>
     </div>

@@ -5,6 +5,9 @@
     "release-no": "Propusťte ty, kteří ne.",
     "release-yes": "Propusťte ty, kteří ano.",
     "thinking": "AI přemýšlí",
+    "waiting": "Počkejte na odpověď...",
+    "arrest": "Zatkněte zločince!",
+    "arrestInstruction": "A zahajte nové vyšetřování.",
     "buttons": {
         "newGame": "Nová hra",
         "continueGame": "Pokračovat ve hře",

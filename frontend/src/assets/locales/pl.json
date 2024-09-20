@@ -5,6 +5,9 @@
     "release-no": "Zwolnić tych, którzy nie.",
     "release-yes": "Zwolnij tych, którzy to robią/tacy są.",
     "thinking": "SI myśli",
+    "waiting": "Poczekać na odpowiedź...",
+    "arrest": "Aresztuj złoczyńcę!",
+    "arrestInstruction": "I rozpocznie się nowe śledzenie.",
     "buttons": {
         "newGame": "Nowa gra",
         "continueGame": "Kontynuacja gry",

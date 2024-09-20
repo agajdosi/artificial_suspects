@@ -5,6 +5,9 @@
     "release-no": "Release those who aren't/doesn't.",
     "release-yes": "Release those who are/do.",
     "thinking": "AI is thinking",
+    "waiting": "Wait for the answer",
+    "arrest": "Arrest the Perp!",
+    "arrestInstruction": "And a new investigation will begin.",
     "buttons": {
         "newGame": "New Game",
         "continueGame": "Continue Game",
