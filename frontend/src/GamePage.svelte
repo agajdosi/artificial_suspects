@@ -154,7 +154,7 @@
     </div>
 
     <div class="right">
-        <div class="history"><History {game}/></div>
+        <div class="history"><History {game} {language}/></div>
     </div>
 </div>
 

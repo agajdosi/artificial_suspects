@@ -2,11 +2,21 @@
     import { database } from '../wailsjs/go/models';
 
     export let game: database.Game;
+    export let language: string;
 </script>
 
 {#each [...game.investigation.rounds].reverse().slice(1).reverse() as round, index}
     <div class="round">
-        <div class="question">{index+1}. {round.Question.English}</div>
+        <div class="question">
+            {index+1}.
+            {#if language == "cz"}
+                {round.Question.Czech}
+            {:else if language == "pl"}
+                {round.Question.Polish}
+            {:else}
+                {round.Question.English}
+            {/if}
+        </div>
         <div class="answer">{round.answer}</div>
     </div>
 {/each}
