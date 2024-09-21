@@ -8,6 +8,7 @@
     "waiting": "Wait for the answer",
     "arrest": "Arrest the Perp!",
     "arrestInstruction": "And a new investigation will begin.",
+    "interrogated": "Interrogated",
     "buttons": {
         "newGame": "New Game",
         "continueGame": "Continue Game",

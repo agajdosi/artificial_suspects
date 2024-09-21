@@ -76,6 +76,7 @@ func InitDB(assets embed.FS) error {
 		createRoundsTable,
 		createEliminationsTable,
 		createServicesTable,
+		createModelsTable,
 		createDescriptionsTable,
 	}
 	for i := range tables {
@@ -992,7 +993,7 @@ func SaveScore(name, gameUUID string) error {
 	return err
 }
 
-// MARK: AI MODELS
+// MARK: AI SERVICES
 
 type Service struct {
 	Name  string `json:"Name"`
@@ -1092,6 +1093,89 @@ func WaitForAnswer(roundUUID string) string {
 		}
 		time.Sleep(pollInterval) // Wait for the polling interval before checking again
 	}
+}
+
+// MARK: AI MODELS
+
+type Model struct {
+	Name    string `json:"Name"`
+	Service string `json:"Service"`
+	Active  bool   `json:"Active"`
+}
+
+const createModelsTable = `BEGIN;
+CREATE TABLE IF NOT EXISTS models (
+    Name TEXT PRIMARY KEY,
+	Service TEXT,
+    Active INT
+);
+INSERT OR IGNORE INTO models (Name, Service, Active)
+VALUES
+	('gpt-4o-2024-08-06', 'OpenAI', '1'),
+	('chatgpt-4o-latest', 'OpenAI', '0'),
+	('gpt-4o-mini-2024-07-18', 'OpenAI', '0');
+COMMIT;` // as defined in ai.go:supportedModels - hacky way, but OK for now
+
+func GetActiveModel() (Model, error) {
+	var model Model
+	query := "SELECT Name, Service, Active FROM models WHERE Active = 1"
+	err := database.QueryRow(query).Scan(&model.Name, &model.Service, &model.Active)
+	if err != nil {
+		return model, fmt.Errorf("error geting active Model: %v", err)
+	}
+	return model, nil
+}
+
+func GetAllModels() ([]Model, error) {
+	var models []Model
+	query := "SELECT Name, Service, Active FROM models"
+	rows, err := database.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving models: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var model Model
+		err := rows.Scan(&model.Name, &model.Service, &model.Active)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning model: %v", err)
+		}
+		models = append(models, model)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %v", err)
+	}
+
+	return models, nil
+}
+
+func SetActiveModel(modelName string) error {
+	tx, err := database.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+
+	deactivateQuery := "UPDATE models SET Active = 0"
+	_, err = tx.Exec(deactivateQuery)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deactivating models: %v", err)
+	}
+
+	activateQuery := "UPDATE models SET Active = 1 WHERE Name = ?"
+	_, err = tx.Exec(activateQuery, modelName)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error activating model %s: %v", modelName, err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+
+	return nil
 }
 
 // MARK: DESCRIPTIONS

@@ -207,6 +207,22 @@ export namespace database {
 		}
 	}
 	
+	export class Model {
+	    Name: string;
+	    Service: string;
+	    Active: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Model(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.Service = source["Service"];
+	        this.Active = source["Active"];
+	    }
+	}
 	
 	
 	export class Service {

@@ -6,6 +6,14 @@ export function EliminateSuspect(arg1, arg2, arg3) {
   return window['go']['main']['App']['EliminateSuspect'](arg1, arg2, arg3);
 }
 
+export function GetActiveModel() {
+  return window['go']['main']['App']['GetActiveModel']();
+}
+
+export function GetAllModels() {
+  return window['go']['main']['App']['GetAllModels']();
+}
+
 export function GetGame() {
   return window['go']['main']['App']['GetGame']();
 }
@@ -36,6 +44,10 @@ export function SaveScore(arg1, arg2) {
 
 export function SaveToken(arg1, arg2) {
   return window['go']['main']['App']['SaveToken'](arg1, arg2);
+}
+
+export function SetActiveModel(arg1) {
+  return window['go']['main']['App']['SetActiveModel'](arg1);
 }
 
 export function WaitForAnswer(arg1) {

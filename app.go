@@ -124,3 +124,25 @@ func (a *App) SaveToken(serviceName, token string) {
 		log.Println("Could not save token", err)
 	}
 }
+
+func (a *App) GetAllModels() []database.Model {
+	models, err := database.GetAllModels()
+	if err != nil {
+		log.Println("Could not GetAllModels():", err)
+	}
+	return models
+}
+
+func (a *App) SetActiveModel(modelName string) {
+	err := database.SetActiveModel(modelName)
+	if err != nil {
+		fmt.Println("Could not SetActiveModel():", err)
+	}
+}
+func (a *App) GetActiveModel() database.Model {
+	model, err := database.GetActiveModel()
+	if err != nil {
+		fmt.Println("Could not GetActiveModel()")
+	}
+	return model
+}

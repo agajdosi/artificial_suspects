@@ -4,6 +4,10 @@ import {database} from '../models';
 
 export function EliminateSuspect(arg1:string,arg2:string,arg3:string):Promise<void>;
 
+export function GetActiveModel():Promise<database.Model>;
+
+export function GetAllModels():Promise<Array<database.Model>>;
+
 export function GetGame():Promise<database.Game>;
 
 export function GetScores():Promise<Array<database.FinalScore>>;
@@ -19,5 +23,7 @@ export function NextRound():Promise<database.Game>;
 export function SaveScore(arg1:string,arg2:string):Promise<void>;
 
 export function SaveToken(arg1:string,arg2:string):Promise<void>;
+
+export function SetActiveModel(arg1:string):Promise<void>;
 
 export function WaitForAnswer(arg1:string):Promise<string>;

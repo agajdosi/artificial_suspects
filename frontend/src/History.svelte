@@ -1,29 +1,59 @@
 <script lang="ts">
+    import { GetActiveModel } from '../wailsjs/go/main/App.js';
     import { database } from '../wailsjs/go/models';
     import { locale, t } from 'svelte-i18n';
 
     export let game: database.Game;
+    let activeModel: database.Model | null = null;
+
+    GetActiveModel().then(model => {
+        activeModel = model;
+    }).catch(err => {
+        console.error('Error fetching active model:', err);
+    });
 </script>
 
-{#each [...game.investigation.rounds].reverse().slice(1).reverse() as round, index}
-    <div class="round">
-        <div class="question">
-            {index+1}.
-            {#if $locale == "cz"}
-                {round.Question.Czech}
-            {:else if $locale == "pl"}
-                {round.Question.Polish}
-            {:else}
-                {round.Question.English}
-            {/if}
+<div class="history">
+    {#each [...game.investigation.rounds].reverse().slice(1).reverse() as round, index}
+        <div class="round">
+            <div class="question">
+                {index+1}.
+                {#if $locale == "cz"}
+                    {round.Question.Czech}
+                {:else if $locale == "pl"}
+                    {round.Question.Polish}
+                {:else}
+                    {round.Question.English}
+                {/if}
+            </div>
+            <div class="answer">
+                {$t(round.answer.toLocaleLowerCase())}!
+            </div>
         </div>
-        <div class="answer">
-            {$t(round.answer.toLocaleLowerCase())}!
-        </div>
+    {/each}
+</div>
+
+<div class="roles">
+    <div class="model">
+        {$t("interrogated")}:
+        {#if activeModel === null}{$t("loading")}
+        {:else} {activeModel.Name}
+        {/if}
     </div>
-{/each}
+</div>
 
 <style>
+.history {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.roles {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0 2rem 0;
+}
+
 .round {
     display: flex;
 }

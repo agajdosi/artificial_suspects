@@ -157,7 +157,7 @@
     </div>
 
     <div class="right">
-        <div class="history"><History {game}/></div>
+        <History {game}/>
     </div>
 </div>
 
@@ -174,11 +174,6 @@
 {/if}
 
 <style>
-.header {
-    display: flex;
-    justify-content: right;
-}
-
 .middle {
     display: flex;
 }
@@ -188,6 +183,7 @@
 .right {
     padding: 0.2rem 0 0 0;
     width: 100%;
+    max-height: 73vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -242,11 +238,6 @@
 }
 .langbtn.active {
     text-transform: uppercase;
-}
-
-.history {
-    display: flex;
-    flex-direction: column-reverse;
 }
 
 .answer {
