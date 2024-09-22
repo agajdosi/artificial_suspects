@@ -16,5 +16,12 @@
         "nextQuestion": "Next Question",
         "close": "Close",
         "confirm": "Confirm"
+    },
+    "gameOver": {
+        "gameOver": "Game Over!",
+        "riptext": "You've mistakenly released a criminal, while innocent suspects have been unjustly persecuted. Next time, try to delve deeper into the mindset of the AI during its interrogation.",
+        "highScores": "High Scores",
+        "enterName": "enter your name",
+        "loadingScores": "Loading high scores..."
     }
 }

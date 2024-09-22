@@ -49,15 +49,12 @@
 </script>
 
 <div class="infobox">
-    <h1>Game Over!</h1>
-    <div class="riptext">
-        You've mistakenly released a criminal, while innocent suspects have been unjustly persecuted.
-        Next time, try to delve deeper into the mindset of the AI during its interrogation.
-    </div>
+    <h1>{$t('gameOver.gameOver')}</h1>
+    <div class="riptext">{$t('gameOver.riptext')}</div>
 
-    <h2>High Scores</h2>
+    <h2>{$t('gameOver.highScores')}</h2>
     {#if loading}
-        Loading High Scores...
+        {$t('gameOver.loadingScores')}
     {:else}
         <div class="scores">
             {#each scores as score, index}
@@ -70,8 +67,8 @@
                         
                         {#if isCurrentGame(score.GameUUID)}
                             <span>
-                            <input bind:value={name} placeholder="enter your name" />
-                            <button on:click={saveScore}>Confirm</button>
+                            <input bind:value={name} placeholder="{$t('gameOver.enterName')}" />
+                            <button on:click={saveScore}>{$t('buttons.confirm')}</button>
                             </span>
                         {:else}
                             {score.Investigator}

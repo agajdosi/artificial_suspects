@@ -16,5 +16,12 @@
         "nextQuestion": "Następne pytanie",
         "close": "Zamknij",
         "confirm": "Potwierdź"
+    },
+    "gameOver": {
+        "gameOver": "Koniec gry!",
+        "riptext": "Omyłkowo uwolniłeś*aś przestępcę, podczas gdy niewinni podejrzani byli niesprawiedliwie prześladowani. Następnym razem spróbuj zagłębić się w sposób myślenia sztucznej inteligencji podczas przesłuchania.",
+        "highScores": "Najlepsze rezultaty",
+        "enterName": "wpisać immieno",
+        "loadingScores": "Ładowanie najlepszych wyników..."
     }
 }

@@ -16,6 +16,13 @@
         "nextQuestion": "Další otázka",
         "close": "Zavřít",
         "confirm": "Potvrdit"
+    },
+    "gameOver": {
+        "gameOver": "Konec hry!",
+        "riptext": "Omylem jste propustil*a zločince, zatímco nevinní podezřelí byli nespravedlivě pronásledováni. Příště se pokuste proniknout hlouběji do myšlení umělé inteligence během jejího výslechu.",
+        "highScores": "Výsledky",
+        "enterName": "zadat jméno",
+        "loadingScores": "Načítání nejvyšších skóre..."
     }
 }
 
