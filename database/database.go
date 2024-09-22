@@ -343,7 +343,7 @@ func NewGame() (Game, error) {
 		return game, err
 	}
 
-	GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
+	go GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
 
 	return game, err
 }
@@ -516,6 +516,7 @@ func NewInvestigation(gameUUID string) (Investigation, error) {
 	cn := rand.Intn(len(suspects))
 	i.CriminalUUID = i.Suspects[cn].UUID
 
+	go GetAnswerFromAI(i.Rounds[0], i.CriminalUUID)
 	log.Printf("NEW INVESTIGATION, criminal is: no. %d\n", cn+1)
 
 	err = saveInvestigation(i)
@@ -837,8 +838,8 @@ func getQuestion(questionUUID string) (Question, error) {
 // MARK: ANSWER
 
 // Get the Answer to Question from the AI model and save it into the database.
-// Does not return anything, for retrieval App later uses WaitForAnswer().
-// TODO: actually implement this.
+// Call concurrently and forget about it. It does not return anything,
+// for retrieval to App you should later use WaitForAnswer().
 func GetAnswerFromAI(round Round, criminalUUID string) {
 	fmt.Println(">>> GetAnswerFromAI called!")
 	modelName := openai.GPT4o20240806 // TODO: do this dynamically
