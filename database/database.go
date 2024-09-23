@@ -1008,7 +1008,8 @@ CREATE TABLE IF NOT EXISTS services (
 );
 INSERT OR IGNORE INTO services (Name, Token)
 VALUES
-	('OpenAI', '');
+	('OpenAI', ''),
+	('Anthropic', '');
 COMMIT;` // list would be: ('OpenAI', ''), ('Google', ''), ('AWS', ''), ('Azure', '');
 
 func GetService(name string) (Service, error) {
@@ -1114,7 +1115,9 @@ INSERT OR IGNORE INTO models (Name, Service, Active)
 VALUES
 	('gpt-4o-2024-08-06', 'OpenAI', '1'),
 	('chatgpt-4o-latest', 'OpenAI', '0'),
-	('gpt-4o-mini-2024-07-18', 'OpenAI', '0');
+	('gpt-4o-mini-2024-07-18', 'OpenAI', '0'),
+	('claude-3-haiku-20240307', 'Anthropic', '0'),
+	('claude-3-5-sonnet-20240620', 'Anthropic', '0');
 COMMIT;` // as defined in ai.go:supportedModels - hacky way, but OK for now
 
 func GetActiveModel() (Model, error) {
