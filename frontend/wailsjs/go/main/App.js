@@ -50,6 +50,10 @@ export function SetActiveModel(arg1) {
   return window['go']['main']['App']['SetActiveModel'](arg1);
 }
 
+export function ToggleFullscreen() {
+  return window['go']['main']['App']['ToggleFullscreen']();
+}
+
 export function WaitForAnswer(arg1) {
   return window['go']['main']['App']['WaitForAnswer'](arg1);
 }

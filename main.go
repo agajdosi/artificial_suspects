@@ -52,10 +52,10 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "Suspects",
-		Width:  1024,
-		Height: 768,
-		// Frameless: true,
+		Title:      "Suspects",
+		Width:      1024,
+		Height:     768,
+		Fullscreen: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

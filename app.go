@@ -17,6 +17,8 @@ import (
 	"log"
 
 	"suspects/database"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // MARK: APP HANDLERS
@@ -156,4 +158,12 @@ func (a *App) GetActiveModel() database.Model {
 		fmt.Println("Could not GetActiveModel()")
 	}
 	return model
+}
+
+func (a *App) ToggleFullscreen() {
+	if runtime.WindowIsFullscreen(a.ctx) {
+		runtime.WindowUnfullscreen(a.ctx)
+	} else {
+		runtime.WindowFullscreen(a.ctx)
+	}
 }

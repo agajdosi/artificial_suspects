@@ -26,4 +26,6 @@ export function SaveToken(arg1:string,arg2:string):Promise<void>;
 
 export function SetActiveModel(arg1:string):Promise<void>;
 
+export function ToggleFullscreen():Promise<void>;
+
 export function WaitForAnswer(arg1:string):Promise<string>;
