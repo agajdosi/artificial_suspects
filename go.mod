@@ -7,6 +7,7 @@ toolchain go1.22.4
 require (
 	github.com/adrg/xdg v0.5.0
 	github.com/google/uuid v1.3.0
+	github.com/liushuangls/go-anthropic/v2 v2.8.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/sashabaranov/go-openai v1.29.1
 	github.com/urfave/cli/v2 v2.27.4
