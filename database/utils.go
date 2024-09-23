@@ -1,3 +1,14 @@
+// Copyright (C) 2024 (Andreas Gajdosik) <andreas@gajdosik.org>
+// This file is part of project.
+//
+// project is non-violent software: you can use, redistribute,
+// and/or modify it under the terms of the CNPLv7+ as found
+// in the LICENSE file in the source code root directory or
+// at <https://git.pixie.town/thufie/npl-builder>.
+//
+// project comes with ABSOLUTELY NO WARRANTY, to the extent
+// permitted by applicable law. See the CNPL for details.
+
 package database
 
 import (
