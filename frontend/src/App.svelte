@@ -96,4 +96,13 @@
     background-color: #ffffff;
     color: #000000;
 }
+
+:global(button:disabled) {
+    color: #666666;
+    border-color:#666666;
+    background-color: unset;
+    cursor: not-allowed;
+}
+
+
 </style>
