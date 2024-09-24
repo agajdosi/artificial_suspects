@@ -184,8 +184,12 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 	}
 
 	// TODO: Check whether to use OpenAI or Anthropic
-	answer, err := AnthropicGetAnswer(question.English, description, modelName, service.Token)
-	//answer, err := OpenAIGetAnswer(question.English, description, modelName, service.Token)
+	var answer string
+	if serviceName == "Anthropic" {
+		answer, err = AnthropicGetAnswer(question.English, description, modelName, service.Token)
+	} else if serviceName == "OpenAI" {
+		answer, err = OpenAIGetAnswer(question.English, description, modelName, service.Token)
+	}
 	if err != nil {
 		fmt.Printf("GetAnswerFromAI at Round (%s) with Criminal (%s) - OpenAIGetAnswer() error: %v\n", round.UUID, criminalUUID, err)
 		SaveAnswer("failed OpenAIGetAnswer()", round.UUID)
