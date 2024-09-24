@@ -4,14 +4,18 @@
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
     import Scores from './Scores.svelte';
+    import Help from './Help.svelte';
     import { locale, t } from 'svelte-i18n';
 
     export let game: database.Game;
     let lastRoundUUID: string;
     let answerIsLoading: boolean;
     let answer: string;
-    let hint: string = "hint...";  // TODO: capture hints
+    let hint: string = "hint...";  // TODO: implement this on UI elements and capture hints
+    /** Controls Scores popup. */
     let scoresVisible: boolean = true;
+    /** Controls Help popup. */
+    let helpVisible: boolean = false;
 
     // HOME BUTTON
     import { createEventDispatcher } from 'svelte';
@@ -78,6 +82,15 @@
 
     function changeLanguage(code: string) {
         $locale = code;
+    }
+
+    //HELP
+    function toggleHelp() {
+        helpVisible = !helpVisible;
+        scoresVisible = false;
+    }
+    function handleToggleHelp(event) {
+        helpVisible = event.detail.helpVisible
     }
 
 </script>
@@ -162,7 +175,10 @@
 </div>
 
 <div class="bottom">
-    <div class="hint">{hint}</div>
+    <!-- <div class="hint">{hint}</div> -->
+    <div class="help">
+        <button on:click={toggleHelp} class="langbtn">{$t('buttons.help')}</button>
+    </div>
     <div class="stats">
         <div>level: {game.level}</div>
         <div>score: {game.Score}</div>
@@ -172,6 +188,11 @@
 {#if game.GameOver && scoresVisible}
     <Scores {game} on:toggleScores={handleToggleScores} on:newGame/>    
 {/if}
+
+{#if helpVisible}
+    <Help on:toggleHelp={handleToggleHelp}/>    
+{/if}
+
 
 <style>
 .middle {

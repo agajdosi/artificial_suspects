@@ -15,7 +15,8 @@
         "configuration": "Konfiguracja",
         "nextQuestion": "Następne pytanie",
         "close": "Zamknij",
-        "confirm": "Potwierdź"
+        "confirm": "Potwierdź",
+        "help": "Jak grać"
     },
     "gameOver": {
         "gameOver": "Koniec gry!",
@@ -23,5 +24,12 @@
         "highScores": "Najlepsze rezultaty",
         "enterName": "wpisać immieno",
         "loadingScores": "Ładowanie najlepszych wyników..."
+    },
+    "help": {
+        "title": "Witaj, ludzki detektywie!",
+        "text1": "Twoim zadaniem jest zidentyfikowanie przestępcy ukrywającego się wśród grupy podejrzanych. Jedynym świadkiem zbrodni jest sztuczna inteligencja, więc będziesz musiał*a polegać na jej odpowiedziach, aby rozwiązać sprawę.",
+        "text2": "W każdej turze zostanie wybrane losowe pytanie z kwestionariusza kryminalistycznego. Poczekaj, aż sztuczna inteligencja odpowie na pytanie dotyczące cech przestępcy. Twoim zadaniem jest wyeliminowanie jednego lub więcej podejrzanych, którzy nie pasują do odpowiedzi SI.",
+        "text3": "Po wyeliminowaniu podejrzanych przejdź do następnego pytania, aby zebrać więcej wskazówek i kontynuować zawężanie kręgu podejrzanych. Uwalniaj niewinnych, aż pozostanie tylko jeden - przestępca!",
+        "text4": "Jeśli uda ci się złapać przestępcę, przejdziesz do następnej sprawy. Ale uważaj: jeśli wyeliminujesz winnego podejrzanego, gra się skończy. Uważnie obserwuj reakcje sztucznej inteligencji i zaufaj swojemu instynktowi, aby rozwiązać sprawę! W końcu została wyszkolona na tym, co robimy my, ludzie..."
     }
 }
