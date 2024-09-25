@@ -88,7 +88,7 @@ func ConflictingQuestionsHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	GROUP BY questions.uuid
 	ORDER BY conflicting_count DESC
-	LIMIT 10;
+	LIMIT 15;
 	`
 
 	rows, err := database.Query(query)
