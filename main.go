@@ -15,6 +15,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -50,6 +51,7 @@ func main() {
 	fmt.Println("Main function starting")
 	app := NewApp()
 
+	go StartAPI()
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:      "Suspects",
@@ -77,4 +79,11 @@ func main() {
 	if err != nil {
 		println("Error:", err.Error())
 	}
+}
+
+func StartAPI() {
+	http.HandleFunc("/suspects", database.SuspectsHandler)
+	http.HandleFunc("/suspects/conflicting", database.ConflictingSuspectsHandler)
+	http.HandleFunc("/questions/conflicting", database.ConflictingQuestionsHandler)
+	log.Fatal(http.ListenAndServe(":10161", nil))
 }
