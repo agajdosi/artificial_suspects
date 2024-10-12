@@ -360,7 +360,7 @@ var defaultQuestions = []Question{
 		Topic:   "ecology", Level: 1},
 	{
 		English: "Does the suspect like contemporary art?",
-		Czech:   "Má rád podezřelý současné umění??",
+		Czech:   "Má rád podezřelý současné umění?",
 		Polish:  "Czy podejrzany lubi sztukę współczesną?",
 		Topic:   "art", Level: 1},
 }
