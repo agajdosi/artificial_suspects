@@ -75,7 +75,9 @@ func ConflictingQuestionsHandler(w http.ResponseWriter, r *http.Request) {
 	query := `
 	SELECT 
 		questions.uuid, 
-		questions.English, 
+		questions.English,
+		questions.Czech,
+		questions.Polish,
 		COUNT(*) AS conflicting_count
 	FROM rounds
 	JOIN questions ON rounds.question_uuid = questions.uuid
@@ -102,15 +104,17 @@ func ConflictingQuestionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var results []map[string]interface{}
 	for rows.Next() {
-		var uuid, english string
+		var uuid, english, czech, polish string
 		var wrongEliminations int
-		if err := rows.Scan(&uuid, &english, &wrongEliminations); err != nil {
+		if err := rows.Scan(&uuid, &english, &czech, &polish, &wrongEliminations); err != nil {
 			http.Error(w, "Error scanning data", http.StatusInternalServerError)
 			return
 		}
 		results = append(results, map[string]interface{}{
 			"uuid":               uuid,
-			"question":           english,
+			"english":            english,
+			"czech":              czech,
+			"polish":             polish,
 			"wrong_eliminations": wrongEliminations,
 		})
 	}
