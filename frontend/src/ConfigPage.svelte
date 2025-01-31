@@ -8,14 +8,18 @@
     let models: database.Model[] = [];
     let selectedService: string = ''; // Holds the selected AI service
     let selectedModel: database.Model; // Holds the selected model's name
-    let hasErrors: boolean = false; // Track if there are validation errors
+    let activeService: {Name: string, Model: string} = {Name: "", Model: ""};
 
     // Fetch services when the component is loaded
     GetServices().then((fetchedServices) => {
-        console.log("fetched services:", fetchedServices)
         services = fetchedServices;
-        selectedService = services.find(s => s.Active).Name || services[0].Name;
-        console.log("selected service:", selectedService)
+        const active = services.find(s => s.Active);
+        if (active) {
+            selectedService = active.Name;
+            activeService = { Name: active.Name, Model: active.Model };
+        } else {
+            selectedService = services.length > 0 ? services[0].Name : '';
+        }
     });
 
     // Fetch models when the component is loaded
@@ -40,6 +44,7 @@
         try {
             await SaveService(service.Name, service.Model, service.Token, service.URL);
             console.log(`Service ${service.Name} saved successfully.`);
+            activeService = { Name: service.Name, Model: service.Model }; // Update after saving
         } catch (error) {
             console.error(`Error saving service ${service.Name}:`, error);
         }
@@ -60,6 +65,7 @@
                 ...s,
                 Active: s.Name === service.Name, // Only the selected service is active
             }));
+            activeService = { Name: service.Name, Model: service.Model }; // Update displayed info
         } catch (error) {
             console.error(`Error saving service ${service.Name}:`, error);
         }
@@ -74,7 +80,7 @@
         {#each services as service}
             {#if service.Active}
                 <p>
-                    Game uses the active service <strong>{service.Name}</strong> with model <strong>{service.Model}</strong>.
+                    Game uses the active service <strong>{activeService.Name}</strong> with model <strong>{activeService.Model}</strong>.
                 </p>
             {/if}
         {/each}
@@ -123,7 +129,11 @@
                     </div>
                     <div class="actions">
                         <button on:click={saveService}>Save</button>
-                        <button on:click={activateService}>Activate</button>
+                        {#if service.Active}
+                            <button on:click={activateService}>Active</button>
+                        {:else}
+                            <button on:click={activateService}>Activate</button>
+                        {/if}
                     </div>
                 </div>
             {/if}
