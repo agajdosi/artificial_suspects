@@ -1,7 +1,3 @@
-Here's an improved version of your **README.md** with better clarity, structure, and readability:
-
----
-
 # **Artificial Suspects**
 
 **Artificial Suspects** is an experimental art game that explores the biases and prejudices of different AI models.  
