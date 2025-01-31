@@ -131,10 +131,17 @@ func (a *App) GetServices() []database.Service {
 	return services
 }
 
-func (a *App) SaveToken(serviceName, token string) {
-	err := database.SaveToken(serviceName, token)
+func (a *App) SaveService(name, model, token, url string) {
+	err := database.SaveService(name, model, token, url)
 	if err != nil {
-		log.Println("Could not save token", err)
+		log.Println("Could not save the service", err)
+	}
+}
+
+func (a *App) ActivateService(name string) {
+	err := database.ActivateService(name)
+	if err != nil {
+		log.Println("Could not activate the service", err)
 	}
 }
 

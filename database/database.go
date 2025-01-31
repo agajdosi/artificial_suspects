@@ -967,25 +967,35 @@ func SaveScore(name, gameUUID string) error {
 // MARK: AI SERVICES
 
 type Service struct {
-	Name  string `json:"Name"`
-	Token string `json:"Token"`
+	Name   string `json:"Name"`
+	Type   string `json:"Type"` // API or local
+	Active bool   `json:"Active"`
+	Model  string `json:"Model"`
+	Token  string `json:"Token"`
+	URL    string `json:"URL"`
 }
 
 const createServicesTable = `BEGIN;
 CREATE TABLE IF NOT EXISTS services (
     Name TEXT PRIMARY KEY,
-    Token TEXT
+	Type TEXT,
+	Active TEXT,
+	Model TEXT,	
+    Token TEXT,
+	URL TEXT
 );
-INSERT OR IGNORE INTO services (Name, Token)
+INSERT OR IGNORE INTO services (Name, Type, Active, Model, Token, URL)
 VALUES
-	('OpenAI', ''),
-	('Anthropic', '');
-COMMIT;` // list would be: ('OpenAI', ''), ('Google', ''), ('AWS', ''), ('Azure', '');
+	('Ollama',    'local', '1', '', '', ''),	
+	('OpenAI',    'API',   '0', '', '', ''),
+	('Anthropic', 'API',   '0', '', '', ''),
+	('DeepSeek',  'API',   '0', '', '', '');
+COMMIT;`
 
 func GetService(name string) (Service, error) {
 	var service Service
-	query := "SELECT Name, Token FROM services WHERE name = $1"
-	err := database.QueryRow(query, name).Scan(&service.Name, &service.Token)
+	query := "SELECT Name, Type, Active, Model, Token, URL FROM services WHERE name = $1"
+	err := database.QueryRow(query, name).Scan(&service.Name, &service.Type, &service.Active, &service.Model, &service.Token, &service.URL)
 	if err != nil {
 		return service, fmt.Errorf("error geting Service for name %s: %v", name, err)
 	}
@@ -994,7 +1004,7 @@ func GetService(name string) (Service, error) {
 
 func GetServices() ([]Service, error) {
 	var services []Service
-	query := "SELECT Name, Token FROM services"
+	query := "SELECT Name, Type, Active, Model, Token, URL FROM services"
 	rows, err := database.Query(query)
 	if err != nil {
 		return services, err
@@ -1003,7 +1013,7 @@ func GetServices() ([]Service, error) {
 
 	for rows.Next() {
 		var service Service
-		err := rows.Scan(&service.Name, &service.Token)
+		err := rows.Scan(&service.Name, &service.Type, &service.Active, &service.Model, &service.Token, &service.URL)
 		if err != nil {
 			return services, err
 		}
@@ -1016,23 +1026,60 @@ func GetServices() ([]Service, error) {
 	return services, nil
 }
 
-func SaveToken(serviceName, token string) error {
-	query := "UPDATE services SET Token = $1 WHERE Name = $2"
-	result, err := database.Exec(query, token, serviceName)
+func SaveService(name, model, token, url string) error {
+	query := `UPDATE services 
+SET Token = $1, Model = $2, URL = $3 
+WHERE Name = $4
+`
+	result, err := database.Exec(query, token, model, url, name)
 	if err != nil {
-		log.Printf("error saving Token for Service %s: %v", serviceName, err)
+		log.Printf("Error saving service %s: %v", name, err)
 		return err
 	}
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Printf("SaveToken() rows affected: %v", err)
+		log.Printf("Error retrieving rows affected for service '%s': %v", name, err)
 		return err
 	}
+
 	if rowsAffected == 0 {
-		log.Printf("No record updated for service '%s'\n", serviceName)
-		return err
+		log.Printf("No record updated for service '%s'", name)
+		return fmt.Errorf("no record updated for service '%s'", name)
 	}
-	fmt.Printf("SaveToken successful. Service=%s Token=%s\n", serviceName, token)
+
+	fmt.Printf("SaveService successful. Service=%s Token=%s Model=%s URL=%s\n", name, token, model, url)
+	return nil
+}
+
+// Set the active service which will be used to generate the thinking during the game.
+// First deactivate all services, then activate the requested service to make sure, just one is active.
+func ActivateService(name string) error {
+	tx, err := database.Begin()
+	if err != nil {
+		return fmt.Errorf("error starting transaction: %v", err)
+	}
+
+	deactivateQuery := "UPDATE services SET Active = 0"
+	_, err = tx.Exec(deactivateQuery)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deactivating services: %v", err)
+	}
+
+	activateQuery := "UPDATE services SET Active = 1 WHERE Name = ?"
+	_, err = tx.Exec(activateQuery, name)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error activating service %s: %v", name, err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+
+	fmt.Printf("ActivateService name=%s successful.\n", name)
 	return nil
 }
 

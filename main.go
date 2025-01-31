@@ -51,7 +51,7 @@ func main() {
 	fmt.Println("Main function starting")
 	app := NewApp()
 
-	go StartAPI()
+	//go StartAPI()
 
 	// Create application with options
 	err := wails.Run(&options.App{

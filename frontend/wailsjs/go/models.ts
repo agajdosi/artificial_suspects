@@ -227,7 +227,11 @@ export namespace database {
 	
 	export class Service {
 	    Name: string;
+	    Type: string;
+	    Active: boolean;
+	    Model: string;
 	    Token: string;
+	    URL: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Service(source);
@@ -236,7 +240,11 @@ export namespace database {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.Name = source["Name"];
+	        this.Type = source["Type"];
+	        this.Active = source["Active"];
+	        this.Model = source["Model"];
 	        this.Token = source["Token"];
+	        this.URL = source["URL"];
 	    }
 	}
 
