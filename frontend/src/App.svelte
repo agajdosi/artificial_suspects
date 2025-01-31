@@ -104,5 +104,10 @@
     cursor: not-allowed;
 }
 
+:global(button.selected) {
+    background: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
 
 </style>
