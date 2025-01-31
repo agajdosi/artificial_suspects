@@ -9,7 +9,7 @@
     function toggleFullscreen() {ToggleFullscreen();}
 </script>
 
-<h1>Unusual Suspects</h1>
+<h1>Artificial Suspects</h1>
 
 <div class="menu">
     <button on:click={newGameDispatcher}>New Game</button>

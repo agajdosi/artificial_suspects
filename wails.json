@@ -1,6 +1,6 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "Suspects",
+  "name": "Artificial Suspects",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
@@ -11,7 +11,7 @@
   },
   "info": {
     "productVersion": "0.0.1",
-    "productName": "Suspects Game",
+    "productName": "Artificial Suspects",
     "copyright": "Andreas Gajdosik, 2024",
     "comments": "not ready yet" 
   }

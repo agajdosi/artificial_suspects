@@ -52,12 +52,13 @@ func main() {
 	app := NewApp()
 
 	go StartAPI()
+
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:      "Suspects",
+		Title:      "Artificial Suspects",
 		Width:      1024,
 		Height:     768,
-		Fullscreen: true,
+		Fullscreen: false,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -70,7 +71,7 @@ func main() {
 		Windows: &windows.Options{},
 		Mac: &mac.Options{
 			About: &mac.AboutInfo{
-				Title:   "Suspects",
+				Title:   "Artificial Suspects",
 				Message: "Conceptual game by Andreas Gajdosik.",
 			},
 		},
