@@ -21,8 +21,8 @@ func SuspectsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Query to get suspects with the highest number of wrong eliminations
 func ConflictingSuspectsHandler(w http.ResponseWriter, r *http.Request) {
-	// Query to get suspects with the highest number of wrong eliminations
 	query := `
 	SELECT 
 		suspects.uuid, 
@@ -70,8 +70,8 @@ func ConflictingSuspectsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Query to get questions that caused the most wrong eliminations
 func ConflictingQuestionsHandler(w http.ResponseWriter, r *http.Request) {
-	// Query to get questions that caused the most wrong eliminations
 	query := `
 	SELECT 
 		questions.uuid, 
