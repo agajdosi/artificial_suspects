@@ -28,12 +28,6 @@
         dispatch('message', { message: 'goToHome' });
     }
 
-    // Validate inputs and check if any tokens are empty
-    function validateInputs() {
-        hasErrors = services.some(service => service.Token.trim() === '');
-        return !hasErrors;
-    }
-
     async function showServiceDetail(event) {selectedService = event.target.value;}
 
     async function saveService() {
@@ -118,34 +112,44 @@
                     {#if service.Type == "local"}
                         <div class="service-URL">
                             <label for="token-{service.Name}">URL:</label>
-                            <input id="token-{service.Name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.Token.trim() === ''}>
+                            <input id="token-{service.Name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.URL.trim() === ''}>
                         </div>
                     {/if}
                     <div class="service-model">
                         <div class="service-model">
                             <label for="token-{service.Model}">Model:</label>
-                            <input id="token-{service.Model}" bind:value={service.Model} placeholder="Name of model to use" class:error={service.Token.trim() === ''}>
+                            <input id="token-{service.Model}" bind:value={service.Model} placeholder="Name of model to use" class:error={service.Model.trim() === ''}>
                         </div>
                     </div>
-                    <button on:click={saveService}>Save</button>
-                    <button on:click={activateService}>Activate</button>
+                    <div class="actions">
+                        <button on:click={saveService}>Save</button>
+                        <button on:click={activateService}>Activate</button>
+                    </div>
                 </div>
             {/if}
         {/each}
     {/if}
 </div>
 
-<div class="actions">
+<div class="back">
     <button on:click={goToMenu}>Back</button>
 </div>
 
 <style>
     .actions {
-        margin: 4rem;
+        margin: 1rem 0;
     }
 
     input.error {
         border: 1px solid red;
+    }
+
+    .service-details {
+        margin: 1rem 0;
+    }
+
+    .back {
+        margin: 8rem 0 0 0;
     }
 
 </style>

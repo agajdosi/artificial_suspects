@@ -153,18 +153,12 @@ func (a *App) GetAllModels() []database.Model {
 	return models
 }
 
-func (a *App) SetActiveModel(modelName string) {
-	err := database.SetActiveModel(modelName)
+func (a *App) GetActiveService() database.Service {
+	service, err := database.GetActiveService()
 	if err != nil {
-		fmt.Println("Could not SetActiveModel():", err)
+		fmt.Println("Could not GetActiveService()")
 	}
-}
-func (a *App) GetActiveModel() database.Model {
-	model, err := database.GetActiveModel()
-	if err != nil {
-		fmt.Println("Could not GetActiveModel()")
-	}
-	return model
+	return service
 }
 
 func (a *App) ToggleFullscreen() {

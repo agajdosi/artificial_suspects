@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { GetActiveModel } from '../wailsjs/go/main/App.js';
+    import { GetActiveService } from '../wailsjs/go/main/App.js';
     import { database } from '../wailsjs/go/models';
     import { locale, t } from 'svelte-i18n';
 
     export let game: database.Game;
-    let activeModel: database.Model | null = null;
+    let activeService: database.Service | null = null;
 
-    GetActiveModel().then(model => {
-        activeModel = model;
+    GetActiveService().then(service => {
+        activeService = service;
     }).catch(err => {
-        console.error('Error fetching active model:', err);
+        console.error('Error fetching active service:', err);
     });
 </script>
 
@@ -36,8 +36,8 @@
 <div class="roles">
     <div class="model">
         {$t("interrogated")}:
-        {#if activeModel === null}{$t("loading")}
-        {:else} {activeModel.Name}
+        {#if activeService === null}{$t("loading")}
+        {:else} {activeService.Model}
         {/if}
     </div>
 </div>

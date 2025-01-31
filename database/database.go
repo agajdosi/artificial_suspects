@@ -1114,6 +1114,16 @@ func WaitForAnswer(roundUUID string) string {
 	}
 }
 
+func GetActiveService() (Service, error) {
+	var service Service
+	query := "SELECT Name, Type, Active, Model, Token, URL FROM services WHERE Active = 1"
+	err := database.QueryRow(query).Scan(&service.Name, &service.Type, &service.Active, &service.Model, &service.Token, &service.URL)
+	if err != nil {
+		return service, fmt.Errorf("error geting active service: %v", err)
+	}
+	return service, nil
+}
+
 // MARK: AI MODELS
 
 type Model struct {
@@ -1137,16 +1147,6 @@ VALUES
 	('claude-3-5-sonnet-20240620', 'Anthropic', '0');
 COMMIT;` // as defined in ai.go:supportedModels - hacky way, but OK for now
 
-func GetActiveModel() (Model, error) {
-	var model Model
-	query := "SELECT Name, Service, Active FROM models WHERE Active = 1"
-	err := database.QueryRow(query).Scan(&model.Name, &model.Service, &model.Active)
-	if err != nil {
-		return model, fmt.Errorf("error geting active Model: %v", err)
-	}
-	return model, nil
-}
-
 func GetAllModels() ([]Model, error) {
 	var models []Model
 	query := "SELECT Name, Service, Active FROM models"
@@ -1169,34 +1169,6 @@ func GetAllModels() ([]Model, error) {
 	}
 
 	return models, nil
-}
-
-func SetActiveModel(modelName string) error {
-	tx, err := database.Begin()
-	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
-	}
-
-	deactivateQuery := "UPDATE models SET Active = 0"
-	_, err = tx.Exec(deactivateQuery)
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("error deactivating models: %v", err)
-	}
-
-	activateQuery := "UPDATE models SET Active = 1 WHERE Name = ?"
-	_, err = tx.Exec(activateQuery, modelName)
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("error activating model %s: %v", modelName, err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		tx.Rollback()
-		return fmt.Errorf("error committing transaction: %v", err)
-	}
-
-	return nil
 }
 
 // MARK: DESCRIPTIONS

@@ -10,8 +10,8 @@ export function EliminateSuspect(arg1, arg2, arg3) {
   return window['go']['main']['App']['EliminateSuspect'](arg1, arg2, arg3);
 }
 
-export function GetActiveModel() {
-  return window['go']['main']['App']['GetActiveModel']();
+export function GetActiveService() {
+  return window['go']['main']['App']['GetActiveService']();
 }
 
 export function GetAllModels() {
@@ -48,10 +48,6 @@ export function SaveScore(arg1, arg2) {
 
 export function SaveService(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['SaveService'](arg1, arg2, arg3, arg4);
-}
-
-export function SetActiveModel(arg1) {
-  return window['go']['main']['App']['SetActiveModel'](arg1);
 }
 
 export function ToggleFullscreen() {
