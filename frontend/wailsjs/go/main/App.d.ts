@@ -22,6 +22,8 @@ export function NextInvestigation():Promise<database.Game>;
 
 export function NextRound():Promise<database.Game>;
 
+export function QuitApplication():Promise<void>;
+
 export function SaveScore(arg1:string,arg2:string):Promise<void>;
 
 export function SaveService(arg1:string,arg2:string,arg3:string,arg4:string):Promise<void>;

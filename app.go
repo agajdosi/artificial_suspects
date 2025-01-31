@@ -168,3 +168,7 @@ func (a *App) ToggleFullscreen() {
 		runtime.WindowFullscreen(a.ctx)
 	}
 }
+
+func (a *App) QuitApplication() {
+	runtime.Quit(a.ctx)
+}

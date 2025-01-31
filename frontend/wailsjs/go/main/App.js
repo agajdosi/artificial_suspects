@@ -42,6 +42,10 @@ export function NextRound() {
   return window['go']['main']['App']['NextRound']();
 }
 
+export function QuitApplication() {
+  return window['go']['main']['App']['QuitApplication']();
+}
+
 export function SaveScore(arg1, arg2) {
   return window['go']['main']['App']['SaveScore'](arg1, arg2);
 }

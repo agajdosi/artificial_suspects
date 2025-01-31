@@ -1,12 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { ToggleFullscreen } from '../wailsjs/go/main/App';
+    import { ToggleFullscreen, QuitApplication} from '../wailsjs/go/main/App';
     const dispatch = createEventDispatcher();
     
     function newGameDispatcher() {dispatch('newGame', {message: 'new game'});}
     function continueGameDispatcher() {dispatch('message', { message: 'continueGame' });}
     function enterConfigDispatcher() {dispatch('enterConfig', { message: 'enterConfig' });}
-    function toggleFullscreen() {ToggleFullscreen();}
 </script>
 
 <h1>Artificial Suspects</h1>
@@ -15,7 +14,7 @@
     <button on:click={newGameDispatcher}>New Game</button>
     <button on:click={continueGameDispatcher}>Continue Game</button>
     <button on:click={enterConfigDispatcher}>Configuration</button>
-    <button on:click={toggleFullscreen}>Toggle Fullscreen</button>
+    <button on:click={QuitApplication}>Exit</button>
 </div>
 
 <style>

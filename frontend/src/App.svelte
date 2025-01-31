@@ -6,6 +6,7 @@
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
     import { database } from '../wailsjs/go/models';
     import { register, init} from 'svelte-i18n';
+    import { ToggleFullscreen } from '../wailsjs/go/main/App';
 
     register('en', () => import('./assets/locales/en.json'));
     register('cz', () => import('./assets/locales/cz.json'));
@@ -18,17 +19,39 @@
     let screen = 'home'; // State to track the current screen
     let game: database.Game;
 
-    function handleKeyDown (event: KeyboardEvent) {
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'm') {
-            console.log('Ctrl+Shift+M or Cmd+Shift+M was pressed');
+    async function handleKeyDown (event: KeyboardEvent) {
+        // HOME
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && (event.key === 'h' || event.key === 'm')) {
+            console.log('Ctrl/Cmd+Shift+H/M was pressed');
             event.preventDefault();
             screen = 'home';
         }
-
         if (event.key === 'Escape') {
             console.log('Escape has been pressed');
             event.preventDefault();
             screen = 'home';
+        }
+
+        // GAME
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'g') {
+            console.log('Ctrl/Cmd+Shift+G was pressed');
+            event.preventDefault();
+            game = await GetGame();
+            screen = 'game';
+        }
+
+        // CONFIG
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'c') {
+            console.log('Ctrl/Cmd+Shift+C was pressed');
+            event.preventDefault();
+            screen = 'config';
+        }
+
+        // FULLSCREEN
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'f') {
+            console.log('Ctrl/Cmd+Shift+F was pressed');
+            event.preventDefault();
+            ToggleFullscreen();
         }
     };
 
