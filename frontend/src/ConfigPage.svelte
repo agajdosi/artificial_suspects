@@ -6,8 +6,7 @@
 
     let services: database.Service[] = [];
     let models: database.Model[] = [];
-    let selectedService: string = ''; // Holds the selected AI service
-    let selectedModel: database.Model; // Holds the selected model's name
+    let selectedService: string = ''; // Holds the selected AI service ()
     let activeService: {Name: string, Model: string} = {Name: "", Model: ""};
 
     // Fetch services when the component is loaded
@@ -25,7 +24,6 @@
     // Fetch models when the component is loaded
     GetAllModels().then((fetchedModels) => {
         models = fetchedModels;
-        selectedModel = models.find(m => m.Active) || models[0];
     });
 
     function goToMenu() {
