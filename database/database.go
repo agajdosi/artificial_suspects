@@ -1209,6 +1209,7 @@ func SaveDescription(d Description) error {
 	return err
 }
 
+// Get the description of the subject from the database. These are prefilled descriptions by the AI to save the time.
 func GetDescriptionsForSuspect(suspectUUID, service, model string) ([]Description, error) {
 	var descriptions []Description
 	query := "SELECT UUID, Description, Prompt, Timestamp FROM descriptions WHERE SuspectUUID = $1 AND Service = $2 AND Model = $3"
