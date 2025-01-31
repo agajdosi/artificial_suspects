@@ -24,6 +24,12 @@
             event.preventDefault();
             screen = 'home';
         }
+
+        if (event.key === 'Escape') {
+            console.log('Escape has been pressed');
+            event.preventDefault();
+            screen = 'home';
+        }
     };
 
     onMount(() => {
