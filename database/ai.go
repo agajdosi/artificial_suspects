@@ -39,7 +39,6 @@ TASK: Answer the question YES or NO. Do not write anything else. Do not write an
 // Get the Answer to Question from the AI model and save it into the database.
 // Call concurrently and forget about it. It does not return anything,
 // for retrieval to App you should later use WaitForAnswer().
-// TODO: handle whether to call OpenAI or Anthropic
 func GetAnswerFromAI(round Round, criminalUUID string) {
 	fmt.Println(">>> GetAnswerFromAI called!")
 	service, err := GetActiveService()
@@ -66,13 +65,13 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 
 	var answer string
 	if service.Name == "Anthropic" {
-		answer, err = GetAnswerFromAnthropic(question.English, description, service.VisualModel, service.Token)
+		answer, err = GetAnswerFromAnthropic(question.English, description, service)
 	} else if service.Name == "OpenAI" {
-		answer, err = GetAnswerFromOpenAI(question.English, description, service.VisualModel, service.Token)
+		answer, err = GetAnswerFromOpenAI(question.English, description, service)
 	} else if service.Name == "DeepSeek" {
-		answer, err = GetAnswerFromDeepSeek(question.English, description, service.VisualModel, service.Token)
+		answer, err = GetAnswerFromDeepSeek(question.English, description, service)
 	} else if service.Name == "Ollama" {
-		answer, err = GetAnswerFromOllama(question.English, description, service.VisualModel, service.Token)
+		answer, err = GetAnswerFromOllama(question.English, description, service)
 	} else {
 		fmt.Printf("Unsupported service '%s'\n", service.Name)
 		SaveAnswer("failed OpenAIGetAnswer()", round.UUID)
@@ -89,6 +88,8 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 	SaveAnswer(answer, round.UUID)
 }
 
+// Generate description of the Suspect's portrait.
+// TODO: Actually route the traffic to respective OpenAI, Ollama or other implementation.
 func GenerateDescription(suspectUUID, serviceName, modelName string) error {
 	EnsureDBAvailable()
 	service, err := GetService(serviceName)
@@ -152,15 +153,15 @@ func GenerateDescriptionsForAll(limit int, serviceName, modelName string) error 
 
 // MARK: OPENAI
 
-func GetAnswerFromOpenAI(question, description, modelName, token string) (string, error) {
-	client := openai.NewClient(token)
+func GetAnswerFromOpenAI(question, description string, service Service) (string, error) {
+	client := openai.NewClient(service.Token)
 	reflectionPrompt := fmt.Sprintf(answerReflection, question, description)
 
 	fmt.Println(">>> REFLECTION PROMPT", reflectionPrompt)
 	reflectioResp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: modelName,
+			Model: service.VisualModel,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,
@@ -177,7 +178,7 @@ func GetAnswerFromOpenAI(question, description, modelName, token string) (string
 	finalResp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: modelName,
+			Model: service.VisualModel,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,
@@ -264,14 +265,14 @@ Do not write I'm unable to analyze or identify personal traits from the image pr
 
 // MARK: ANTHROPIC
 
-func GetAnswerFromAnthropic(question, description, modelName, token string) (string, error) {
+func GetAnswerFromAnthropic(question, description string, service Service) (string, error) {
 	fmt.Println(">>> AnthropicGetAnswer called!")
-	client := anthropic.NewClient(token)
+	client := anthropic.NewClient(service.Token)
 	reflectionPrompt := fmt.Sprintf(answerReflection, question, description)
 	fmt.Println(">>> REFLECTION PROMPT", reflectionPrompt)
 
 	resp, err := client.CreateMessages(context.Background(), anthropic.MessagesRequest{
-		Model: anthropic.ModelClaude3Haiku20240307,
+		Model: anthropic.Model(service.VisualModel),
 		Messages: []anthropic.Message{
 			anthropic.NewUserTextMessage(reflectionPrompt),
 		},
@@ -289,7 +290,7 @@ func GetAnswerFromAnthropic(question, description, modelName, token string) (str
 	reflection := resp.Content[0].GetText()
 
 	boolResp, err := client.CreateMessages(context.Background(), anthropic.MessagesRequest{
-		Model: anthropic.ModelClaude3Haiku20240307,
+		Model: anthropic.Model(service.VisualModel),
 		Messages: []anthropic.Message{
 			anthropic.NewUserTextMessage(reflectionPrompt),
 			anthropic.NewAssistantTextMessage(reflection),
@@ -316,16 +317,16 @@ func GetAnswerFromAnthropic(question, description, modelName, token string) (str
 // TODO
 
 // TODO: implement this
-func GetAnswerFromDeepSeek(question, description, model, token string) (string, error) {
+func GetAnswerFromDeepSeek(question, description string, service Service) (string, error) {
 	fmt.Println("GetAnswerFromDeepSeek() not implemented, calling GetAnswerFromOpenAI now!")
-	return GetAnswerFromOpenAI(question, description, model, token)
+	return GetAnswerFromOpenAI(question, description, service)
 }
 
 // MARK: OLLAMA
 // TODO
 
 // TODO: implement this
-func GetAnswerFromOllama(question, description, model, token string) (string, error) {
+func GetAnswerFromOllama(question, description string, service Service) (string, error) {
 	fmt.Println("GetAnswerFromOllama not implemented, calling GetAnswerFromOpenAI now!")
-	return GetAnswerFromOpenAI(question, description, model, token)
+	return GetAnswerFromOpenAI(question, description, service)
 }
