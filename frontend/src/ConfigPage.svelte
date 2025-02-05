@@ -1,6 +1,6 @@
 <script lang="ts">
     import { database } from '../wailsjs/go/models';
-    import { GetServices, SaveService, ActivateService, GetDefaultModels } from '../wailsjs/go/main/App.js';
+    import { GetServices, SaveService, ActivateService, GetDefaultModels, ListModelsOllama } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
@@ -117,6 +117,7 @@
                         <div class="service-URL">
                             <label for="token-{service.Name}">URL:</label>
                             <input id="token-{service.Name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.URL.trim() === ''}>
+                            <button on:click={ListModelsOllama}>List models</button>
                         </div>
                     {/if}
                     <div class="service-model">

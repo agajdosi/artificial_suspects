@@ -16,10 +16,13 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/liushuangls/go-anthropic/v2"
 	"github.com/sashabaranov/go-openai"
+
+	ollama "github.com/ollama/ollama/api"
 )
 
 // MARK: PROMPTS
@@ -325,8 +328,41 @@ func GetAnswerFromDeepSeek(question, description string, service Service) (strin
 // MARK: OLLAMA
 // TODO
 
+var ollamaClient *ollama.Client
+
+func EnsureOllamaClient() error {
+	if ollamaClient != nil {
+		return nil
+	}
+	var err error
+	ollamaClient, err = ollama.ClientFromEnvironment()
+	return err
+}
+
+func ListModelsOllama() *ollama.ListResponse {
+	EnsureOllamaClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	list, err := ollamaClient.List(ctx)
+	if err != nil {
+		fmt.Printf("Error listing Ollama models: %v\n", err)
+	} else {
+		fmt.Printf("ListModelsOllama: %v", list)
+	}
+
+	return list
+}
+
 // TODO: implement this
 func GetAnswerFromOllama(question, description string, service Service) (string, error) {
+	var err error
+	ollamaClient, err = ollama.ClientFromEnvironment()
+	if err != nil {
+		return "", err
+	}
+	fmt.Println("Got Ollama client:", ollamaClient)
+
 	fmt.Println("GetAnswerFromOllama not implemented, calling GetAnswerFromOpenAI now!")
 	return GetAnswerFromOpenAI(question, description, service)
 }

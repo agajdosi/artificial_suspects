@@ -30,6 +30,10 @@ export function GetServices() {
   return window['go']['main']['App']['GetServices']();
 }
 
+export function ListModelsOllama() {
+  return window['go']['main']['App']['ListModelsOllama']();
+}
+
 export function NewGame() {
   return window['go']['main']['App']['NewGame']();
 }

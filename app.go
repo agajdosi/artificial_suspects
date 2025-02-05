@@ -18,6 +18,7 @@ import (
 
 	"suspects/database"
 
+	ollama "github.com/ollama/ollama/api"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -167,4 +168,8 @@ func (a *App) ToggleFullscreen() {
 
 func (a *App) QuitApplication() {
 	runtime.Quit(a.ctx)
+}
+
+func (a *App) ListModelsOllama() *ollama.ListResponse {
+	return database.ListModelsOllama()
 }
