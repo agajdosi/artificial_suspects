@@ -131,8 +131,8 @@ func (a *App) GetServices() []database.Service {
 	return services
 }
 
-func (a *App) SaveService(name, model, token, url string) {
-	err := database.SaveService(name, model, token, url)
+func (a *App) SaveService(name, text_model, visual_model, token, url string) {
+	err := database.SaveService(name, text_model, visual_model, token, url)
 	if err != nil {
 		log.Println("Could not save the service", err)
 	}
@@ -145,12 +145,8 @@ func (a *App) ActivateService(name string) {
 	}
 }
 
-func (a *App) GetAllModels() []database.Model {
-	models, err := database.GetAllModels()
-	if err != nil {
-		log.Println("Could not GetAllModels():", err)
-	}
-	return models
+func (a *App) GetDefaultModels() []database.Model {
+	return database.DefaultModels
 }
 
 func (a *App) GetActiveService() database.Service {

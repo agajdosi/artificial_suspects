@@ -14,8 +14,8 @@ export function GetActiveService() {
   return window['go']['main']['App']['GetActiveService']();
 }
 
-export function GetAllModels() {
-  return window['go']['main']['App']['GetAllModels']();
+export function GetDefaultModels() {
+  return window['go']['main']['App']['GetDefaultModels']();
 }
 
 export function GetGame() {
@@ -50,8 +50,8 @@ export function SaveScore(arg1, arg2) {
   return window['go']['main']['App']['SaveScore'](arg1, arg2);
 }
 
-export function SaveService(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['SaveService'](arg1, arg2, arg3, arg4);
+export function SaveService(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['SaveService'](arg1, arg2, arg3, arg4, arg5);
 }
 
 export function ToggleFullscreen() {

@@ -8,7 +8,7 @@ export function EliminateSuspect(arg1:string,arg2:string,arg3:string):Promise<vo
 
 export function GetActiveService():Promise<database.Service>;
 
-export function GetAllModels():Promise<Array<database.Model>>;
+export function GetDefaultModels():Promise<Array<database.Model>>;
 
 export function GetGame():Promise<database.Game>;
 
@@ -26,7 +26,7 @@ export function QuitApplication():Promise<void>;
 
 export function SaveScore(arg1:string,arg2:string):Promise<void>;
 
-export function SaveService(arg1:string,arg2:string,arg3:string,arg4:string):Promise<void>;
+export function SaveService(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<void>;
 
 export function ToggleFullscreen():Promise<void>;
 

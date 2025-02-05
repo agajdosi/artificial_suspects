@@ -1,13 +1,13 @@
 <script lang="ts">
     import { database } from '../wailsjs/go/models';
-    import { GetServices, SaveService, ActivateService, GetAllModels } from '../wailsjs/go/main/App.js';
+    import { GetServices, SaveService, ActivateService, GetDefaultModels } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
     let services: database.Service[] = [];
     let models: database.Model[] = [];
     let selectedService: string = ''; // Holds the selected AI service ()
-    let activeService: {Name: string, Model: string} = {Name: "", Model: ""};
+    let activeService: {Name: string, TextModel: string, VisualModel: string} = {Name: "", TextModel: "", VisualModel: ""};
 
     // Fetch services when the component is loaded
     GetServices().then((fetchedServices) => {
@@ -15,14 +15,14 @@
         const active = services.find(s => s.Active);
         if (active) {
             selectedService = active.Name;
-            activeService = { Name: active.Name, Model: active.Model };
+            activeService = { Name: active.Name, TextModel: active.TextModel, VisualModel: active.VisualModel };
         } else {
             selectedService = services.length > 0 ? services[0].Name : '';
         }
     });
 
     // Fetch models when the component is loaded
-    GetAllModels().then((fetchedModels) => {
+    GetDefaultModels().then((fetchedModels) => {
         models = fetchedModels;
     });
 
@@ -40,9 +40,9 @@
         }
 
         try {
-            await SaveService(service.Name, service.Model, service.Token, service.URL);
+            await SaveService(service.Name, service.TextModel, service.VisualModel, service.Token, service.URL);
             console.log(`Service ${service.Name} saved successfully.`);
-            activeService = { Name: service.Name, Model: service.Model }; // Update after saving
+            activeService = { Name: service.Name, TextModel: service.TextModel, VisualModel: service.VisualModel }; // Update after saving
         } catch (error) {
             console.error(`Error saving service ${service.Name}:`, error);
         }
@@ -63,7 +63,7 @@
                 ...s,
                 Active: s.Name === service.Name, // Only the selected service is active
             }));
-            activeService = { Name: service.Name, Model: service.Model }; // Update displayed info
+            activeService = { Name: service.Name, TextModel: service.TextModel, VisualModel: service.VisualModel }; // Update displayed info
         } catch (error) {
             console.error(`Error saving service ${service.Name}:`, error);
         }
@@ -78,7 +78,7 @@
         {#each services as service}
             {#if service.Active}
                 <p>
-                    Game uses the active service <strong>{activeService.Name}</strong> with model <strong>{activeService.Model}</strong>.
+                    Game uses the active service <strong>{activeService.Name}</strong> with visual LLM <strong>{activeService.VisualModel}</strong>.
                 </p>
             {/if}
         {/each}
@@ -121,8 +121,8 @@
                     {/if}
                     <div class="service-model">
                         <div class="service-model">
-                            <label for="token-{service.Model}">Model:</label>
-                            <input id="token-{service.Model}" bind:value={service.Model} placeholder="Name of model to use" class:error={service.Model.trim() === ''}>
+                            <label for="token-{service.VisualModel}">Visual LLM:</label>
+                            <input id="token-{service.VisualModel}" bind:value={service.VisualModel} placeholder="Name of model to use" class:error={service.VisualModel.trim() === ''}>
                         </div>
                     </div>
                     <div class="actions">

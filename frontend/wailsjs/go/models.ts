@@ -210,7 +210,7 @@ export namespace database {
 	export class Model {
 	    Name: string;
 	    Service: string;
-	    Active: boolean;
+	    Visual: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Model(source);
@@ -220,7 +220,7 @@ export namespace database {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.Name = source["Name"];
 	        this.Service = source["Service"];
-	        this.Active = source["Active"];
+	        this.Visual = source["Visual"];
 	    }
 	}
 	
@@ -229,7 +229,8 @@ export namespace database {
 	    Name: string;
 	    Type: string;
 	    Active: boolean;
-	    Model: string;
+	    TextModel: string;
+	    VisualModel: string;
 	    Token: string;
 	    URL: string;
 	
@@ -242,7 +243,8 @@ export namespace database {
 	        this.Name = source["Name"];
 	        this.Type = source["Type"];
 	        this.Active = source["Active"];
-	        this.Model = source["Model"];
+	        this.TextModel = source["TextModel"];
+	        this.VisualModel = source["VisualModel"];
 	        this.Token = source["Token"];
 	        this.URL = source["URL"];
 	    }

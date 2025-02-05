@@ -86,7 +86,6 @@ func InitDB(assets embed.FS) error {
 		createRoundsTable,
 		createEliminationsTable,
 		createServicesTable,
-		createModelsTable,
 	}
 	for i := range tables {
 		_, err := database.Exec(tables[i])
@@ -972,12 +971,13 @@ func SaveScore(name, gameUUID string) error {
 // MARK: AI SERVICES
 
 type Service struct {
-	Name   string `json:"Name"`
-	Type   string `json:"Type"` // API or local
-	Active bool   `json:"Active"`
-	Model  string `json:"Model"`
-	Token  string `json:"Token"`
-	URL    string `json:"URL"`
+	Name        string `json:"Name"`
+	Type        string `json:"Type"` // API or local
+	Active      bool   `json:"Active"`
+	TextModel   string `json:"TextModel"`
+	VisualModel string `json:"VisualModel"`
+	Token       string `json:"Token"`
+	URL         string `json:"URL"`
 }
 
 const createServicesTable = `BEGIN;
@@ -985,22 +985,23 @@ CREATE TABLE IF NOT EXISTS services (
     Name TEXT PRIMARY KEY,
 	Type TEXT,
 	Active TEXT,
-	Model TEXT,	
+	TextModel TEXT,
+	VisualModel TEXT,
     Token TEXT,
 	URL TEXT
 );
-INSERT OR IGNORE INTO services (Name, Type, Active, Model, Token, URL)
+INSERT OR IGNORE INTO services (Name, Type, Active, TextModel, VisualModel, Token, URL)
 VALUES
-	('Ollama',    'local', '1', '', '', ''),	
-	('OpenAI',    'API',   '0', '', '', ''),
-	('Anthropic', 'API',   '0', '', '', ''),
-	('DeepSeek',  'API',   '0', '', '', '');
+	('Ollama',    'local', '0', '', '', '', ''),	
+	('OpenAI',    'API',   '0', '', '', '', ''),
+	('Anthropic', 'API',   '0', '', '', '', ''),
+	('DeepSeek',  'API',   '0', '', '', '', '');
 COMMIT;`
 
 func GetService(name string) (Service, error) {
 	var service Service
-	query := "SELECT Name, Type, Active, Model, Token, URL FROM services WHERE name = $1"
-	err := database.QueryRow(query, name).Scan(&service.Name, &service.Type, &service.Active, &service.Model, &service.Token, &service.URL)
+	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services WHERE name = $1"
+	err := database.QueryRow(query, name).Scan(&service.Name, &service.Type, &service.Active, &service.TextModel, &service.VisualModel, &service.Token, &service.URL)
 	if err != nil {
 		return service, fmt.Errorf("error geting Service for name %s: %v", name, err)
 	}
@@ -1009,7 +1010,7 @@ func GetService(name string) (Service, error) {
 
 func GetServices() ([]Service, error) {
 	var services []Service
-	query := "SELECT Name, Type, Active, Model, Token, URL FROM services"
+	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services"
 	rows, err := database.Query(query)
 	if err != nil {
 		return services, err
@@ -1018,7 +1019,7 @@ func GetServices() ([]Service, error) {
 
 	for rows.Next() {
 		var service Service
-		err := rows.Scan(&service.Name, &service.Type, &service.Active, &service.Model, &service.Token, &service.URL)
+		err := rows.Scan(&service.Name, &service.Type, &service.Active, &service.TextModel, &service.VisualModel, &service.Token, &service.URL)
 		if err != nil {
 			return services, err
 		}
@@ -1031,12 +1032,12 @@ func GetServices() ([]Service, error) {
 	return services, nil
 }
 
-func SaveService(name, model, token, url string) error {
+func SaveService(name, text_model, visual_model, token, url string) error {
 	query := `UPDATE services 
-SET Token = $1, Model = $2, URL = $3 
-WHERE Name = $4
+SET Token = $1, TextModel = $2, VisualModel=$3, URL = $4 
+WHERE Name = $5
 `
-	result, err := database.Exec(query, token, model, url, name)
+	result, err := database.Exec(query, token, text_model, visual_model, url, name)
 	if err != nil {
 		log.Printf("Error saving service %s: %v", name, err)
 		return err
@@ -1053,7 +1054,7 @@ WHERE Name = $4
 		return fmt.Errorf("no record updated for service '%s'", name)
 	}
 
-	fmt.Printf("SaveService successful. Service=%s Token=%s Model=%s URL=%s\n", name, token, model, url)
+	fmt.Printf("SaveService successful. Service=%s Token=%s TextModel=%s VisualModel=%s URL=%s\n", name, token, text_model, visual_model, url)
 	return nil
 }
 
@@ -1121,8 +1122,8 @@ func WaitForAnswer(roundUUID string) string {
 
 func GetActiveService() (Service, error) {
 	var service Service
-	query := "SELECT Name, Type, Active, Model, Token, URL FROM services WHERE Active = 1"
-	err := database.QueryRow(query).Scan(&service.Name, &service.Type, &service.Active, &service.Model, &service.Token, &service.URL)
+	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services WHERE Active = 1"
+	err := database.QueryRow(query).Scan(&service.Name, &service.Type, &service.Active, &service.TextModel, &service.VisualModel, &service.Token, &service.URL)
 	if err != nil {
 		return service, fmt.Errorf("error geting active service: %v", err)
 	}
@@ -1134,46 +1135,7 @@ func GetActiveService() (Service, error) {
 type Model struct {
 	Name    string `json:"Name"`
 	Service string `json:"Service"`
-	Active  bool   `json:"Active"`
-}
-
-const createModelsTable = `BEGIN;
-CREATE TABLE IF NOT EXISTS models (
-    Name TEXT PRIMARY KEY,
-	Service TEXT,
-    Active INT
-);
-INSERT OR IGNORE INTO models (Name, Service, Active)
-VALUES
-	('gpt-4o-2024-08-06', 'OpenAI', '1'),
-	('chatgpt-4o-latest', 'OpenAI', '0'),
-	('gpt-4o-mini-2024-07-18', 'OpenAI', '0'),
-	('claude-3-haiku-20240307', 'Anthropic', '0'),
-	('claude-3-5-sonnet-20240620', 'Anthropic', '0');
-COMMIT;` // as defined in ai.go:supportedModels - hacky way, but OK for now
-
-func GetAllModels() ([]Model, error) {
-	var models []Model
-	query := "SELECT Name, Service, Active FROM models"
-	rows, err := database.Query(query)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving models: %v", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var model Model
-		err := rows.Scan(&model.Name, &model.Service, &model.Active)
-		if err != nil {
-			return nil, fmt.Errorf("error scanning model: %v", err)
-		}
-		models = append(models, model)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error during rows iteration: %v", err)
-	}
-
-	return models, nil
+	Visual  bool   `json:"Visual"`
 }
 
 // MARK: DESCRIPTIONS

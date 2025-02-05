@@ -37,7 +37,7 @@
     <div class="model">
         {$t("interrogated")}:
         {#if activeService === null}{$t("loading")}
-        {:else} {activeService.Model}
+        {:else} {activeService.VisualModel}
         {/if}
     </div>
 </div>

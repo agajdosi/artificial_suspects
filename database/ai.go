@@ -49,7 +49,7 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 		return
 	}
 
-	descriptions, err := GetDescriptionsForSuspect(criminalUUID, service.Name, service.Model)
+	descriptions, err := GetDescriptionsForSuspect(criminalUUID, service.Name, service.VisualModel)
 	if err != nil {
 		fmt.Printf("GetAnswerFromAI at Round (%s) with Criminal (%s) - GetDescriptionsForSuspect() error: %v\n", round.UUID, criminalUUID, err)
 		SaveAnswer("failed GetDescriptionsForSuspect()", round.UUID)
@@ -66,13 +66,13 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 
 	var answer string
 	if service.Name == "Anthropic" {
-		answer, err = GetAnswerFromAnthropic(question.English, description, service.Model, service.Token)
+		answer, err = GetAnswerFromAnthropic(question.English, description, service.VisualModel, service.Token)
 	} else if service.Name == "OpenAI" {
-		answer, err = GetAnswerFromOpenAI(question.English, description, service.Model, service.Token)
+		answer, err = GetAnswerFromOpenAI(question.English, description, service.VisualModel, service.Token)
 	} else if service.Name == "DeepSeek" {
-		answer, err = GetAnswerFromDeepSeek(question.English, description, service.Model, service.Token)
+		answer, err = GetAnswerFromDeepSeek(question.English, description, service.VisualModel, service.Token)
 	} else if service.Name == "Ollama" {
-		answer, err = GetAnswerFromOllama(question.English, description, service.Model, service.Token)
+		answer, err = GetAnswerFromOllama(question.English, description, service.VisualModel, service.Token)
 	} else {
 		fmt.Printf("Unsupported service '%s'\n", service.Name)
 		SaveAnswer("failed OpenAIGetAnswer()", round.UUID)
@@ -202,20 +202,15 @@ func GetAnswerFromOpenAI(question, description, modelName, token string) (string
 	return finalResp.Choices[0].Message.Content, nil
 }
 
-var supportedModels = map[string]bool{
-	openai.GPT4o20240806:     true,
-	openai.GPT4oLatest:       true,
-	openai.GPT4oMini20240718: true,
-}
-
 // Describe the image using the specified model.
-// Models must be one of supportedModels.
+// Models must be one of visualModels.
 //
 // Returns description, prompt used and error.
 func OpenAIDescribeImage(imagePath string, model string, token string) (string, string, error) {
-	if !supportedModels[model] {
+	if !visualModels[model] {
 		return "", "", errors.New("unsupported model")
 	}
+
 	if token == "" {
 		return "", "", errors.New("token cannot be empty")
 	}
