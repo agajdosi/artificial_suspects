@@ -87,7 +87,6 @@ func InitDB(assets embed.FS) error {
 		createEliminationsTable,
 		createServicesTable,
 		createModelsTable,
-		createDescriptionsTable,
 	}
 	for i := range tables {
 		_, err := database.Exec(tables[i])
@@ -105,6 +104,12 @@ func InitDB(assets embed.FS) error {
 	if err != nil {
 		return err
 	}
+
+	err = InitDescriptionsTable()
+	if err != nil {
+		return err
+	}
+
 	log.Println("Database successfully initiated.")
 
 	return nil
@@ -1195,6 +1200,24 @@ const createDescriptionsTable = `
 		Prompt TEXT,
 		Timestamp TEXT
 	);`
+
+// Init descriptions table with default descriptions for default suspects.
+// TODO: Add option to re-generate the descriptions for suspects, or for custom suspect.
+func InitDescriptionsTable() error {
+	_, err := database.Exec(createDescriptionsTable)
+	if err != nil {
+		return err
+	}
+	for i := range defaultDescriptions {
+		err := SaveDescription(defaultDescriptions[i])
+		if err != nil {
+			log.Println("Cannot initialize descriptions:", err)
+			return err
+		}
+	}
+
+	return nil
+}
 
 func SaveDescription(d Description) error {
 	query := `
