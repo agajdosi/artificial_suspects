@@ -980,6 +980,12 @@ type Service struct {
 	URL         string `json:"URL"`
 }
 
+type ServiceStatus struct {
+	Ready   bool   `json:"Ready"`
+	Message string `json:"Message"`
+	Service Service
+}
+
 const createServicesTable = `BEGIN;
 CREATE TABLE IF NOT EXISTS services (
     Name TEXT PRIMARY KEY,

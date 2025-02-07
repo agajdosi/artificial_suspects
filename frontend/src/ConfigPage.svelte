@@ -114,10 +114,10 @@
                         </div>
                     {/if}
                     {#if service.Type == "local"}
+                        <button on:click={ListModelsOllama}>List models</button>
                         <div class="service-URL">
                             <label for="token-{service.Name}">URL:</label>
                             <input id="token-{service.Name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.URL.trim() === ''}>
-                            <button on:click={ListModelsOllama}>List models</button>
                         </div>
                     {/if}
                     <div class="service-model">

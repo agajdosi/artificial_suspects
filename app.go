@@ -170,6 +170,10 @@ func (a *App) QuitApplication() {
 	runtime.Quit(a.ctx)
 }
 
+func (a *App) AIServiceIsReady() database.ServiceStatus {
+	return database.AIServiceIsReady()
+}
+
 func (a *App) ListModelsOllama() *ollama.ListResponse {
 	return database.ListModelsOllama()
 }

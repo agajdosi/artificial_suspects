@@ -39,6 +39,27 @@ TASK: Answer the question YES or NO. Do not write anything else. Do not write an
 
 // MARK: ROUTERS
 
+// Check if the configured active AI service is ready. If so the game can start.
+// Otherwise we will not enable the user to start the Game and send them to configuration.
+func AIServiceIsReady() ServiceStatus {
+	service, err := GetActiveService()
+	if err != nil {
+		return ServiceStatus{Ready: false, Message: fmt.Sprintf("AIServiceIsReady error: %s", err)}
+	}
+
+	if service.Name == "OpenAI" {
+		// TODO: OpenAI check
+	} else if service.Name == "Anthropic" {
+		// TODO: Anthropic check
+	} else if service.Name == "DeepSeek" {
+		// TODO: DeepSeek check
+	} else if service.Name == "Ollama" {
+		return OllamaIsReady(service)
+	}
+
+	return ServiceStatus{Ready: false, Message: "service not implemented"}
+}
+
 // Get the Answer to Question from the AI model and save it into the database.
 // Call concurrently and forget about it. It does not return anything,
 // for retrieval to App you should later use WaitForAnswer().
@@ -339,19 +360,54 @@ func EnsureOllamaClient() error {
 	return err
 }
 
+// Not sure if we need this. Do I really want to integrate whole Ollama and command it from the
+// background, from here? That could be a solution.
+// TODO: resolve if this makes sense
 func ListModelsOllama() *ollama.ListResponse {
 	EnsureOllamaClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	list, err := ollamaClient.List(ctx)
+	resp, err := ollamaClient.List(ctx)
 	if err != nil {
 		fmt.Printf("Error listing Ollama models: %v\n", err)
 	} else {
-		fmt.Printf("ListModelsOllama: %v", list)
+		fmt.Printf("ListModelsOllama: %v\n", resp)
 	}
 
-	return list
+	return resp
+}
+
+// List currently running ollama models, the same as running command "ollama ps".
+func ListRunningModelsOllama() *ollama.ProcessResponse {
+	EnsureOllamaClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	resp, err := ollamaClient.ListRunning(ctx)
+	if err != nil {
+		fmt.Printf("Error listing Ollama models: %v\n", err)
+		return nil
+	}
+	fmt.Printf("ListRunningModelsOllama: %v\n", resp)
+	return resp
+}
+
+// This is basic check if the Ollama is ready to serve the game needs.
+func OllamaIsReady(service Service) ServiceStatus {
+	status := ServiceStatus{Service: service, Ready: false}
+	EnsureOllamaClient()
+	resp := ListRunningModelsOllama()
+	if resp == nil {
+		status.Message = "Ollama response is nil"
+		return status
+	}
+	for model := range resp.Models {
+		fmt.Println("Running model:", model)
+	}
+	status.Ready = true
+	status.Message = "Ollama is running"
+	return status
 }
 
 // TODO: implement this

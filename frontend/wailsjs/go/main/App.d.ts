@@ -3,6 +3,8 @@
 import {database} from '../models';
 import {api} from '../models';
 
+export function AIServiceIsReady():Promise<database.ServiceStatus>;
+
 export function ActivateService(arg1:string):Promise<void>;
 
 export function EliminateSuspect(arg1:string,arg2:string,arg3:string):Promise<void>;
