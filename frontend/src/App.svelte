@@ -41,8 +41,8 @@
         }
 
         // CONFIG
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'c') {
-            console.log('Ctrl/Cmd+Shift+C was pressed');
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'o') {
+            console.log('Ctrl/Cmd+Shift+O was pressed');
             event.preventDefault();
             screen = 'config';
         }
