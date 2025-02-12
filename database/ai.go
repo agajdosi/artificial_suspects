@@ -22,7 +22,8 @@ import (
 	"github.com/liushuangls/go-anthropic/v2"
 	"github.com/sashabaranov/go-openai"
 
-	ollama "github.com/ollama/ollama/api"
+	"github.com/ollama/ollama/api"
+	ollamaAPI "github.com/ollama/ollama/api"
 )
 
 // MARK: PROMPTS
@@ -349,21 +350,21 @@ func GetAnswerFromDeepSeek(question, description string, service Service) (strin
 // MARK: OLLAMA
 // TODO
 
-var ollamaClient *ollama.Client
+var ollamaClient *ollamaAPI.Client
 
 func EnsureOllamaClient() error {
 	if ollamaClient != nil {
 		return nil
 	}
 	var err error
-	ollamaClient, err = ollama.ClientFromEnvironment()
+	ollamaClient, err = ollamaAPI.ClientFromEnvironment()
 	return err
 }
 
 // Not sure if we need this. Do I really want to integrate whole Ollama and command it from the
 // background, from here? That could be a solution.
 // TODO: resolve if this makes sense
-func ListModelsOllama() *ollama.ListResponse {
+func ListModelsOllama() *ollamaAPI.ListResponse {
 	EnsureOllamaClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -379,7 +380,7 @@ func ListModelsOllama() *ollama.ListResponse {
 }
 
 // List currently running ollama models, the same as running command "ollama ps".
-func ListRunningModelsOllama() *ollama.ProcessResponse {
+func ListRunningModelsOllama() *ollamaAPI.ProcessResponse {
 	EnsureOllamaClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -402,7 +403,7 @@ func OllamaIsReady(service Service) ServiceStatus {
 		status.Message = "Ollama response is nil"
 		return status
 	}
-	for model := range resp.Models {
+	for _, model := range resp.Models {
 		fmt.Println("Running model:", model)
 	}
 	status.Ready = true
@@ -412,13 +413,36 @@ func OllamaIsReady(service Service) ServiceStatus {
 
 // TODO: implement this
 func GetAnswerFromOllama(question, description string, service Service) (string, error) {
-	var err error
-	ollamaClient, err = ollama.ClientFromEnvironment()
-	if err != nil {
-		return "", err
-	}
-	fmt.Println("Got Ollama client:", ollamaClient)
+	// Ensure the Ollama client is initialized
+	EnsureOllamaClient()
 
-	fmt.Println("GetAnswerFromOllama not implemented, calling GetAnswerFromOpenAI now!")
-	return GetAnswerFromOpenAI(question, description, service)
+	// Set up a context with a 10-second timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Create the request
+	req := ollamaAPI.GenerateRequest{
+		Model:  service.VisualModel,
+		Prompt: question,
+		System: description,
+	}
+
+	fmt.Println("Sending request to Ollama:", req)
+
+	// Variable to store the generated response
+	var responseText string
+	var responseHandler ollamaAPI.GenerateResponseFunc = func(resp api.GenerateResponse) error {
+		responseText += resp.Response
+		return nil
+	}
+
+	// Call Generate with a callback function to collect the response
+	err := ollamaClient.Generate(ctx, &req, responseHandler)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate response from Ollama: %w", err)
+	}
+
+	fmt.Println("GOT THE ANSWER FROM OLLAMA:", responseText)
+
+	return responseText, nil
 }
