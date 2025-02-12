@@ -22,7 +22,6 @@ import (
 	"github.com/liushuangls/go-anthropic/v2"
 	"github.com/sashabaranov/go-openai"
 
-	"github.com/ollama/ollama/api"
 	ollamaAPI "github.com/ollama/ollama/api"
 )
 
@@ -431,7 +430,7 @@ func GetAnswerFromOllama(question, description string, service Service) (string,
 
 	// Variable to store the generated response
 	var responseText string
-	var responseHandler ollamaAPI.GenerateResponseFunc = func(resp api.GenerateResponse) error {
+	var responseHandler ollamaAPI.GenerateResponseFunc = func(resp ollamaAPI.GenerateResponse) error {
 		responseText += resp.Response
 		return nil
 	}
