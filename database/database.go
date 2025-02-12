@@ -1199,33 +1199,3 @@ func SaveDescription(d Description) error {
 	_, err := database.Exec(query, d.UUID, d.SuspectUUID, d.Service, d.Model, d.Description, d.Prompt, timestamp)
 	return err
 }
-
-// Get the description of the subject from the database. These are prefilled descriptions by the AI to save the time.
-func GetDescriptionsForSuspect(suspectUUID, service, model string) ([]Description, error) {
-	var descriptions []Description
-	query := "SELECT UUID, Description, Prompt, Timestamp FROM descriptions WHERE SuspectUUID = $1 AND Service = $2 AND Model = $3"
-	rows, err := database.Query(query, suspectUUID, service, model)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get descriptions: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var d = Description{
-			SuspectUUID: suspectUUID,
-			Service:     service,
-			Model:       model,
-		}
-		err := rows.Scan(&d.UUID, &d.Description, &d.Prompt, &d.Timestamp)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan description row: %w", err)
-		}
-		descriptions = append(descriptions, d)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("description rows iteration error: %w", err)
-	}
-
-	return descriptions, nil
-}

@@ -37,7 +37,7 @@ DESCRIPTION OF PERPETRATOR: %s`
 const answerBoolean = `ROLE: You are a senior decision maker.
 TASK: Answer the question YES or NO. Do not write anything else. Do not write anything else. Just write YES, or NO based on the previous information.`
 
-// MARK: ROUTERS
+// MARK: ROUTERS - GET
 
 // Check if the configured active AI service is ready. If so the game can start.
 // Otherwise we will not enable the user to start the Game and send them to configuration.
@@ -111,6 +111,38 @@ func GetAnswerFromAI(round Round, criminalUUID string) {
 	fmt.Println("Answer is:", answer)
 	SaveAnswer(answer, round.UUID)
 }
+
+// Get the description of the subject from the database. These are prefilled descriptions by the AI to save the time.
+func GetDescriptionsForSuspect(suspectUUID, service, model string) ([]Description, error) {
+	var descriptions []Description
+	query := "SELECT UUID, Description, Prompt, Timestamp FROM descriptions WHERE SuspectUUID = $1 AND Service = $2 AND Model = $3"
+	rows, err := database.Query(query, suspectUUID, service, model)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get descriptions: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var d = Description{
+			SuspectUUID: suspectUUID,
+			Service:     service,
+			Model:       model,
+		}
+		err := rows.Scan(&d.UUID, &d.Description, &d.Prompt, &d.Timestamp)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan description row: %w", err)
+		}
+		descriptions = append(descriptions, d)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("description rows iteration error: %w", err)
+	}
+
+	return descriptions, nil
+}
+
+// MARK: ROUTER-GENERATE
 
 // Generate description of the Suspect's portrait.
 // TODO: Actually route the traffic to respective OpenAI, Ollama or other implementation.
