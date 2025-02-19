@@ -15,7 +15,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,6 +26,8 @@ import (
 
 	ollamaAPI "github.com/ollama/ollama/api"
 )
+
+const emoAI = "🤖"
 
 // MARK: PROMPTS
 
@@ -426,6 +430,9 @@ func EnsureOllamaClient() error {
 	}
 	var err error
 	ollamaClient, err = ollamaAPI.ClientFromEnvironment()
+	if err != nil {
+		log.Println("Error creating Ollama client:", err)
+	}
 	return err
 }
 
@@ -447,34 +454,28 @@ func ListModelsOllama() *ollamaAPI.ListResponse {
 	return resp
 }
 
-// List currently running ollama models, the same as running command "ollama ps".
-func ListRunningModelsOllama() *ollamaAPI.ProcessResponse {
-	EnsureOllamaClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	resp, err := ollamaClient.ListRunning(ctx)
-	if err != nil {
-		fmt.Printf("Error listing Ollama models: %v\n", err)
-		return nil
-	}
-	fmt.Printf("ListRunningModelsOllama: %v\n", resp)
-	return resp
-}
-
 // This is basic check if the Ollama is ready to serve the game needs.
 func OllamaIsReady(service Service) ServiceStatus {
 	status := ServiceStatus{Service: service, Ready: false}
 	EnsureOllamaClient()
-	resp := ListRunningModelsOllama()
+	resp := ListModelsOllama()
 	if resp == nil {
 		status.Message = "Ollama response is nil"
 		return status
 	}
+
 	for _, model := range resp.Models {
-		fmt.Println("Running model:", model)
+		if model.Name == service.VisualModel {
+			status.Ready = true
+			break
+		}
+		name, _, _ := strings.Cut(model.Name, ":")
+		if name == service.VisualModel {
+			status.Ready = true
+			break
+		}
 	}
-	status.Ready = true
+
 	status.Message = "Ollama is running"
 	return status
 }
@@ -507,7 +508,7 @@ func GetAnswerFromOllama(question, description string, service Service) (string,
 	if err != nil {
 		return "", fmt.Errorf("failed to generate response from Ollama: %w", err)
 	}
-	fmt.Println("GOT THE REFLECTION FROM OLLAMA:", responseText)
+	log.Println(emoAI, "GOT THE REFLECTION FROM OLLAMA:", responseText)
 
 	// MAKE DECISION - reflection into YES or NO
 	var answerBoolean = "Answer the question YES or NO. Do not write anything else. Just write YES, or NO based on the previous information."
@@ -540,7 +541,7 @@ func GetAnswerFromOllama(question, description string, service Service) (string,
 		return "", fmt.Errorf("failed to generate response from Ollama: %w", err)
 	}
 
-	fmt.Println("GOT THE FINAL ANSWER FROM OLLAMA:", decisionText)
+	log.Println(emoAI, "GOT THE FINAL ANSWER FROM OLLAMA:", decisionText)
 
 	return decisionText, nil
 }
