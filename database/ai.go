@@ -481,36 +481,66 @@ func OllamaIsReady(service Service) ServiceStatus {
 
 // TODO: implement this
 func GetAnswerFromOllama(question, description string, service Service) (string, error) {
-	// Ensure the Ollama client is initialized
-	EnsureOllamaClient()
-
-	// Set up a context with a 10-second timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	EnsureOllamaClient() // Ensure the Ollama client is initialized
+	ctx, cancel := context.WithTimeout(context.Background(), 10*60*time.Second)
 	defer cancel()
 
-	// Create the request
-	req := ollamaAPI.GenerateRequest{
-		Model:  service.VisualModel,
-		Prompt: question,
-		System: description,
+	// REFLECTION over the description
+	reflectionPrompt := fmt.Sprintf(answerReflection, question, description)
+	reflReq := ollamaAPI.ChatRequest{
+		Model: service.VisualModel,
+		Messages: []ollamaAPI.Message{
+			{
+				Role:    "user",
+				Content: reflectionPrompt,
+			},
+		},
 	}
 
-	fmt.Println("Sending request to Ollama:", req)
-
-	// Variable to store the generated response
 	var responseText string
-	var responseHandler ollamaAPI.GenerateResponseFunc = func(resp ollamaAPI.GenerateResponse) error {
-		responseText += resp.Response
+	var responseHandler ollamaAPI.ChatResponseFunc = func(resp ollamaAPI.ChatResponse) error {
+		responseText += resp.Message.Content
 		return nil
 	}
 
-	// Call Generate with a callback function to collect the response
-	err := ollamaClient.Generate(ctx, &req, responseHandler)
+	err := ollamaClient.Chat(ctx, &reflReq, responseHandler)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate response from Ollama: %w", err)
+	}
+	fmt.Println("GOT THE REFLECTION FROM OLLAMA:", responseText)
+
+	// MAKE DECISION - reflection into YES or NO
+	var answerBoolean = "Answer the question YES or NO. Do not write anything else. Just write YES, or NO based on the previous information."
+	chatReq := ollamaAPI.ChatRequest{
+		Model: service.VisualModel,
+		Messages: []ollamaAPI.Message{
+			{
+				Role:    "user",
+				Content: reflectionPrompt,
+			},
+			{
+				Role:    "assistant",
+				Content: responseText,
+			},
+			{
+				Role:    "user",
+				Content: answerBoolean,
+			},
+		},
+	}
+
+	var decisionText string
+	var decisionHandler ollamaAPI.ChatResponseFunc = func(resp ollamaAPI.ChatResponse) error {
+		decisionText += resp.Message.Content
+		return nil
+	}
+
+	err = ollamaClient.Chat(ctx, &chatReq, decisionHandler)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate response from Ollama: %w", err)
 	}
 
-	fmt.Println("GOT THE ANSWER FROM OLLAMA:", responseText)
+	fmt.Println("GOT THE FINAL ANSWER FROM OLLAMA:", decisionText)
 
-	return responseText, nil
+	return decisionText, nil
 }
