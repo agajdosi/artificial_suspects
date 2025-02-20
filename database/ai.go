@@ -250,6 +250,8 @@ func GenerateDescriptionsForAll(limit int, serviceName, modelName string) error 
 
 // MARK: OPENAI
 
+// List available models on OpenAI. Beside that this also checks if the client is online
+// and also whether the API key is valid. This will fails if the API key is not valid.
 func ListModelsOpenAI(service Service) ([]openai.Model, error) {
 	client := openai.NewClient(service.Token)
 	models, err := client.ListModels(context.Background())
@@ -261,6 +263,7 @@ func ListModelsOpenAI(service Service) ([]openai.Model, error) {
 	return models.Models, err
 }
 
+// Check whether OpenAI service is ready: servers are reachable, API token is valid and model is availablee
 func OpenAIIsReady(service Service) ServiceStatus {
 	status := ServiceStatus{Service: service, Ready: false}
 	models, err := ListModelsOpenAI(service)
@@ -270,7 +273,6 @@ func OpenAIIsReady(service Service) ServiceStatus {
 	}
 
 	for _, model := range models {
-		log.Println("openAI model id:", model.ID)
 		if model.ID == service.VisualModel {
 			status.Ready = true
 			break
