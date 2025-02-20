@@ -453,7 +453,6 @@ func GetAnswerFromDeepSeek(question, description string, service Service) (strin
 }
 
 // MARK: OLLAMA
-// TODO
 
 var ollamaClient *ollamaAPI.Client
 
@@ -511,7 +510,6 @@ func OllamaIsReady(service Service) ServiceStatus {
 	return status
 }
 
-// TODO: implement this
 func GetAnswerFromOllama(question, description string, service Service) (string, error) {
 	EnsureOllamaClient() // Ensure the Ollama client is initialized
 	ctx, cancel := context.WithTimeout(context.Background(), 10*60*time.Second)
