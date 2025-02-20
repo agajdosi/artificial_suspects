@@ -139,4 +139,11 @@
     border-color: #0056b3;
 }
 
+/* Use display: flow-root to create new Block Formatting Context.
+BFC prevents margins to overflow outside main and #app, breaking its 100vh.
+*/
+:global(main) {
+    display: flow-root;
+}
+
 </style>
