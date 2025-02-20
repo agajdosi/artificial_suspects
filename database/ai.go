@@ -52,7 +52,7 @@ func AIServiceIsReady() ServiceStatus {
 	}
 
 	if service.Name == "OpenAI" {
-		// TODO: OpenAI check
+		return OpenAIIsReady(service)
 	} else if service.Name == "Anthropic" {
 		// TODO: Anthropic check
 	} else if service.Name == "DeepSeek" {
@@ -250,6 +250,37 @@ func GenerateDescriptionsForAll(limit int, serviceName, modelName string) error 
 
 // MARK: OPENAI
 
+func ListModelsOpenAI(service Service) ([]openai.Model, error) {
+	client := openai.NewClient(service.Token)
+	models, err := client.ListModels(context.Background())
+	if err != nil {
+		log.Println("Error listing openAI models:", err)
+		return nil, err
+	}
+
+	return models.Models, err
+}
+
+func OpenAIIsReady(service Service) ServiceStatus {
+	status := ServiceStatus{Service: service, Ready: false}
+	models, err := ListModelsOpenAI(service)
+	if err != nil {
+		status.Message = fmt.Sprintf("OpenAI list models error: %v", err)
+		return status
+	}
+
+	for _, model := range models {
+		log.Println("openAI model id:", model.ID)
+		if model.ID == service.VisualModel {
+			status.Ready = true
+			break
+		}
+	}
+
+	status.Message = "OpenAI available"
+	return status
+}
+
 func GetAnswerFromOpenAI(question, description string, service Service) (string, error) {
 	client := openai.NewClient(service.Token)
 	reflectionPrompt := fmt.Sprintf(answerReflection, question, description)
@@ -436,9 +467,7 @@ func EnsureOllamaClient() error {
 	return err
 }
 
-// Not sure if we need this. Do I really want to integrate whole Ollama and command it from the
-// background, from here? That could be a solution.
-// TODO: resolve if this makes sense
+// List locally available models on Ollama.
 func ListModelsOllama() *ollamaAPI.ListResponse {
 	EnsureOllamaClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
