@@ -1,6 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { QuitApplication, AIServiceIsReady} from '../wailsjs/go/main/App';
+    import { QuitApplication} from '../wailsjs/go/main/App';
+    import { serviceStatus } from './lib/stores';
     import ServiceStatus from './ServiceStatus.svelte';
     const dispatch = createEventDispatcher();
     
@@ -12,8 +13,8 @@
 <h1>Artificial Suspects</h1>
 
 <div class="menu">
-    <button on:click={newGameDispatcher}>New Game</button>
-    <button on:click={continueGameDispatcher}>Continue Game</button>
+    <button disabled={!$serviceStatus.Ready} on:click={newGameDispatcher}>New Game</button>
+    <button disabled={!$serviceStatus.Ready} on:click={continueGameDispatcher}>Continue Game</button>
     <button on:click={enterConfigDispatcher}>Configuration</button>
     <button on:click={QuitApplication}>Exit</button>
 </div>
