@@ -71,12 +71,8 @@
         return
     }
 
-    async function enterConfigHandler(event) {
-        screen = "config";
-    }
-
     async function handleMessage(event) {
-        console.log(event)
+        console.log("handleMessage:", event)
         const { message } = event.detail;
         if (message === 'continueGame') {
             try {
@@ -85,10 +81,17 @@
                 console.log(`GetGame() has failed: ${error}`)
             }
             console.log(game)
-            screen = 'game'
+            screen = 'game';
             return
-        } else if (message === 'goToHome') {
+        }
+
+        if (message === 'goToHome') {
             screen = 'home';
+            return
+        }
+         
+        if (message === 'goToConfig') {
+            screen = 'config';
             return
         }
     }
@@ -96,7 +99,7 @@
 
 <main>
     {#if screen === 'home'}
-        <HomePage on:message={handleMessage} on:newGame={newGameHandler} on:enterConfig={enterConfigHandler}/>
+        <HomePage on:message={handleMessage} on:newGame={newGameHandler}/>
     {:else if screen === 'game'}
         <GamePage on:message={handleMessage} on:newGame={newGameHandler} {game}/>
     {:else if screen === 'config'}

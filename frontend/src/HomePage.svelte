@@ -7,7 +7,7 @@
     
     function newGameDispatcher() {dispatch('newGame', {message: 'new game'});}
     function continueGameDispatcher() {dispatch('message', { message: 'continueGame' });}
-    function enterConfigDispatcher() {dispatch('enterConfig', { message: 'enterConfig' });}
+    function enterConfigDispatcher() {dispatch('message', { message: 'goToConfig' });}
 </script>
 
 <h1>Artificial Suspects</h1>
