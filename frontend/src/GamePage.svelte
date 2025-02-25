@@ -215,8 +215,8 @@
     justify-content: space-between;
     position: absolute;
     bottom: 0;
-    width: calc(100vw - 1rem);
-    padding: 0 0.5rem;
+    width: calc(100vw - 2.5rem);
+    padding: 0 0.5rem 0 2rem;
 }
 .stats {
     display: flex;

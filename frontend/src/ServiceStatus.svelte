@@ -6,20 +6,12 @@
 
     let interval: number; // Store the interval ID
     let overlayActive: boolean = false;
-    function closeOverlay() {overlayActive = false;}
-    function openOverlay() {overlayActive = true;}
+    function closePopup() {overlayActive = false;}
+    function togglePopup() {overlayActive = !overlayActive;}
+
 
     async function getServiceStatus() {
         let status = await AIServiceIsReady();
-        if (!status.Ready) {
-            const em = new main.ErrorMessage();
-            em.Severity = "warning";
-            em.Title = `${status.Service.VisualModel} from provider ${status.Service.Name} is not accessible`;
-            em.Message = `Bla bla bla`;
-            em.Actions = ["goToConfig"]
-            errorMessage.set(em);
-        }
-        console.log("Service status is:", status);
         serviceStatus.set(status);
     }
 
@@ -29,38 +21,46 @@
     })
 </script>
 
-<div class="status">
+<button on:click={togglePopup} class="status">
     {#if $serviceStatus?.Ready}
         🟢
     {:else}
         🔴
     {/if}
-</div>
+</button>
 
 {#if overlayActive}
-<div class="overlay">
+<div class="popup">
     <div>Service: {$serviceStatus.Service?.Name}</div>
     <div>Model: {$serviceStatus.Service?.VisualModel}</div>
     <div>Ready: {$serviceStatus.Ready}</div>
-    <div>Message: {$serviceStatus.Message}</div>
+    <div>{$serviceStatus.Message}</div>
     <button on:click={getServiceStatus}>Refresh</button>
-    <button on:click={closeOverlay}>Close</button>
+    <button on:click={closePopup}>Close</button>
 </div>
 {/if}
 
 <style>
 .status {
+    border: none;
+}
+.status:hover {
+    background-color: unset;
+}
+
+.status {
     position: fixed;
     bottom: 0;
-    left: 100;
+    left: 0;
     padding: 0 0 0 4px;
 }
 
-.overlay{
+.popup{
     position: fixed;
-    top: 0;
-    height: 100%;
-    width: 100vw;
+    bottom: 2rem;
+    left: 0;
+    padding: 0.4rem 0.8rem 0.6rem;
+    text-align: left;
     background-color: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
 }
