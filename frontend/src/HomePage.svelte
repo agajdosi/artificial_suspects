@@ -2,7 +2,6 @@
     import { createEventDispatcher } from 'svelte';
     import { QuitApplication} from '../wailsjs/go/main/App';
     import { serviceStatus } from './lib/stores';
-    import ServiceStatus from './ServiceStatus.svelte';
     const dispatch = createEventDispatcher();
     
     function newGameDispatcher() {dispatch('newGame', {message: 'new game'});}
@@ -18,8 +17,6 @@
     <button on:click={enterConfigDispatcher}>Configuration</button>
     <button on:click={QuitApplication}>Exit</button>
 </div>
-
-<ServiceStatus />
 
 <style>
 

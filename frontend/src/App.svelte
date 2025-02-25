@@ -4,6 +4,7 @@
     import HomePage from './HomePage.svelte'
     import ConfigPage from './ConfigPage.svelte'
     import ErrorOverlay from './ErrorOverlay.svelte'
+    import ServiceStatus from './ServiceStatus.svelte';
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
     import { database } from '../wailsjs/go/models';
     import { register, init} from 'svelte-i18n';
@@ -90,7 +91,7 @@
             screen = 'home';
             return
         }
-         
+
         if (message === 'goToConfig') {
             screen = 'config';
             return
@@ -106,6 +107,7 @@
     {:else if screen === 'config'}
         <ConfigPage on:message={handleMessage}/>
     {/if}
+    <ServiceStatus />
     <ErrorOverlay on:message={handleMessage}/>
 </main>
 

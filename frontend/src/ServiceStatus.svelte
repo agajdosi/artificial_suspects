@@ -4,6 +4,11 @@
     import { main } from './../wailsjs/go/models';
     import { onMount } from 'svelte';
 
+    let interval: number; // Store the interval ID
+    let overlayActive: boolean = false;
+    function closeOverlay() {overlayActive = false;}
+    function openOverlay() {overlayActive = true;}
+
     async function getServiceStatus() {
         let status = await AIServiceIsReady();
         if (!status.Ready) {
@@ -18,28 +23,45 @@
         serviceStatus.set(status);
     }
 
-    onMount(async () => {getServiceStatus();})
+    onMount(async () => {
+        getServiceStatus();
+        interval = setInterval(getServiceStatus, 10_000);
+    })
 </script>
 
-<details class="service_status">
-    {#if !$serviceStatus}
-        <!-- No status at all -->
-        <summary>AI not ready</summary>
-    {:else if $serviceStatus.Ready}
-        <summary>AI ready</summary>
+<div class="status">
+    {#if $serviceStatus?.Ready}
+        🟢
     {:else}
-        <summary>AI not ready</summary>
+        🔴
     {/if}
+</div>
+
+{#if overlayActive}
+<div class="overlay">
     <div>Service: {$serviceStatus.Service?.Name}</div>
     <div>Model: {$serviceStatus.Service?.VisualModel}</div>
     <div>Ready: {$serviceStatus.Ready}</div>
     <div>Message: {$serviceStatus.Message}</div>
-
     <button on:click={getServiceStatus}>Refresh</button>
-</details>
+    <button on:click={closeOverlay}>Close</button>
+</div>
+{/if}
 
 <style>
-.service_status {
-    text-align: left;
+.status {
+    position: fixed;
+    bottom: 0;
+    left: 100;
+    padding: 0 0 0 4px;
+}
+
+.overlay{
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
 }
 </style>
