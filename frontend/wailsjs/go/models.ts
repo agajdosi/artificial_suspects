@@ -384,3 +384,26 @@ export namespace database {
 
 }
 
+export namespace main {
+	
+	export class ErrorMessage {
+	    Severity: string;
+	    Title: string;
+	    Message: string;
+	    Actions: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ErrorMessage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Severity = source["Severity"];
+	        this.Title = source["Title"];
+	        this.Message = source["Message"];
+	        this.Actions = source["Actions"];
+	    }
+	}
+
+}
+

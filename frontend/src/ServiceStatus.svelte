@@ -1,22 +1,24 @@
 <script lang="ts">
-    import { serviceStatus } from './lib/stores';
+    import { serviceStatus, errorMessage } from './lib/stores';
     import { AIServiceIsReady } from '../wailsjs/go/main/App';
+    import { main } from './../wailsjs/go/models';
     import { onMount } from 'svelte';
 
     async function getServiceStatus() {
         let status = await AIServiceIsReady();
+        if (!status.Ready) {
+            const em = new main.ErrorMessage();
+            em.Severity = "warning";
+            em.Title = `${status.Service.VisualModel} from provider ${status.Service.Name} is not accessible`;
+            em.Message = `Bla bla bla`;
+            em.Actions = ["goToConfig"]
+            errorMessage.set(em);
+        }
         console.log("Service status is:", status);
         serviceStatus.set(status);
     }
 
-    onMount(async () => {
-        try {
-            let status = await AIServiceIsReady();
-            serviceStatus.set(status);
-        } catch (error) {
-            console.error('Error fetching status:', error);
-        }
-    });
+    onMount(async () => {getServiceStatus();})
 </script>
 
 <details class="service_status">

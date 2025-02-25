@@ -177,3 +177,17 @@ func (a *App) AIServiceIsReady() database.ServiceStatus {
 func (a *App) ListModelsOllama() *ollama.ListResponse {
 	return database.ListModelsOllama()
 }
+
+func (a *App) GetLastErrorMessage() ErrorMessage {
+	return ErrorMessage{
+		Severity: "error",
+		Message:  "something went very wrong",
+	}
+}
+
+type ErrorMessage struct {
+	Severity string   `json:"Severity"`
+	Title    string   `json:"Title"`
+	Message  string   `json:"Message"`
+	Actions  []string `json:"Actions"`
+}

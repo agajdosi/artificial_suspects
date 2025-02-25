@@ -1,17 +1,39 @@
 <script lang="ts">
-    
+    import { errorMessage } from './lib/stores';
+    import { main } from './../wailsjs/go/models';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
+
+    function clearError() {
+        const em = new main.ErrorMessage();
+        errorMessage.set(em);
+    }
+
+    function enterConfigDispatcher() {
+        dispatch('message', { message: 'goToConfig' });
+        clearError();
+    }
+
 </script>
 
+{#if $errorMessage.Title}
 <div class="overlay">
     <div class="content">
-        <h1>AI is not accessible.</h1>
-        <p>Please check that the Ollama service is running on your machine and selected model is available.</p>
-        <div class="options">
+        <h1>{$errorMessage.Title}</h1>
+        <p>{$errorMessage.Message}</p>
+        <div class="actions">
+            {#if $errorMessage.Actions?.includes("reloadService")}
             <button>Check Again</button>
-            <button>Configuration</button>
+            {/if}
+            {#if $errorMessage.Actions?.includes("goToConfig")}
+            <button on:click={enterConfigDispatcher}>Configuration</button>
+            {/if}
         </div>
     </div>
 </div>
+{/if}
+
 
 <style>
 .overlay{

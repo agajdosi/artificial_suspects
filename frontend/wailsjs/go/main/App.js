@@ -26,6 +26,10 @@ export function GetGame() {
   return window['go']['main']['App']['GetGame']();
 }
 
+export function GetLastErrorMessage() {
+  return window['go']['main']['App']['GetLastErrorMessage']();
+}
+
 export function GetScores() {
   return window['go']['main']['App']['GetScores']();
 }
