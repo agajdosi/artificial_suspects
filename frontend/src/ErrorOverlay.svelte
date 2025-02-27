@@ -15,6 +15,10 @@
         clearError();
     }
 
+    function closeOverlay() {
+        clearError();
+    }
+
 </script>
 
 {#if $errorMessage.Title}
@@ -23,11 +27,11 @@
         <h1>{$errorMessage.Title}</h1>
         <p>{$errorMessage.Message}</p>
         <div class="actions">
-            {#if $errorMessage.Actions?.includes("reloadService")}
-            <button>Check Again</button>
-            {/if}
             {#if $errorMessage.Actions?.includes("goToConfig")}
             <button on:click={enterConfigDispatcher}>Configuration</button>
+            {/if}
+            {#if $errorMessage.Actions?.includes("close")}
+            <button on:click={closeOverlay}>Close</button>
             {/if}
         </div>
     </div>

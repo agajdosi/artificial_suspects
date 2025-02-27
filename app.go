@@ -174,8 +174,19 @@ func (a *App) AIServiceIsReady() database.ServiceStatus {
 	return database.AIServiceIsReady()
 }
 
-func (a *App) ListModelsOllama() *ollama.ListResponse {
-	return database.ListModelsOllama()
+type ListModelsOllamaResponse struct {
+	Response *ollama.ListResponse `json:"Response"`
+	Error    ErrorMessage         `json:"Error"`
+}
+
+func (a *App) ListModelsOllama() ListModelsOllamaResponse {
+	data, err := database.ListModelsOllama()
+	return ListModelsOllamaResponse{
+		Response: data,
+		Error: ErrorMessage{
+			Message: err.Error(),
+		},
+	}
 }
 
 func (a *App) GetLastErrorMessage() ErrorMessage {

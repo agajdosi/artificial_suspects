@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { database } from '../wailsjs/go/models';
+    import { errorMessage } from './lib/stores';
+    import { database, main } from '../wailsjs/go/models';
     import { GetServices, SaveService, ActivateService, GetDefaultModels, ListModelsOllama } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
@@ -69,7 +70,17 @@
         }
     }
 
-
+    async function listModelsOllama() {
+        const res = await ListModelsOllama()
+        if (res.Error) {
+            const e = new main.ErrorMessage();
+            e.Severity = "Error";
+            e.Title = "Error listing models"
+            e.Message = res.Error.Message
+            e.Actions = ["close"]
+            errorMessage.set(e);
+        }
+    }
 </script>
 
 <h1>Game Configuration</h1>
@@ -114,7 +125,7 @@
                         </div>
                     {/if}
                     {#if service.Type == "local"}
-                        <button on:click={ListModelsOllama}>List models</button>
+                        <button on:click={listModelsOllama}>List models</button>
                         <div class="service-URL">
                             <label for="token-{service.Name}">URL:</label>
                             <input id="token-{service.Name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.URL.trim() === ''}>

@@ -469,7 +469,7 @@ func EnsureOllamaClient() error {
 }
 
 // List locally available models on Ollama.
-func ListModelsOllama() *ollamaAPI.ListResponse {
+func ListModelsOllama() (*ollamaAPI.ListResponse, error) {
 	EnsureOllamaClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -477,18 +477,16 @@ func ListModelsOllama() *ollamaAPI.ListResponse {
 	resp, err := ollamaClient.List(ctx)
 	if err != nil {
 		fmt.Printf("Error listing Ollama models: %v\n", err)
-	} else {
-		fmt.Printf("ListModelsOllama: %v\n", resp)
 	}
 
-	return resp
+	return resp, err
 }
 
 // This is basic check if the Ollama is ready to serve the game needs.
 func OllamaIsReady(service Service) ServiceStatus {
 	status := ServiceStatus{Service: service, Ready: false}
 	EnsureOllamaClient()
-	resp := ListModelsOllama()
+	resp, _ := ListModelsOllama()
 	if resp == nil {
 		status.Message = "Ollama response is nil"
 		return status
