@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { serviceStatus, errorMessage } from './lib/stores';
+    import { serviceStatus } from './lib/stores';
     import { AIServiceIsReady } from '../wailsjs/go/main/App';
-    import { main } from './../wailsjs/go/models';
     import { onMount } from 'svelte';
 
     let interval: number; // Store the interval ID
