@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { serviceStatus } from './lib/stores';
     import { database } from '../wailsjs/go/models';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
@@ -11,21 +12,31 @@
     const imgDir: string = 'suspects/';
 
     async function selected() {
-        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading) return;
+        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading || !$serviceStatus.Ready) return;
         if (investigationOver) { // last suspect = click to jail, new Investigation coming
             dispatch('suspect_jailing', { 'suspect': suspect})
             return
         }
         dispatch('suspect_freeing', { 'suspect': suspect });
     }
+
+    $: suspectClasses = [
+        "suspect",
+        !$serviceStatus.Ready && "offline",
+        suspect.Free && "free",
+        suspect.Fled && "fled",
+        answerIsLoading && "waiting",
+        investigationOver && !suspect.Free && "to_jail",
+        gameOver && !suspect.Fled && !suspect.Free && "accused"
+    ].filter(Boolean).join(" ");
 </script>
 
 <div 
-    class="suspect {suspect.Free ? 'free':''} {suspect.Fled ? 'fled':''} {answerIsLoading ? 'waiting' : ''} {investigationOver && !suspect.Free ? 'to_jail': ''} {gameOver && !suspect.Fled && !suspect.Free ? 'accused' : ''}"
+    class={suspectClasses}
     id={suspect.UUID}
     on:click={selected}
     on:keydown={selected}
-    aria-disabled={suspect.Free || suspect.Fled || gameOver}
+    aria-disabled={suspect.Free || suspect.Fled || gameOver || !$serviceStatus.Ready}
     >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>
@@ -89,6 +100,10 @@
 
     .suspect.to_jail :hover{
         filter: contrast(200%);
+    }
+
+    .offline {
+        cursor: wait;
     }
 </style>
 
