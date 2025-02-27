@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { serviceStatus } from './lib/stores';
     import { database } from '../wailsjs/go/models';
     import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
@@ -155,12 +156,18 @@
         <div class="actions">
             {#if !game.investigation.InvestigationOver}
                 {#if game.GameOver}
-                    <button on:click={newGame}>{$t('buttons.newGame')}</button>
+                    <button
+                        on:click={newGame}
+                        class="{!$serviceStatus.Ready && 'offline'}"
+                        disabled={!$serviceStatus.Ready}>
+                        {$t('buttons.newGame')}
+                    </button>
                 {:else}
                 <button
                     on:click={nextRound}
-                    disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver}
-                    aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver ? 'true': 'false'}"
+                    class="{!$serviceStatus.Ready && 'offline'}"
+                    disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver || !$serviceStatus.Ready}
+                    aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver || !$serviceStatus.Ready ? 'true': 'false'}"
                     >
                     {$t('buttons.nextQuestion')}
                 </button>
@@ -263,6 +270,10 @@
 
 .answer {
     text-transform: uppercase;
+}
+
+.offline {
+    cursor: wait;
 }
 
 </style>
