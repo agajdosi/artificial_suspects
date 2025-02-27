@@ -1,7 +1,7 @@
 <script lang="ts">
+    import { serviceStatus } from './lib/stores';
     import { createEventDispatcher } from 'svelte';
     import { QuitApplication} from '../wailsjs/go/main/App';
-    import { serviceStatus } from './lib/stores';
     const dispatch = createEventDispatcher();
     
     function newGameDispatcher() {dispatch('newGame', {message: 'new game'});}
@@ -26,9 +26,13 @@
     align-items: center;
 }
 
-.menu button {
+button {
     width: 400px;
     margin: 2rem;
+}
+
+button:disabled{
+    cursor: wait;
 }
 
 </style>
