@@ -1,7 +1,5 @@
 <script lang="ts">
-    import { database } from '../wailsjs/go/models';
-    import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
-    import { createEventDispatcher, onMount } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
     import { t } from 'svelte-i18n';
 
     const dispatch = createEventDispatcher();
