@@ -98,7 +98,6 @@ func (a *App) GetScores() []database.FinalScore {
 }
 
 // Wait until the Answer from AI is present in the database.
-// TODO: implement the actuall retrieval from the DB.
 func (a *App) WaitForAnswer(roundUUID string) string {
 	return database.WaitForAnswer(roundUUID)
 }
@@ -189,6 +188,7 @@ func (a *App) ListModelsOllama() ListModelsOllamaResponse {
 	}
 }
 
+// Just a devtesting function, for nothing really.
 func (a *App) GetLastErrorMessage() ErrorMessage {
 	return ErrorMessage{
 		Severity: "error",
