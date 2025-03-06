@@ -6,6 +6,7 @@
     import History from './History.svelte';
     import Scores from './Scores.svelte';
     import Help from './Help.svelte';
+    import IntroOverlay from './IntroOverlay.svelte';
     import { locale, t } from 'svelte-i18n';
 
     export let game: database.Game;
@@ -13,9 +14,7 @@
     let answerIsLoading: boolean;
     let answer: string;
     let hint: string = "hint...";  // TODO: implement this on UI elements and capture hints
-    /** Controls Scores popup. */
     let scoresVisible: boolean = true;
-    /** Controls Help popup. */
     let helpVisible: boolean = false;
 
     // HOME BUTTON
@@ -200,6 +199,7 @@
     <Help on:toggleHelp={handleToggleHelp}/>    
 {/if}
 
+<IntroOverlay/>
 
 <style>
 .middle {
