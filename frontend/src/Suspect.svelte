@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { serviceStatus } from './lib/stores';
+    import { serviceStatus, hint } from './lib/stores';
     import { database } from '../wailsjs/go/models';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
@@ -20,6 +20,14 @@
         dispatch('suspect_freeing', { 'suspect': suspect });
     }
 
+    function setHint() {
+        if (suspect.Free) return hint.set("Suspect was released.");
+        if (answerIsLoading) return hint.set("Before releasing... Wait for the AI to answer the question.");
+        if (suspect.Fled) return hint.set("Criminal was released, game over!");
+        if (gameOver) return hint.set("Falsely investigating the innocent.");
+        hint.set("Click to release an innocent suspect.");
+    }
+
     $: suspectClasses = [
         "suspect",
         !$serviceStatus.Ready && "offline",
@@ -31,11 +39,13 @@
     ].filter(Boolean).join(" ");
 </script>
 
-<div 
+<div
     class={suspectClasses}
     id={suspect.UUID}
     on:click={selected}
     on:keydown={selected}
+    on:mouseenter={setHint}
+    on:mouseleave={() => hint.set("")}
     aria-disabled={suspect.Free || suspect.Fled || gameOver || !$serviceStatus.Ready}
     >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { serviceStatus } from './lib/stores';
+    import { serviceStatus, hint } from './lib/stores';
     import { database } from '../wailsjs/go/models';
     import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
     import Suspects from './Suspects.svelte';
@@ -13,7 +13,6 @@
     let lastRoundUUID: string;
     let answerIsLoading: boolean;
     let answer: string;
-    let hint: string = "hint...";  // TODO: implement this on UI elements and capture hints
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
 
@@ -195,9 +194,11 @@
 </div>
 
 <div class="bottom">
-    <!-- <div class="hint">{hint}</div> -->
     <div class="help">
         <button on:click={toggleHelp} class="langbtn">{$t('buttons.help')}</button>
+    </div>
+    <div class="hint">
+        <span>{$hint}</span>
     </div>
     <div class="stats">
         <div>level: {game.level}</div>

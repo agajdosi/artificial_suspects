@@ -14,3 +14,6 @@ const defaultErrorMessage = new main.ErrorMessage();
 //defaultErrorMessage.Title = ""
 //defaultErrorMessage.Message = "Something went very, very wrong.";
 export const errorMessage = writable<main.ErrorMessage>(defaultErrorMessage);
+
+// Hint
+export const hint = writable<string>("DADAISMUS");
