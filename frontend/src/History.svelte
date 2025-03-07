@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { hint } from './lib/stores';
     import { GetActiveService } from '../wailsjs/go/main/App.js';
     import { database } from '../wailsjs/go/models';
     import { locale, t } from 'svelte-i18n';
@@ -13,7 +14,10 @@
     });
 </script>
 
-<div class="history">
+<div class="history"
+    on:mouseenter={() => hint.set("History of previous questions and their answers in current investigation.")}
+    on:mouseleave={() => hint.set("")}
+>
     {#each [...game.investigation.rounds].reverse().slice(1).reverse() as round, index}
         <div class="round">
             <div class="question">
