@@ -280,4 +280,16 @@
     cursor: wait;
 }
 
+.langbtn {
+    all: unset;
+    text-decoration: underline;
+    min-width: 20px;
+}
+.langbtn:hover{
+    cursor: pointer;
+}
+.langbtn.active {
+    text-transform: uppercase;
+}
+
 </style>
