@@ -6,12 +6,12 @@
   let showOverlay = true;
 
   let tutorialSteps = [
-    "Welcome, Investigator! <br> Your mission is to find the guilty suspect among 15 suspects.",
-    "Each round, I—the AI Witness—will answer a question about the suspect.",
-    "You must eliminate suspects who do NOT match the answer I give.",
+    "Welcome, Investigator! <br>Your mission is to find the guilty criminal among 15 suspects.",
+    "Each round, the Witness will answer a question about the criminal.",
+    "You must eliminate suspects who do NOT match the answer.",
     "For example, if the question is 'Does the suspect like reading books?' and I say 'Yes', remove those who likely don’t.",
     "Continue eliminating suspects round by round until only one remains.",
-    "If the last suspect standing is the correct one, you win! Now, let’s begin…"
+    "If the last suspect standing is the correct one, you win!<br>Now, let’s begin…"
   ];
 
   onMount(() => {
@@ -56,6 +56,10 @@
     color: white;
     text-align: center;
     font-size: 1.5rem;
+  }
+
+  #content {
+    min-height: 20rem;
   }
 
 </style>
