@@ -166,7 +166,10 @@
             {/if}
         </div>
     </div>
-    <div class="top-right">
+    <div class="top-right"
+        on:mouseenter={() => hint.set("Switch language of the user interface.")}
+        on:mouseleave={() => hint.set("")}
+        >
         <LanguageSwitch/>
     </div>
 </div>
@@ -222,8 +225,18 @@
         <span>{$hint}</span>
     </div>
     <div class="stats">
-        <div>level: {game.level}</div>
-        <div>score: {game.Score}</div>
+        <div
+            on:mouseenter={() => hint.set("Successfully finish the investigation to get into higher level.")}
+            on:mouseleave={() => hint.set("")}
+            >
+            level: {game.level}
+        </div>
+        <div
+            on:mouseenter={() => hint.set("Your current score. Free innocent suspects and finish the investigation to get more points.")}
+            on:mouseleave={() => hint.set("")}
+            >
+            score: {game.Score}
+        </div>
     </div>
 </div>
 

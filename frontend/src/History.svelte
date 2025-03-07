@@ -38,7 +38,10 @@
 </div>
 
 <div class="roles">
-    <div class="model">
+    <div class="model"
+        on:mouseenter={() => hint.set("An AI model that acts as a witness and responds to questions. You can change it in the game configuration.")}
+        on:mouseleave={() => hint.set("")}
+        >
         {$t("interrogated")}:
         {#if activeService === null}{$t("loading")}
         {:else} {activeService.VisualModel}
