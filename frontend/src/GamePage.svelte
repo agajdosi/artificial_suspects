@@ -90,7 +90,26 @@
         scoresVisible = false;
     }
     function handleToggleHelp(event) {
-        helpVisible = event.detail.helpVisible
+        helpVisible = event.detail.helpVisible;
+    }
+
+    //INTRO
+    let introVisible: boolean = true;
+    function handleToggleIntro(event) {
+        introVisible = event.detail.introVisible;
+    }
+
+    let IdleTimer: number | null = null;
+    window.addEventListener('mousemove', resetIdleTimer); // (re)sets IdleTimer
+    function resetIdleTimer(): void {
+        const msTimeout = 60 * 1000;
+        if (IdleTimer) {
+            clearTimeout(IdleTimer);
+        }
+        IdleTimer = setTimeout(userIsIdle, msTimeout);
+    }
+    function userIsIdle() {
+        introVisible = true;
     }
 
 </script>
@@ -199,7 +218,9 @@
     <Help on:toggleHelp={handleToggleHelp}/>    
 {/if}
 
-<IntroOverlay/>
+{#if introVisible}
+    <IntroOverlay on:toggleIntro={handleToggleIntro}/>
+{/if}
 
 <style>
 .middle {

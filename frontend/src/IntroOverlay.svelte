@@ -1,10 +1,16 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import Typed from "typed.js";
+  import { onMount } from "svelte";
+  import { createEventDispatcher } from 'svelte';
+  import { t } from 'svelte-i18n';
+
+  const dispatch = createEventDispatcher();
+  function closeIntro() {
+    dispatch('toggleIntro', { introVisible: false });
+  }
 
   let typedInstance: Typed | null = null;
   let showOverlay = true;
-
   let tutorialSteps = [
     "Welcome, Investigator! <br>Your mission is to find the guilty criminal among 15 suspects.",
     "Each round, the Witness will answer a question about the criminal.",
@@ -25,20 +31,14 @@
     });
   });
 
-  function closeOverlay() {
-    showOverlay = false;
-    if (typedInstance) typedInstance.destroy(); // Stop the typing animation when closing
-  }
 </script>
 
-{#if showOverlay}
-  <div class="overlay">
-    <p id="content">
-      <span id="typed"></span>
-    </p>
-    <button on:click={closeOverlay}>Let's Play</button>
-  </div>
-{/if}
+<div class="overlay">
+  <p id="content">
+    <span id="typed"></span>
+  </p>
+  <button on:click={closeIntro}>Let's Play</button>
+</div>
 
 <style>
   .overlay {
