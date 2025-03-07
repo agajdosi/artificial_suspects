@@ -31,6 +31,11 @@
         }
         console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`);
     }
+    function getHintNextQuestion(){
+        if (answerIsLoading) return hint.set("Wait for the AI to answer the question.")
+        if (!game.investigation.rounds.at(-1).Eliminations) return hint.set("Eliminate at least 1 suspect before proceeding to next question.");
+        return hint.set("Proceed to next question.");
+    }
 
     async function handleSuspectFreeing(event) {
         const { suspect } = event.detail;
@@ -90,7 +95,7 @@
     }
 
     //INTRO
-    let introVisible: boolean = true;
+    let introVisible: boolean = false;
     function handleToggleIntro(event) {
         introVisible = event.detail.introVisible;
     }
@@ -98,7 +103,7 @@
     let IdleTimer: number | null = null;
     window.addEventListener('mousemove', resetIdleTimer); // (re)sets IdleTimer
     function resetIdleTimer(): void {
-        const msTimeout = 60 * 1000;
+        const msTimeout = 5 * 60 * 1000;
         if (IdleTimer) {
             clearTimeout(IdleTimer);
         }
@@ -177,6 +182,8 @@
                 {:else}
                 <button
                     on:click={nextRound}
+                    on:mouseenter={() => getHintNextQuestion()}
+                    on:mouseleave={() => hint.set("")}
                     class="{!$serviceStatus.Ready && 'offline'}"
                     disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver || !$serviceStatus.Ready}
                     aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver || !$serviceStatus.Ready ? 'true': 'false'}"

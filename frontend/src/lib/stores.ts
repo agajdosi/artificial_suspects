@@ -16,4 +16,4 @@ const defaultErrorMessage = new main.ErrorMessage();
 export const errorMessage = writable<main.ErrorMessage>(defaultErrorMessage);
 
 // Hint
-export const hint = writable<string>("DADAISMUS");
+export const hint = writable<string>("");
