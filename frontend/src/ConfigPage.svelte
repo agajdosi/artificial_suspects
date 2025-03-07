@@ -3,6 +3,7 @@
     import { database, main } from '../wailsjs/go/models';
     import { GetServices, SaveService, ActivateService, GetDefaultModels, ListModelsOllama } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher } from 'svelte';
+    import LanguageSwitch from './LanguageSwitch.svelte';
     const dispatch = createEventDispatcher();
 
     let services: database.Service[] = [];
@@ -151,11 +152,17 @@
     {/if}
 </div>
 
+<h2>Language</h2>
+<LanguageSwitch/>
+
 <div class="back">
     <button on:click={goToMenu}>Back</button>
 </div>
 
 <style>
+    h2 {
+        margin: 2rem 0 0.2rem 0;
+    }
     .actions {
         margin: 1rem 0;
     }
