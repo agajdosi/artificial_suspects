@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { serviceStatus, hint } from './lib/stores'; // TODO: prevent NewGame on ServiceStatus offline https://github.com/agajdosi/artificial_suspects/issues/26
     import { database } from '../wailsjs/go/models';
     import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher, onMount } from 'svelte';
@@ -67,8 +68,19 @@
                         
                         {#if isCurrentGame(score.GameUUID)}
                             <span>
-                            <input bind:value={name} placeholder="{$t('gameOver.enterName')}" />
-                            <button on:click={saveScore}>{$t('buttons.confirm')}</button>
+                                <input
+                                    bind:value={name}
+                                    on:mouseenter={() => hint.set("Inscribe your name to the leaderboards.")}
+                                    on:mouseleave={() => hint.set("")}
+                                    placeholder="{$t('gameOver.enterName')}"
+                                />
+                                <button
+                                    on:click={saveScore}
+                                    on:mouseenter={() => hint.set("Confirm your name and save.")}
+                                    on:mouseleave={() => hint.set("")}
+                                    >
+                                    {$t('buttons.confirm')}
+                                </button>
                             </span>
                         {:else}
                             {score.Investigator}
@@ -81,8 +93,20 @@
         </div>
     {/if}
 
-    <button on:click={closeScores}>{$t('buttons.close')}</button>
-    <button on:click={newGameDispatcher}>{$t('buttons.newGame')}</button>  
+    <button
+        on:click={closeScores}
+        on:mouseenter={() => hint.set("Close scores window.")}
+        on:mouseleave={() => hint.set("")}
+        >
+        {$t('buttons.close')}
+    </button>
+    <button
+        on:click={newGameDispatcher}
+        on:mouseenter={() => hint.set("Start a new game and try it again!")}
+        on:mouseleave={() => hint.set("")}
+        >
+        {$t('buttons.newGame')}
+    </button>  
 </div>
 
 <style>

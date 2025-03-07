@@ -175,6 +175,8 @@
                 {#if game.GameOver}
                     <button
                         on:click={newGame}
+                        on:mouseenter={() => hint.set("Start a new game and try it again!")}
+                        on:mouseleave={() => hint.set("")}
                         class="{!$serviceStatus.Ready && 'offline'}"
                         disabled={!$serviceStatus.Ready}>
                         {$t('buttons.newGame')}
