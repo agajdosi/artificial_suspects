@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { serviceStatus } from './lib/stores';
+    import { serviceStatus, hint } from './lib/stores';
     import { AIServiceIsReady } from '../wailsjs/go/main/App';
     import { onMount } from 'svelte';
 
@@ -20,7 +20,12 @@
     })
 </script>
 
-<button on:click={togglePopup} class="status">
+<button
+    class="status"
+    on:click={togglePopup}
+    on:mouseenter={() => hint.set("Status of the AI service. Click to show the details.")}
+    on:mouseleave={() => hint.set("")}
+    >
     {#if $serviceStatus?.Ready}
         🟢
     {:else}
