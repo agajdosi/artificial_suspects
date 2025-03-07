@@ -81,10 +81,6 @@
         scoresVisible = event.detail.scoresVisible;
     }
 
-    function changeLanguage(code: string) {
-        $locale = code;
-    }
-
     //HELP
     function toggleHelp() {
         helpVisible = !helpVisible;
