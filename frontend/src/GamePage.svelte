@@ -123,7 +123,11 @@
                 {$t('arrest')}
             </div>
         {:else}
-            <div class="question">
+            <div
+                class="question"
+                on:mouseenter={() => hint.set("A question about the wanted person, answered by an AI witness.")}
+                on:mouseleave={() => hint.set("")}
+                >
                 {game.investigation.rounds.length}.
                 {#if $locale == "cz"}
                     {game.investigation.rounds.at(-1).Question.Czech}
@@ -134,9 +138,17 @@
                 {/if}
             </div>
             {#if answerIsLoading}
-                <div class="waiting">*{$t('thinking')}*</div>
+                <div class="waiting"
+                    on:mouseenter={() => hint.set("Waiting for the AI witness to answer the question.")}
+                    on:mouseleave={() => hint.set("")}
+                    >
+                    *{$t('thinking')}*
+                </div>
             {:else}
-                <div class="answer">
+                <div class="answer"
+                    on:mouseenter={() => hint.set("The AI witness' response to the question about the wanted person.")}
+                    on:mouseleave={() => hint.set("")}
+                    >
                     {$t(answer.toLocaleLowerCase())}!
                 </div>
             {/if}
