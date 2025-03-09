@@ -47,6 +47,11 @@
     function isCurrentGame(scoreUUID: string): boolean {
         return scoreUUID === game.uuid;
     }
+
+    function getHintNewGame() {
+        if (!$serviceStatus.Ready) return hint.set("Cannot start new game, AI service is not ready!");
+        return hint.set("Start a new game and try it again!");
+    }
 </script>
 
 <div class="infobox">
@@ -102,8 +107,10 @@
     </button>
     <button
         on:click={newGameDispatcher}
-        on:mouseenter={() => hint.set("Start a new game and try it again!")}
+        on:mouseenter={() => getHintNewGame()}
         on:mouseleave={() => hint.set("")}
+        class="{!$serviceStatus.Ready && 'offline'}"
+        disabled={!$serviceStatus.Ready}
         >
         {$t('buttons.newGame')}
     </button>  
@@ -153,5 +160,8 @@ h1 {
 }
 .riptext {
     padding: 0 2rem;
+}
+.offline {
+    cursor: wait;
 }
 </style>
