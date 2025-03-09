@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { serviceStatus, hint } from './lib/stores'; // TODO: prevent NewGame on ServiceStatus offline https://github.com/agajdosi/artificial_suspects/issues/26
+    import { serviceStatus, hint } from './lib/stores';
     import { database } from '../wailsjs/go/models';
     import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
     import { createEventDispatcher, onMount } from 'svelte';
