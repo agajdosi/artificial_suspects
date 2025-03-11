@@ -272,6 +272,7 @@ func GetActiveServiceHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+// TODO: This makes sense for AI as a service calls, but not for local Ollama.
 func AIServiceIsReadyHandler(w http.ResponseWriter, r *http.Request) {
 	status := database.AIServiceIsReady()
 
@@ -286,6 +287,7 @@ func AIServiceIsReadyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+// TODO: This does not make much sense, typescript should just call the Ollama API directly.
 func ListModelsOllamaHandler(w http.ResponseWriter, r *http.Request) {
 	models, err := database.ListModelsOllama()
 	if err != nil {
