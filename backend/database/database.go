@@ -16,6 +16,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,7 +25,6 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/exp/rand"
 )
 
 var database *sql.DB
@@ -526,8 +526,7 @@ func NewInvestigation(gameUUID string) (Investigation, error) {
 		return i, err
 	}
 	i.Suspects = suspects
-
-	cn := rand.Intn(len(suspects))
+	cn := rand.IntN(len(suspects))
 	i.CriminalUUID = i.Suspects[cn].UUID
 
 	go GetAnswerFromAI(i.Rounds[0], i.CriminalUUID)

@@ -3,14 +3,14 @@ import type { ServiceStatus, ErrorMessage } from './main';
 
 // ServiceStatus - is AI accessible?
 const defaultServiceStatus: ServiceStatus = {
-    Ready: false,
+    Ready: true,
     Message: '',
-    Service: {
-        Name: '',
-        Type: '',
-        Active: false,
-        TextModel: '',
-        VisualModel: '',
+    Service: { // Dummy service - until the real fetching of service is implemented
+        Name: 'Dummy',
+        Type: 'local',
+        Active: true,
+        TextModel: 'llava:latest',
+        VisualModel: 'llava:latest',
         Token: '',
         URL: ''
     }
