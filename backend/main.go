@@ -16,25 +16,41 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/new_game", NewGameHandler)
-	mux.HandleFunc("/get_current_game", GetCurrentGameHandler)
-	mux.HandleFunc("/next_investigation", NextInvestigationHandler)
-	mux.HandleFunc("/next_round", NextRoundHandler)
-	mux.HandleFunc("/get_scores", GetScoresHandler)
-	mux.HandleFunc("/wait_for_answer", WaitForAnswerHandler)
-	mux.HandleFunc("/eliminate_suspect", EliminateSuspectHandler)
-	mux.HandleFunc("/save_score", SaveScoreHandler)
-	mux.HandleFunc("/get_services", GetServicesHandler)
-	mux.HandleFunc("/save_service", SaveServiceHandler)
-	mux.HandleFunc("/activate_service", ActivateServiceHandler)
-	mux.HandleFunc("/get_default_models", GetDefaultModelsHandler)
-	mux.HandleFunc("/get_active_service", GetActiveServiceHandler)
-	mux.HandleFunc("/ai_service_is_ready", AIServiceIsReadyHandler)
-	mux.HandleFunc("/list_models_ollama", ListModelsOllamaHandler)
+	mux.HandleFunc("/new_game", enableCORS(NewGameHandler))
+	mux.HandleFunc("/get_game", enableCORS(GetGameHandler))
+	mux.HandleFunc("/next_investigation", enableCORS(NextInvestigationHandler))
+	mux.HandleFunc("/next_round", enableCORS(NextRoundHandler))
+	mux.HandleFunc("/get_scores", enableCORS(GetScoresHandler))
+	mux.HandleFunc("/wait_for_answer", enableCORS(WaitForAnswerHandler))
+	mux.HandleFunc("/eliminate_suspect", enableCORS(EliminateSuspectHandler))
+	mux.HandleFunc("/save_score", enableCORS(SaveScoreHandler))
+	mux.HandleFunc("/get_services", enableCORS(GetServicesHandler))
+	mux.HandleFunc("/save_service", enableCORS(SaveServiceHandler))
+	mux.HandleFunc("/activate_service", enableCORS(ActivateServiceHandler))
+	mux.HandleFunc("/get_default_models", enableCORS(GetDefaultModelsHandler))
+	mux.HandleFunc("/get_active_service", enableCORS(GetActiveServiceHandler))
+	mux.HandleFunc("/ai_service_is_ready", enableCORS(AIServiceIsReadyHandler))
+	mux.HandleFunc("/list_models_ollama", enableCORS(ListModelsOllamaHandler))
 
 	err = http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+// CORS middleware for local development. TODO: Remove this for production.
+func enableCORS(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
 	}
 }
 
@@ -53,21 +69,22 @@ func NewGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
 }
 
-func GetCurrentGameHandler(w http.ResponseWriter, r *http.Request) {
+func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 	game, err := database.GetCurrentGame()
 	if err != nil {
-		fmt.Println("GetCurrentGame() error:", err)
+		fmt.Println("GetGame() error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(game)
 	if err != nil {
-		fmt.Println("GetCurrentGame() error:", err)
+		fmt.Println("GetGame() error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

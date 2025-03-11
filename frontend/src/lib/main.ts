@@ -1,3 +1,7 @@
+// MARK: CONSTANTS
+
+export const API_URL = 'http://localhost:8080';
+
 // MARK: TYPES
 
 export interface ServiceStatus {
@@ -80,12 +84,11 @@ export interface ErrorMessage {
 // MARK: FUNCTIONS
 
 export async function NewGame(): Promise<Game> {
-    const response = await fetch('/api/game/new', {
-        method: 'POST',
+    const response = await fetch(`${API_URL}/new_game`, {
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ }),
     });
     
     if (!response.ok) {
@@ -96,7 +99,7 @@ export async function NewGame(): Promise<Game> {
 }
 
 export async function GetGame(): Promise<Game> {
-    const response = await fetch(`/api/game/`, {
+    const response = await fetch(`${API_URL}/get_game`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

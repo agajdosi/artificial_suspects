@@ -39,7 +39,7 @@
             } catch (error) {
                 console.log(`GetGame() has failed: ${error}`)
             }
-            console.log(game)
+            console.log("GetGame() response:", game)
             screen = 'game';
             return
         }
