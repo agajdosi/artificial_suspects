@@ -40,13 +40,25 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
+// MARK: GAME
+
+type GameResponse struct {
+	Game  database.Game `json:"Game"`
+	Error string        `json:"Error"`
+}
+
 // Create a new game. Returns the suspects.
-func (a *App) NewGame() database.Game {
-	game, err := database.NewGame()
+func (a *App) NewGame() GameResponse {
+	var gameResponse GameResponse
+	var err error
+	gameResponse.Game, err = database.NewGame()
+	err = fmt.Errorf("New game fucked up!")
 	if err != nil {
 		fmt.Println("NewGame() error:", err)
 	}
-	return game
+	gameResponse.Error = err.Error()
+
+	return gameResponse
 }
 
 // Loads the last game.

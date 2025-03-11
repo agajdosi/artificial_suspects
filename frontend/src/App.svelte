@@ -1,12 +1,13 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { errorMessage } from './lib/stores';
     import GamePage from './GamePage.svelte'
     import HomePage from './HomePage.svelte'
     import ConfigPage from './ConfigPage.svelte'
     import ErrorOverlay from './ErrorOverlay.svelte'
     import ServiceStatus from './ServiceStatus.svelte';
     import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
-    import { database } from '../wailsjs/go/models';
+    import { database, main } from '../wailsjs/go/models';
     import { register, init} from 'svelte-i18n';
     import { ToggleFullscreen } from '../wailsjs/go/main/App';
 
@@ -64,9 +65,19 @@
 
     async function newGameHandler(event) {
         try {
-            game = await NewGame();
+            let gameResponse = await NewGame();
+            if (gameResponse.Error) {
+                const e = new main.ErrorMessage();
+                e.Severity = "Error";
+                e.Title = "Error creating game"
+                e.Message = gameResponse.Error
+                e.Actions = ["close"]
+                errorMessage.set(gameResponse.Error);
+                return
+            }
         } catch (error) {
             console.log(`NewGame() has failed: ${error}`)
+            return
         }
         console.log(game)
         screen = 'game';

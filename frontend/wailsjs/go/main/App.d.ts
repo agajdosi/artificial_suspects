@@ -23,7 +23,7 @@ export function GetServices():Promise<Array<database.Service>>;
 
 export function ListModelsOllama():Promise<main.ListModelsOllamaResponse>;
 
-export function NewGame():Promise<database.Game>;
+export function NewGame():Promise<main.GameResponse>;
 
 export function NextInvestigation():Promise<database.Game>;
 
