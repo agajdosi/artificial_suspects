@@ -1,15 +1,11 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { errorMessage } from './lib/stores';
     import GamePage from './GamePage.svelte'
     import HomePage from './HomePage.svelte'
     import ConfigPage from './ConfigPage.svelte'
     import ErrorOverlay from './ErrorOverlay.svelte'
-    import ServiceStatus from './ServiceStatus.svelte';
-    import { GetGame, NewGame } from '../wailsjs/go/main/App.js';
-    import { database, main } from '../wailsjs/go/models';
     import { register, init} from 'svelte-i18n';
-    import { ToggleFullscreen } from '../wailsjs/go/main/App';
+    import type { Game } from './lib/main';
+    import { NewGame, GetGame } from './lib/main';
 
     register('en', () => import('./assets/locales/en.json'));
     register('cz', () => import('./assets/locales/cz.json'));
@@ -20,61 +16,11 @@
     });
 
     let screen = 'home'; // State to track the current screen
-    let game: database.Game;
-
-    async function handleKeyDown (event: KeyboardEvent) {
-        // HOME
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && (event.key === 'h' || event.key === 'm')) {
-            console.log('Ctrl/Cmd+Shift+H/M was pressed');
-            event.preventDefault();
-            screen = 'home';
-        }
-        if (event.key === 'Escape') {
-            console.log('Escape has been pressed');
-            event.preventDefault();
-            screen = 'home';
-        }
-
-        // GAME
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'g') {
-            console.log('Ctrl/Cmd+Shift+G was pressed');
-            event.preventDefault();
-            game = await GetGame();
-            screen = 'game';
-        }
-
-        // CONFIG
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'o') {
-            console.log('Ctrl/Cmd+Shift+O was pressed');
-            event.preventDefault();
-            screen = 'config';
-        }
-
-        // FULLSCREEN
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'f') {
-            console.log('Ctrl/Cmd+Shift+F was pressed');
-            event.preventDefault();
-            ToggleFullscreen();
-        }
-    };
-
-    onMount(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {window.removeEventListener('keydown', handleKeyDown);};
-    });
+    let game: Game;
 
     async function newGameHandler(event) {
         try {
-            let gameResponse = await NewGame();
-            if (gameResponse.Error) {
-                const e = new main.ErrorMessage();
-                e.Severity = "Error";
-                e.Title = "Error creating game"
-                e.Message = gameResponse.Error
-                e.Actions = ["close"]
-                errorMessage.set(gameResponse.Error);
-                return
-            }
+            game = await NewGame();
         } catch (error) {
             console.log(`NewGame() has failed: ${error}`)
             return
@@ -118,7 +64,6 @@
     {:else if screen === 'config'}
         <ConfigPage on:message={handleMessage}/>
     {/if}
-    <ServiceStatus />
     <ErrorOverlay on:message={handleMessage}/>
 </main>
 
