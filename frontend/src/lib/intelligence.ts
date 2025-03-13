@@ -2,7 +2,7 @@ import ollama from 'ollama';
 import openai from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 import { getDescriptionsForSuspect } from './main';
-import type { Answer, Question, Service} from './main';
+import type { Answer, Question, Service, ServiceStatus } from './main';
 import { get } from 'svelte/store';
 
 import { activeService, services } from './stores';
@@ -27,7 +27,6 @@ export async function generateAnswer(roundUUID: string, question: Question, crim
         const description = descriptions.join("\n");
         
         let answer: string;
-        
         const service_name = service.Name.toLowerCase();
         switch(service_name) {
             case "openai": 
@@ -85,4 +84,41 @@ async function getAnswerFromOllama(question: string, description: string, servic
 
 async function saveAnswer(answer: string, roundUUID: string): Promise<void> {
     console.log("Saving answer:", answer);
+}
+
+
+// MARK: OLLAMA
+export async function checkServiceStatusOllama(service: Service): Promise<ServiceStatus> {
+    const status: ServiceStatus = {
+        service: service,
+        ready: false,
+        message: "Ollama not ready"
+    };
+
+    try {
+        const response = await ollama.list();
+        if (!response) {
+            status.message = "Ollama response is nil";
+            return status;
+        }
+
+        for (const model of response.models) {
+            if (model.name === service.VisualModel) {
+                status.ready = true;
+                break;
+            }
+            const [name] = model.name.split(":");
+            if (name === service.VisualModel) {
+                status.ready = true;
+                break;
+            }
+        }
+
+        status.message = "Ollama is running";
+        return status;
+
+    } catch (error) {
+        status.message = `Ollama error: ${error}`;
+        return status;
+    }
 }

@@ -7,6 +7,7 @@
     import type { Game } from './lib/main';
     import { NewGame, GetGame, saveAnswer } from './lib/main';
     import { generateAnswer } from './lib/intelligence';
+    import ServiceStatus from './ServiceStatus.svelte';
     import { currentGame } from './lib/stores';
 
     register('en', () => import('./assets/locales/en.json'));
@@ -77,6 +78,7 @@
         <ConfigPage on:message={handleMessage}/>
     {/if}
     <ErrorOverlay on:message={handleMessage}/>
+    <ServiceStatus/>
 </main>
 
 <style>

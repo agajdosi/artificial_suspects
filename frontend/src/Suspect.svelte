@@ -12,7 +12,7 @@
     const imgDir: string = 'suspects/';
 
     async function selected() {
-        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading || !$serviceStatus.Ready) return;
+        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading || !$serviceStatus.ready) return;
         if (investigationOver) { // last suspect = click to jail, new Investigation coming
             dispatch('suspect_jailing', { 'suspect': suspect})
             return
@@ -30,7 +30,7 @@
 
     $: suspectClasses = [
         "suspect",
-        !$serviceStatus.Ready && "offline",
+        !$serviceStatus.ready && "offline",
         suspect.Free && "free",
         suspect.Fled && "fled",
         answerIsLoading && "waiting",
@@ -46,7 +46,7 @@
     on:keydown={selected}
     on:mouseenter={setHint}
     on:mouseleave={() => hint.set("")}
-    aria-disabled={suspect.Free || suspect.Fled || gameOver || !$serviceStatus.Ready}
+    aria-disabled={suspect.Free || suspect.Fled || gameOver || !$serviceStatus.ready}
     >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>

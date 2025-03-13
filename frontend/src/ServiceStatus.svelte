@@ -1,16 +1,24 @@
 <script lang="ts">
-    import { serviceStatus, hint } from './lib/stores';
-    import { AIServiceIsReady } from '../wailsjs/go/main/App';
+    import { serviceStatus, activeService, services, hint } from './lib/stores';
+    import type { ServiceStatus } from './lib/main';
+    import { checkServiceStatusOllama } from './lib/intelligence';
     import { onMount } from 'svelte';
 
-    let interval: number; // Store the interval ID
+    let interval: NodeJS.Timeout; // Store the interval ID
     let overlayActive: boolean = false;
     function closePopup() {overlayActive = false;}
     function togglePopup() {overlayActive = !overlayActive;}
 
 
     async function getServiceStatus() {
-        let status = await AIServiceIsReady();
+        console.log("getServiceStatus()")
+        let status: ServiceStatus;
+        if ($activeService.toLowerCase() == "openai") {
+            // TODO: get status from openai
+        } else {
+            status = await checkServiceStatusOllama($services[$activeService]);
+        }
+
         serviceStatus.set(status);
     }
 
@@ -26,7 +34,7 @@
     on:mouseenter={() => hint.set("Status of the AI service. Click to show the details.")}
     on:mouseleave={() => hint.set("")}
     >
-    {#if $serviceStatus?.Ready}
+    {#if $serviceStatus?.ready}
         🟢
     {:else}
         🔴
@@ -35,10 +43,10 @@
 
 {#if overlayActive}
 <div class="popup">
-    <div>Service: {$serviceStatus.Service?.Name}</div>
-    <div>Model: {$serviceStatus.Service?.VisualModel}</div>
-    <div>Ready: {$serviceStatus.Ready}</div>
-    <div>{$serviceStatus.Message}</div>
+    <div>Service: {$serviceStatus.service?.Name}</div>
+    <div>Model: {$serviceStatus.service?.VisualModel}</div>
+    <div>Ready: {$serviceStatus.ready}</div>
+    <div>{$serviceStatus.message}</div>
     <button on:click={getServiceStatus}>Refresh</button>
     <button on:click={closePopup}>Close</button>
 </div>

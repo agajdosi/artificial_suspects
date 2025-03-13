@@ -11,8 +11,8 @@
 <h1>Artificial Suspects</h1>
 
 <div class="menu">
-    <button disabled={!$serviceStatus.Ready} on:click={newGameDispatcher}>New Game</button>
-    <button disabled={!$serviceStatus.Ready} on:click={continueGameDispatcher}>Continue Game</button>
+    <button disabled={!$serviceStatus.ready} on:click={newGameDispatcher}>New Game</button>
+    <button disabled={!$serviceStatus.ready} on:click={continueGameDispatcher}>Continue Game</button>
     <button on:click={enterConfigDispatcher}>Configuration</button>
 </div>
 

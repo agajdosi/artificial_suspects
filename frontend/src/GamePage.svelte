@@ -171,8 +171,8 @@
                         on:click={newGame}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
                         on:mouseleave={() => hint.set("")}
-                        class="{!$serviceStatus.Ready && 'offline'}"
-                        disabled={!$serviceStatus.Ready}>
+                        class="{!$serviceStatus.ready && 'offline'}"
+                        disabled={!$serviceStatus.ready}>
                         {$t('buttons.newGame')}
                     </button>
                 {:else}
@@ -180,9 +180,9 @@
                     on:click={nextRound}
                     on:mouseenter={() => getHintNextQuestion()}
                     on:mouseleave={() => hint.set("")}
-                    class="{!$serviceStatus.Ready && 'offline'}"
-                    disabled={!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.Ready}
-                    aria-disabled="{!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.Ready ? 'true': 'false'}"
+                    class="{!$serviceStatus.ready && 'offline'}"
+                    disabled={!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.ready}
+                    aria-disabled="{!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.ready ? 'true': 'false'}"
                     >
                     {$t('buttons.nextQuestion')}
                 </button>

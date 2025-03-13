@@ -86,9 +86,9 @@ export interface Service {
 }
 
 export interface ServiceStatus {
-    Ready: boolean;
-    Message: string;
-    Service: Service;
+    ready: boolean;
+    message: string;
+    service: Service;
 }
 
 export interface Suspect {
