@@ -20,6 +20,11 @@ export interface Service {
     URL: string;
 }
 
+export interface Model {
+    Name: string;
+    Visual: boolean;
+}
+
 export interface Investigation {
     uuid: string;
     game_uuid: string;
@@ -113,4 +118,28 @@ export async function GetGame(): Promise<Game> {
     return await response.json();
 }
 
+// MARK: AI SERVICES - dummy for now
+// 
 
+export async function GetServices(): Promise<Service[]> {
+    let services: Service[] = [];
+    return services;
+}
+
+export async function SaveService(service: Service): Promise<void> {
+    return;
+}
+
+export async function ActivateService(service: Service): Promise<void> {
+    return;
+}
+
+export async function GetDefaultModels(): Promise<Model[]> {
+    let models: Model[] = [];
+    return models;
+}
+
+export async function ListModelsOllama(): Promise<Model[]> {
+    let models: Model[] = [];
+    return models;
+}

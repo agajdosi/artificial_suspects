@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { errorMessage } from './lib/stores';
-    import { database, main } from '../wailsjs/go/models';
-    import { GetServices, SaveService, ActivateService, GetDefaultModels, ListModelsOllama } from '../wailsjs/go/main/App.js';
+    import { GetServices, SaveService, ActivateService, GetDefaultModels, ListModelsOllama } from './lib/main';
+    import type { Model, Service } from './lib/main';
     import { createEventDispatcher } from 'svelte';
     import LanguageSwitch from './LanguageSwitch.svelte';
     const dispatch = createEventDispatcher();
 
-    let services: database.Service[] = [];
-    let models: database.Model[] = [];
+    let services: Service[] = [];
+    let models: Model[] = [];
     let selectedService: string = ''; // Holds the selected AI service ()
     let activeService: {Name: string, TextModel: string, VisualModel: string} = {Name: "", TextModel: "", VisualModel: ""};
 
@@ -72,15 +71,7 @@
     }
 
     async function listModelsOllama() {
-        const res = await ListModelsOllama()
-        if (res.Error) {
-            const e = new main.ErrorMessage();
-            e.Severity = "Error";
-            e.Title = "Error listing models"
-            e.Message = res.Error.Message
-            e.Actions = ["close"]
-            errorMessage.set(e);
-        }
+        const res = await ListModelsOllama();
     }
 </script>
 
