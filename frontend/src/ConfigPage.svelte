@@ -5,7 +5,7 @@
     import LanguageSwitch from './LanguageSwitch.svelte';
     const dispatch = createEventDispatcher();
 
-    let selectedService: string = ''; // Holds the selected AI service ()
+    let selectedService: string = $activeService; // Holds the AI service selected in the UI
 
 
     function goToMenu() {
