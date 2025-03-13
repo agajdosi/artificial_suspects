@@ -167,6 +167,19 @@ export async function GetServices(): Promise<Service[]> {
     return services;
 }
 
+export async function GetActiveService(): Promise<Service> {
+    let service: Service = {
+        Name: 'OLLAMA',
+        Type: 'local',
+        TextModel: 'llama3',
+        VisualModel: 'llama3',
+        Token: '',
+        URL: 'localhost:12345',
+        Active: true,
+    };
+    return service;
+}
+
 export async function SaveService(service: Service): Promise<void> {
     return;
 }

@@ -1,11 +1,11 @@
 <script lang="ts">
     import { hint } from './lib/stores';
-    import { GetActiveService } from '../wailsjs/go/main/App.js';
-    import { database } from '../wailsjs/go/models';
+    import { GetActiveService } from './lib/main';
+    import type { Game, Service } from './lib/main';
     import { locale, t } from 'svelte-i18n';
 
-    export let game: database.Game;
-    let activeService: database.Service | null = null;
+    export let game: Game;
+    let activeService: Service | null = null;
 
     GetActiveService().then(service => {
         activeService = service;
