@@ -16,74 +16,6 @@ const initPOST = {
 
 // MARK: TYPES
 
-export interface ServiceStatus {
-    Ready: boolean;
-    Message: string;
-    Service: Service;
-}
-
-export interface Service {
-    Name: string;
-    Type: string; // API or local
-    Active: boolean;
-    TextModel: string;
-    VisualModel: string;
-    Token: string;
-    URL: string;
-}
-
-export interface Model {
-    Name: string;
-    Visual: boolean;
-}
-
-export interface Investigation {
-    uuid: string;
-    game_uuid: string;
-    suspects: Suspect[];
-    rounds: Round[];
-    CriminalUUID: string;
-    InvestigationOver: boolean;
-    Timestamp: string;
-}
- 
-export interface Game {
-    uuid: string;
-    investigation: Investigation;
-    level: number;
-    Score: number;
-    GameOver: boolean;
-    Investigator: string;
-    Timestamp: string;
-}
-
-export interface Suspect {
-    UUID: string;
-    Image: string;
-    Free: boolean;
-    Fled: boolean;
-    Timestamp: string;
-}
-
-export interface Round {
-    uuid: string;
-    InvestigationUUID: string;
-    Question: Question;
-    AnswerUUID: string;
-    answer: string;
-    Eliminations: Elimination[];
-    Timestamp: string;
-}
-
-export interface Question {
-    UUID: string;
-    English: string;
-    Czech: string;
-    Polish: string;
-    Topic: string;
-    Level: number;
-}
-
 export interface Elimination {
     UUID: string;
     RoundUUID: string;
@@ -97,6 +29,75 @@ export interface ErrorMessage {
     Message: string;
     Actions: string[];
 }
+
+export interface Game {
+    uuid: string;
+    investigation: Investigation;
+    level: number;
+    Score: number;
+    GameOver: boolean;
+    Investigator: string;
+    Timestamp: string;
+}
+
+export interface Investigation {
+    uuid: string;
+    game_uuid: string;
+    suspects: Suspect[];
+    rounds: Round[];
+    CriminalUUID: string;
+    InvestigationOver: boolean;
+    Timestamp: string;
+}
+
+export interface Model {
+    Name: string;
+    Visual: boolean;
+}
+
+export interface Round {
+    uuid: string;
+    InvestigationUUID: string;
+    Question: Question;
+    AnswerUUID: string;
+    answer: string;
+    Eliminations: Elimination[];
+    Timestamp: string;
+}
+
+export interface Service {
+    Name: string;
+    Type: string; // API or local
+    Active: boolean;
+    TextModel: string;
+    VisualModel: string;
+    Token: string;
+    URL: string;
+}
+
+export interface ServiceStatus {
+    Ready: boolean;
+    Message: string;
+    Service: Service;
+}
+
+export interface Suspect {
+    UUID: string;
+    Image: string;
+    Free: boolean;
+    Fled: boolean;
+    Timestamp: string;
+}
+
+export interface Question {
+    UUID: string;
+    English: string;
+    Czech: string;
+    Polish: string;
+    Topic: string;
+    Level: number;
+}
+
 
 // MARK: FUNCTIONS
 
