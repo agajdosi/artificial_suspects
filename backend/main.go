@@ -194,9 +194,8 @@ func EliminateSuspectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
+	name := r.URL.Query().Get("player_name")
 	gameUUID := r.URL.Query().Get("game_uuid")
-
 	err := database.SaveScore(name, gameUUID)
 	if err != nil {
 		log.Printf("SaveScore() error: %v", err)
@@ -204,6 +203,7 @@ func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Saved score: player_name: %s, game_uuid: %s", name, gameUUID)
 	w.WriteHeader(http.StatusOK)
 }
 

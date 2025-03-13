@@ -194,19 +194,8 @@ export async function GetScores(): Promise<FinalScore[]> {
     return await response.json();
 }
 
-export async function SaveScore(name: string, gameUUID: string): Promise<void> {
-    const body = {
-        investigator: name,
-        game_uuid: gameUUID,
-    }
-    const response = await fetch(`${API_URL}/save_score`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-    });
-
+export async function SaveScore(playerName: string, gameUUID: string) {
+    const response = await fetch(`${API_URL}/save_score?player_name=${playerName}&game_uuid=${gameUUID}`, initPOST);
     if (!response.ok) {
         throw new Error('Failed to save score');
     }

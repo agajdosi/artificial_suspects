@@ -48,7 +48,7 @@
     }
 
     function getHintNewGame() {
-        if (!$serviceStatus.Ready) return hint.set("Cannot start new game, AI service is not ready!");
+        if (!$serviceStatus.ready) return hint.set("Cannot start new game, AI service is not ready!");
         return hint.set("Start a new game and try it again!");
     }
 </script>
@@ -108,8 +108,8 @@
         on:click={newGameDispatcher}
         on:mouseenter={() => getHintNewGame()}
         on:mouseleave={() => hint.set("")}
-        class="{!$serviceStatus.Ready && 'offline'}"
-        disabled={!$serviceStatus.Ready}
+        class="{!$serviceStatus.ready && 'offline'}"
+        disabled={!$serviceStatus.ready}
         >
         {$t('buttons.newGame')}
     </button>  
