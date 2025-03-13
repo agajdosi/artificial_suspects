@@ -5,7 +5,7 @@
     import ErrorOverlay from './ErrorOverlay.svelte'
     import { register, init} from 'svelte-i18n';
     import type { Game } from './lib/main';
-    import { NewGame, GetGame } from './lib/main';
+    import { NewGame, GetGame, saveAnswer } from './lib/main';
     import { generateAnswer } from './lib/intelligence';
     import { currentGame } from './lib/stores';
 
@@ -35,7 +35,7 @@
             newGame.investigation.CriminalUUID
         );
 
-        // TODO: Save answer to database
+        await saveAnswer(answer.answer, newGame.investigation.rounds.at(-1).uuid);
         newGame.investigation.rounds.at(-1).answer = answer.answer;
         newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
         currentGame.set(newGame);

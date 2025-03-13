@@ -153,11 +153,11 @@ export async function NextInvestigation(): Promise<Game> {
 }
 
 export async function EliminateSuspect(suspectUUID: string, roundUUID: string, investigationUUID: string): Promise<void> {
-    const response = await fetch(`${API_URL}/eliminate_suspect`, initPOST);
-
+    const response = await fetch(`${API_URL}/eliminate_suspect?suspect_uuid=${suspectUUID}&round_uuid=${roundUUID}&investigation_uuid=${investigationUUID}`, initPOST);
     if (!response.ok) {
         throw new Error('Failed to eliminate suspect');
     }
+    return await response.json();
 }
 
 export async function WaitForAnswer(roundUUID: string): Promise<string> {
@@ -223,4 +223,12 @@ export async function getDescriptionsForSuspect(suspectUUID: string, serviceName
 export async function getQuestion(questionUUID: string): Promise<Question> {
     let question: Question;
     return question;
+}
+
+
+export async function saveAnswer(answer: string, roundUUID: string): Promise<void> {
+    const response = await fetch(`${API_URL}/save_answer?answer=${answer}&round_uuid=${roundUUID}`, initPOST);
+    if (!response.ok) {
+        throw new Error('Failed to save answer');
+    }
 }
