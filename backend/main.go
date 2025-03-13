@@ -32,6 +32,7 @@ func main() {
 	mux.HandleFunc("/ai_service_is_ready", enableCORS(AIServiceIsReadyHandler))
 	mux.HandleFunc("/list_models_ollama", enableCORS(ListModelsOllamaHandler))
 
+	fmt.Println("Starting server on: http://localhost:8080")
 	err = http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
 		log.Fatal(err)
