@@ -1,3 +1,6 @@
+import { currentGame } from './stores';
+import { generateAnswer } from './intelligence';
+
 // MARK: CONSTANTS
 
 const API_URL = 'http://localhost:8080';
@@ -117,14 +120,13 @@ export async function NewGame(): Promise<Game> {
         throw new Error('Failed to create new game');
     }
     
-    const game = await response.json();
+    const game: Game = await response.json();
     console.log(`NewGame() response: ${game}`)
     return game;
 }
 
 export async function GetGame(): Promise<Game> {
     const response = await fetch(`${API_URL}/get_game`, initGET);
-    
     if (!response.ok) {
         throw new Error('Failed to fetch game');
     }
@@ -132,14 +134,28 @@ export async function GetGame(): Promise<Game> {
     return await response.json();
 }
 
-export async function NextRound(): Promise<Game> {
+export async function NextRound() {
+    // FIRST GET THE NEW ROUND`
     const response = await fetch(`${API_URL}/next_round`, initGET);
-
     if (!response.ok) {
         throw new Error('Failed to fetch next round');
     }
 
-    return await response.json();
+    let game: Game = await response.json();
+    console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`);
+    currentGame.set(game);
+
+    // THEN GENERATE ANSWER
+    const answer = await generateAnswer(
+        game.investigation.rounds.at(-1).uuid,
+        game.investigation.rounds.at(-1).Question,
+        game.investigation.CriminalUUID
+    );
+
+    await saveAnswer(answer.answer, game.investigation.rounds.at(-1).uuid);
+    game.investigation.rounds.at(-1).answer = answer.answer;
+    game.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+    currentGame.set(game);
 }
 
 export async function NextInvestigation(): Promise<Game> {

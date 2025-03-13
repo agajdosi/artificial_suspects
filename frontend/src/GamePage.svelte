@@ -17,16 +17,6 @@
     const dispatch = createEventDispatcher();
     function goToMenu() {dispatch('message', { message: 'goToHome' });}
 
-    // NEXT QUESTION
-    async function nextRound() {
-        try {
-            const game = await NextRound();
-            currentGame.set(game);
-            console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`);
-        } catch (error) {
-            console.log(`NextRound() has failed: ${error}`);
-        }
-    }
 
     function getHintNextQuestion(){
         if ($currentGame.investigation?.rounds?.at(-1)?.answer != "") return hint.set("Wait for the AI to answer the question.")
@@ -177,7 +167,7 @@
                     </button>
                 {:else}
                 <button
-                    on:click={nextRound}
+                    on:click={NextRound}
                     on:mouseenter={() => getHintNextQuestion()}
                     on:mouseleave={() => hint.set("")}
                     class="{!$serviceStatus.ready && 'offline'}"
