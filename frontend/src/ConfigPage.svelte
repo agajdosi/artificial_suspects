@@ -7,7 +7,6 @@
 
     let selectedService: string = $activeService; // Holds the AI service selected in the UI
 
-
     function goToMenu() {
         dispatch('message', { message: 'goToHome' });
     }
@@ -15,7 +14,7 @@
     async function showServiceDetail(event) {selectedService = event.target.value;}
 
     async function saveService() {
-        const service = $services.find(s => s.Name === selectedService);
+        const service = $services[selectedService];
         if (!service) {
             console.error("No service selected to save.");
             return;
@@ -23,7 +22,7 @@
     }
 
     async function activateService() {
-        const service = $services.find(s => s.Name === selectedService);
+        const service = $services[selectedService];
         if (!service) {
             console.error("No service selected to save.");
             return;
@@ -39,11 +38,11 @@
 
 <h1>Game Configuration</h1>
 <div class="info">
-    {#if $services.length > 0}
-        {#each $services as service}
-            {#if service.Active}
+    {#if Object.keys($services).length > 0}
+        {#each Object.entries($services) as [name, service]}
+            {#if service.Name === $activeService}
                 <p>
-                    Game uses the active service <strong>{$activeService}</strong> with visual LLM <strong>{$activeService.VisualModel}</strong>.
+                    Game uses the active service <strong>{name}</strong> with visual LLM <strong>{service.VisualModel}</strong>.
                 </p>
             {/if}
         {/each}
@@ -55,13 +54,13 @@
 <!-- AI Services Tabs -->
 <div class="service-config">
     <h2>AI Services</h2>
-    {#if $services.length === 0}
+    {#if Object.keys($services).length === 0}
         Loading services...
     {:else}
         <div class="services">
-            {#each $services as service}
-                <button on:click={showServiceDetail} value={service.Name} class:selected={selectedService === service.Name}>
-                    {service.Name}
+            {#each Object.entries($services) as [name, service]}
+                <button on:click={showServiceDetail} value={name} class:selected={selectedService === name}>
+                    {name}
                 </button>
             {/each}
         </div>
@@ -69,26 +68,26 @@
 
     <!-- Configuration for the selected AI service -->
     {#if selectedService}
-        {#each $services as service}
-            {#if service.Name == selectedService}
+        {#each Object.entries($services) as [name, service]}
+            {#if name === selectedService}
                 <div class="service-details">
-                    {#if service.Type == "API"}
+                    {#if service.Type === "API"}
                         <div class="service-token">
-                            <label for="token-{service.Name}">API token:</label>
-                            <input id="token-{service.Name}" type="password" bind:value={service.Token} placeholder="Enter token" class:error={service.Token.trim() === ''}>
+                            <label for="token-{name}">API token:</label>
+                            <input id="token-{name}" type="password" bind:value={service.Token} placeholder="Enter token" class:error={service.Token.trim() === ''}>
                         </div>
                     {/if}
-                    {#if service.Type == "local"}
+                    {#if service.Type === "local"}
                         <button on:click={listModelsOllama}>List models</button>
                         <div class="service-URL">
-                            <label for="token-{service.Name}">URL:</label>
-                            <input id="token-{service.Name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.URL.trim() === ''}>
+                            <label for="url-{name}">URL:</label>
+                            <input id="url-{name}" bind:value={service.URL} placeholder="Enter local instance URL" class:error={service.URL.trim() === ''}>
                         </div>
                     {/if}
                     <div class="service-model">
                         <div class="service-model">
-                            <label for="token-{service.VisualModel}">Visual LLM:</label>
-                            <input id="token-{service.VisualModel}" bind:value={service.VisualModel} placeholder="Name of model to use" class:error={service.VisualModel.trim() === ''}>
+                            <label for="model-{name}">Visual LLM:</label>
+                            <input id="model-{name}" bind:value={service.VisualModel} placeholder="Name of model to use" class:error={service.VisualModel.trim() === ''}>
                         </div>
                     </div>
                     <div class="actions">

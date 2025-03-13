@@ -30,9 +30,9 @@ export const errorMessage = writable<ErrorMessage>(defaultErrorMessage);
 export const hint = writable<string>("");
 
 // ActiveService
-let storedActiveService: string = JSON.parse(localStorage.getItem('activeServiceName') || 'dadaista');
+let storedActiveService: string = JSON.parse(localStorage.getItem('activeServiceName') || '');
 if (storedActiveService === '') {
-    storedActiveService = "dadaisto";
+    storedActiveService = "ollama";
 }
 export const activeService = writable<string>(storedActiveService);
 activeService.subscribe((value) => {
@@ -40,17 +40,17 @@ activeService.subscribe((value) => {
 });
 
 // Services
-const supportedServices: Service[] = [
-    {
+const supportedServices: Record<string, Service> = {
+    "ollama": {
         Name: "ollama",
-        Type: "local",
+        Type: "local", 
         Active: true,
         TextModel: "llama3",
         VisualModel: "llama3",
         Token: "",
         URL: "",
     },
-    {
+    "openai": {
         Name: "openai",
         Type: "API",
         Active: false,
@@ -58,13 +58,26 @@ const supportedServices: Service[] = [
         VisualModel: "gpt-4o",
         Token: "",
         URL: "",
-    },
-];
-let storedServices: Service[] = JSON.parse(localStorage.getItem('services') || '[]');
-if (storedServices.length === 0) {
+    }
+};
+
+let storedServices: Record<string, Service>;
+try {
+    const stored = JSON.parse(localStorage.getItem('services') || '{}');
+    // Convert array to object if needed
+    storedServices = Array.isArray(stored) 
+        ? stored.reduce((obj, service) => ({...obj, [service.Name]: service}), {})
+        : stored;
+} catch (e) {
+    storedServices = {};
+}
+
+if (Object.keys(storedServices).length === 0) {
     storedServices = supportedServices;
 }
-export const services = writable<Service[]>(storedServices);
+
+export const services = writable<Record<string, Service>>(storedServices);
 services.subscribe((value) => {
+    // Ensure we're always storing an object
     localStorage.setItem('services', JSON.stringify(value));
 });
