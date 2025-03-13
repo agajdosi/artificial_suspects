@@ -20,6 +20,7 @@
     "vite": "^3.0.7"
   },
   "dependencies": {
+    "openai": "^4.87.3",
     "svelte-i18n": "^4.0.0",
     "typed.js": "^2.1.0"
   }
