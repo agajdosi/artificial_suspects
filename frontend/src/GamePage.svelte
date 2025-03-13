@@ -8,7 +8,6 @@
     import IntroOverlay from './IntroOverlay.svelte';
     import { locale, t } from 'svelte-i18n';
 
-    let answerIsLoading: boolean;
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
 
@@ -80,7 +79,7 @@
         introVisible = event.detail.introVisible;
     }
 
-    let IdleTimer: number | null = null;
+    let IdleTimer: NodeJS.Timeout | null = null;
     window.addEventListener('mousemove', resetIdleTimer); // (re)sets IdleTimer
     function resetIdleTimer(): void {
         const msTimeout = 5 * 60 * 1000;
@@ -117,7 +116,7 @@
                     {$currentGame.investigation?.rounds?.at(-1)?.Question?.English}
                 {/if}
             </div>
-            {#if answerIsLoading}
+            {#if $currentGame.investigation?.rounds?.at(-1)?.answer == ""}
                 <div class="waiting"
                     on:mouseenter={() => hint.set("Waiting for the AI witness to answer the question.")}
                     on:mouseleave={() => hint.set("")}
@@ -137,7 +136,7 @@
         <div class="instruction">
             {#if $currentGame.investigation?.InvestigationOver}
                 {$t('arrestInstruction')}
-            {:else if !answerIsLoading}
+            {:else if $currentGame.investigation?.rounds?.at(-1)?.answer != ""}
                 {#if $currentGame.investigation?.rounds?.at(-1)?.answer?.toLowerCase() == "yes"}{$t('release-no')}
                 {:else}{$t('release-yes')}
                 {/if}
@@ -160,7 +159,7 @@
             suspects={$currentGame.investigation?.suspects || []}
             gameOver={$currentGame.GameOver}
             investigationOver={$currentGame.investigation?.InvestigationOver}
-            {answerIsLoading}
+            answerIsLoading={$currentGame.investigation?.rounds?.at(-1)?.answer == ""}
             on:suspect_freeing={handleSuspectFreeing}
             on:suspect_jailing={nextInvestigation}
         />
