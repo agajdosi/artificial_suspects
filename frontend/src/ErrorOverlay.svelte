@@ -1,12 +1,17 @@
 <script lang="ts">
     import { errorMessage } from './lib/stores';
-    import { main } from './../wailsjs/go/models';
+    import type { ErrorMessage } from './lib/main';
     import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();
 
     function clearError() {
-        const em = new main.ErrorMessage();
+        const em: ErrorMessage = {
+            Title: "",
+            Message: "",
+            Actions: [],
+            Severity: ""
+        };
         errorMessage.set(em);
     }
 
