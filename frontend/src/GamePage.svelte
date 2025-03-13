@@ -1,7 +1,7 @@
 <script lang="ts">
     import { serviceStatus, hint } from './lib/stores';
-    import { database } from '../wailsjs/go/models';
-    import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from '../wailsjs/go/main/App.js';
+    import type { Game } from './lib/main';
+    import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from './lib/main';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
     import Scores from './Scores.svelte';
@@ -9,7 +9,7 @@
     import IntroOverlay from './IntroOverlay.svelte';
     import { locale, t } from 'svelte-i18n';
 
-    export let game: database.Game;
+    export let game: Game;
     let lastRoundUUID: string;
     let answerIsLoading: boolean;
     let answer: string;

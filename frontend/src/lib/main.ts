@@ -1,6 +1,18 @@
 // MARK: CONSTANTS
 
-export const API_URL = 'http://localhost:8080';
+const API_URL = 'http://localhost:8080';
+const initGET = {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+}
+const initPOST = {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+}
 
 // MARK: TYPES
 
@@ -89,12 +101,7 @@ export interface ErrorMessage {
 // MARK: FUNCTIONS
 
 export async function NewGame(): Promise<Game> {
-    const response = await fetch(`${API_URL}/new_game`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+    const response = await fetch(`${API_URL}/new_game`, initGET);
     
     if (!response.ok) {
         throw new Error('Failed to create new game');
@@ -104,12 +111,7 @@ export async function NewGame(): Promise<Game> {
 }
 
 export async function GetGame(): Promise<Game> {
-    const response = await fetch(`${API_URL}/get_game`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+    const response = await fetch(`${API_URL}/get_game`, initGET);
     
     if (!response.ok) {
         throw new Error('Failed to fetch game');
@@ -117,6 +119,45 @@ export async function GetGame(): Promise<Game> {
     
     return await response.json();
 }
+
+export async function NextRound(): Promise<Game> {
+    const response = await fetch(`${API_URL}/next_round`, initGET);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch next round');
+    }
+
+    return await response.json();
+}
+
+export async function NextInvestigation(): Promise<Game> {
+    const response = await fetch(`${API_URL}/next_investigation`, initGET);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch next investigation');
+    }
+
+    return await response.json();
+}
+
+export async function EliminateSuspect(suspectUUID: string, roundUUID: string, investigationUUID: string): Promise<void> {
+    const response = await fetch(`${API_URL}/eliminate_suspect`, initPOST);
+
+    if (!response.ok) {
+        throw new Error('Failed to eliminate suspect');
+    }
+}
+
+export async function WaitForAnswer(roundUUID: string): Promise<string> {
+    const response = await fetch(`${API_URL}/wait_for_answer`, initGET);
+
+    if (!response.ok) {
+        throw new Error('Failed to wait for answer');
+    }
+
+    return await response.json();
+}
+
 
 // MARK: AI SERVICES - dummy for now
 // 
