@@ -25,12 +25,6 @@ func main() {
 	mux.HandleFunc("/eliminate_suspect", enableCORS(EliminateSuspectHandler))
 	mux.HandleFunc("/save_score", enableCORS(SaveScoreHandler))
 	mux.HandleFunc("/get_services", enableCORS(GetServicesHandler))
-	mux.HandleFunc("/save_service", enableCORS(SaveServiceHandler))
-	mux.HandleFunc("/activate_service", enableCORS(ActivateServiceHandler))
-	mux.HandleFunc("/get_default_models", enableCORS(GetDefaultModelsHandler))
-	mux.HandleFunc("/get_active_service", enableCORS(GetActiveServiceHandler))
-	mux.HandleFunc("/ai_service_is_ready", enableCORS(AIServiceIsReadyHandler))
-	mux.HandleFunc("/list_models_ollama", enableCORS(ListModelsOllamaHandler))
 
 	fmt.Println("Starting server on: http://localhost:8080")
 	err = http.ListenAndServe("localhost:8080", mux)
@@ -227,104 +221,6 @@ func GetServicesHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := json.Marshal(services)
 	if err != nil {
 		fmt.Println("GetServices() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
-}
-
-func SaveServiceHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
-	text_model := r.URL.Query().Get("text_model")
-	visual_model := r.URL.Query().Get("visual_model")
-	token := r.URL.Query().Get("token")
-	url := r.URL.Query().Get("url")
-
-	err := database.SaveService(name, text_model, visual_model, token, url)
-	if err != nil {
-		fmt.Println("SaveService() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func ActivateServiceHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
-
-	err := database.ActivateService(name)
-	if err != nil {
-		fmt.Println("ActivateService() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func GetDefaultModelsHandler(w http.ResponseWriter, r *http.Request) {
-	models := database.DefaultModels
-
-	resp, err := json.Marshal(models)
-	if err != nil {
-		fmt.Println("GetDefaultModels() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
-}
-
-func GetActiveServiceHandler(w http.ResponseWriter, r *http.Request) {
-	service, err := database.GetActiveService()
-	if err != nil {
-		fmt.Println("GetActiveService() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	resp, err := json.Marshal(service)
-	if err != nil {
-		fmt.Println("GetActiveService() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
-}
-
-// TODO: This makes sense for AI as a service calls, but not for local Ollama.
-func AIServiceIsReadyHandler(w http.ResponseWriter, r *http.Request) {
-	status := database.AIServiceIsReady()
-
-	resp, err := json.Marshal(status)
-	if err != nil {
-		fmt.Println("AIServiceIsReady() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
-}
-
-// TODO: This does not make much sense, typescript should just call the Ollama API directly.
-func ListModelsOllamaHandler(w http.ResponseWriter, r *http.Request) {
-	models, err := database.ListModelsOllama()
-	if err != nil {
-		fmt.Println("ListModelsOllama() error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	resp, err := json.Marshal(models)
-	if err != nil {
-		fmt.Println("ListModelsOllama() error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -26,7 +26,6 @@
         } catch (error) {
             console.log(`NextRound() has failed: ${error}`);
         }
-        
     }
 
     function getHintNextQuestion(){
@@ -36,6 +35,7 @@
     }
 
     async function handleSuspectFreeing(event) {
+        console.log("FREEING SUSPECT", event)
         const { suspect } = event.detail;
         try {
             await EliminateSuspect(suspect.UUID, $currentGame.investigation?.rounds?.at(-1)?.uuid, $currentGame.investigation?.uuid);
