@@ -1,3 +1,5 @@
+import { activeService } from './stores';
+
 // MARK: CONSTANTS
 
 const API_URL = 'http://localhost:8080';
@@ -194,10 +196,7 @@ export async function SaveScore(name: string, gameUUID: string): Promise<void> {
 }
 
 
-
-// MARK: AI SERVICES - dummy for now
-// 
-
+// MARK: AI SERVICES
 export async function GetServices(): Promise<Service[]> {
     const response = await fetch(`${API_URL}/get_services`, initGET);
 
@@ -206,32 +205,6 @@ export async function GetServices(): Promise<Service[]> {
     }
 
     return await response.json();
-}
-
-export async function GetActiveService(): Promise<Service> {
-    let service: Service = {
-        Name: 'OLLAMA',
-        Type: 'local',
-        TextModel: 'llama3',
-        VisualModel: 'llama3',
-        Token: '',
-        URL: 'localhost:12345',
-        Active: true,
-    };
-    return service;
-}
-
-export async function SaveService(service: Service): Promise<void> {
-    return;
-}
-
-export async function ActivateService(service: Service): Promise<void> {
-    return;
-}
-
-export async function GetDefaultModels(): Promise<Model[]> {
-    let models: Model[] = [];
-    return models;
 }
 
 export async function ListModelsOllama(): Promise<Model[]> {

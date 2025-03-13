@@ -1,17 +1,9 @@
 <script lang="ts">
-    import { hint } from './lib/stores';
-    import { GetActiveService } from './lib/main';
-    import type { Game, Service } from './lib/main';
+    import { hint, activeService } from './lib/stores';
+    import type { Game } from './lib/main';
     import { locale, t } from 'svelte-i18n';
 
     export let game: Game;
-    let activeService: Service | null = null;
-
-    GetActiveService().then(service => {
-        activeService = service;
-    }).catch(err => {
-        console.error('Error fetching active service:', err);
-    });
 </script>
 
 <div class="history"
@@ -43,8 +35,8 @@
         on:mouseleave={() => hint.set("")}
         >
         {$t("interrogated")}:
-        {#if activeService === null}{$t("loading")}
-        {:else} {activeService.VisualModel}
+        {#if $activeService === null}{$t("loading")}
+        {:else} {$activeService}
         {/if}
     </div>
 </div>
