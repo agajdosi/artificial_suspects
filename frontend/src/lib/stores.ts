@@ -44,7 +44,6 @@ const supportedServices: Record<string, Service> = {
     "ollama": {
         Name: "ollama",
         Type: "local", 
-        Active: true,
         TextModel: "llama3",
         VisualModel: "llama3",
         Token: "",
@@ -53,7 +52,6 @@ const supportedServices: Record<string, Service> = {
     "openai": {
         Name: "openai",
         Type: "API",
-        Active: false,
         TextModel: "gpt-4o",
         VisualModel: "gpt-4o",
         Token: "",

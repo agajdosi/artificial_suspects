@@ -76,7 +76,6 @@ export interface Round {
 export interface Service {
     Name: string;
     Type: string; // API or local
-    Active: boolean;
     TextModel: string;
     VisualModel: string;
     Token: string;

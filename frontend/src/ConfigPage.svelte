@@ -7,9 +7,7 @@
 
     let selectedService: string = $activeService; // Holds the AI service selected in the UI
 
-    function goToMenu() {
-        dispatch('message', { message: 'goToHome' });
-    }
+    async function goToMenu() {dispatch('message', { message: 'goToHome' });}
 
     async function showServiceDetail(event) {selectedService = event.target.value;}
 
@@ -19,6 +17,20 @@
             console.error("No service selected to save.");
             return;
         }
+        const URL = service.Type === "local" ? (document.getElementById('url-' + selectedService) as HTMLInputElement).value : "";
+        const Token = service.Type === "API" ? (document.getElementById('token-' + selectedService) as HTMLInputElement).value : "";
+        const VisualModel = (document.getElementById('model-' + selectedService) as HTMLInputElement).value;
+    
+        console.log(`Saving service ${selectedService} with URL ${URL}, Token ${Token}, VisualModel ${VisualModel}`);
+        $services = {
+            ...$services,
+            [selectedService]: {
+                ...service,
+                URL,
+                Token,
+                VisualModel
+            }
+        };
     }
 
     async function activateService() {
