@@ -104,7 +104,7 @@
                     </div>
                     <div class="actions">
                         <button on:click={saveService}>Save</button>
-                        {#if service.Active}
+                        {#if service.Name === $activeService}
                             <button on:click={activateService}>Active</button>
                         {:else}
                             <button on:click={activateService}>Activate</button>

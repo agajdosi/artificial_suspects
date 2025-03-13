@@ -8,7 +8,6 @@ const defaultServiceStatus: ServiceStatus = {
     Service: { // Dummy service - until the real fetching of service is implemented
         Name: 'Dummy',
         Type: 'local',
-        Active: true,
         TextModel: 'llava:latest',
         VisualModel: 'llava:latest',
         Token: '',
