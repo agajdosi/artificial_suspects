@@ -7,6 +7,7 @@
     import type { Game } from './lib/main';
     import { NewGame, GetGame } from './lib/main';
     import { generateAnswer } from './lib/intelligence';
+    import { currentGame } from './lib/stores';
 
     register('en', () => import('./assets/locales/en.json'));
     register('cz', () => import('./assets/locales/cz.json'));
@@ -17,24 +18,27 @@
     });
 
     let screen = 'home'; // State to track the current screen
-    let game: Game;
 
     async function newGameHandler(event) {
+        let newGame: Game;
         try {
-            game = await NewGame();
+            newGame = await NewGame();
+            currentGame.set(newGame);
         } catch (error) {
             console.log(`NewGame() has failed: ${error}`)
             return
         }
         screen = 'game';
-
-        const answer = await generateAnswer(game.investigation.rounds.at(-1).uuid, game.investigation.rounds.at(-1).Question, game.investigation.CriminalUUID);
+        const answer = await generateAnswer(
+            newGame.investigation.rounds.at(-1).uuid,
+            newGame.investigation.rounds.at(-1).Question,
+            newGame.investigation.CriminalUUID
+        );
 
         // TODO: Save answer to database
-        game.investigation.rounds.at(-1).answer = answer.answer;
-        game.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
-
-        return
+        newGame.investigation.rounds.at(-1).answer = answer.answer;
+        newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+        currentGame.set(newGame);
     }
 
     async function handleMessage(event) {
@@ -42,11 +46,12 @@
         const { message } = event.detail;
         if (message === 'continueGame') {
             try {
-                game = await GetGame();
+                const lastGame = await GetGame();
+                currentGame.set(lastGame);
+                console.log("GetGame() response:", lastGame);
             } catch (error) {
-                console.log(`GetGame() has failed: ${error}`)
+                console.log(`GetGame() has failed: ${error}`);
             }
-            console.log("GetGame() response:", game)
             screen = 'game';
             return
         }
@@ -67,7 +72,7 @@
     {#if screen === 'home'}
         <HomePage on:message={handleMessage} on:newGame={newGameHandler}/>
     {:else if screen === 'game'}
-        <GamePage on:message={handleMessage} on:newGame={newGameHandler} {game}/>
+        <GamePage on:message={handleMessage} on:newGame={newGameHandler}/>
     {:else if screen === 'config'}
         <ConfigPage on:message={handleMessage}/>
     {/if}

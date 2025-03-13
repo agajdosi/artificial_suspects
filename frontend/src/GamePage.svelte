@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { serviceStatus, hint } from './lib/stores';
-    import type { Game } from './lib/main';
-    import { NextRound, EliminateSuspect, GetGame, WaitForAnswer, NextInvestigation } from './lib/main';
+    import { currentGame, serviceStatus, hint } from './lib/stores';
+    import { NextRound, EliminateSuspect, GetGame, NextInvestigation } from './lib/main';
     import Suspects from './Suspects.svelte';
     import History from './History.svelte';
     import Scores from './Scores.svelte';
@@ -9,10 +8,7 @@
     import IntroOverlay from './IntroOverlay.svelte';
     import { locale, t } from 'svelte-i18n';
 
-    export let game: Game;
-    let lastRoundUUID: string;
     let answerIsLoading: boolean;
-    let answer: string;
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
 
@@ -25,59 +21,43 @@
     // NEXT QUESTION
     async function nextRound() {
         try {
-            game = await NextRound();
+            const game = await NextRound();
+            currentGame.set(game);
+            console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`);
         } catch (error) {
             console.log(`NextRound() has failed: ${error}`);
         }
-        console.log(`>>> NEW ROUND: ${game.investigation.rounds.at(-1)}`);
+        
     }
+
     function getHintNextQuestion(){
-        if (answerIsLoading) return hint.set("Wait for the AI to answer the question.")
-        if (!game.investigation.rounds.at(-1).Eliminations) return hint.set("Eliminate at least 1 suspect before proceeding to next question.");
+        if ($currentGame.investigation?.rounds?.at(-1)?.answer != "") return hint.set("Wait for the AI to answer the question.")
+        if (!$currentGame.investigation?.rounds?.at(-1)?.Eliminations) return hint.set("Eliminate at least 1 suspect before proceeding to next question.");
         return hint.set("Proceed to next question.");
     }
 
     async function handleSuspectFreeing(event) {
         const { suspect } = event.detail;
         try {
-            await EliminateSuspect(suspect.UUID, game.investigation.rounds.at(-1).uuid, game.investigation.uuid);
+            await EliminateSuspect(suspect.UUID, $currentGame.investigation?.rounds?.at(-1)?.uuid, $currentGame.investigation?.uuid);
         } catch (error) {
             console.error(`Failed to free suspect ${suspect.UUID}:`, error);
         }
-        game = await GetGame();
+        const game = await GetGame();
+        currentGame.set(game);
         console.log(`GAME OVER: ${game.GameOver}`);
     }
 
-    async function LoadAnswer(roundUUID: string) {
-        answerIsLoading = true;
-        try {
-            answer = await WaitForAnswer(roundUUID);
-        } catch (error) {
-            console.error("Failed to get the answer:", error);
-            answer = "Error fetching answer";
-        } finally {
-            answerIsLoading = false;
-        }
-    }
-
-    // Run when ...rounds.at(-1).QuestionUUID changes
-    $: if (game.investigation.rounds) {
-        const currentRoundUUID = game.investigation.rounds.at(-1).uuid;
-        if (currentRoundUUID !== lastRoundUUID) {
-            lastRoundUUID = currentRoundUUID;
-            LoadAnswer(currentRoundUUID)
-        }
-    }
-
     async function nextInvestigation(){
-        game = await NextInvestigation();
+        let game = await NextInvestigation();
         game.GameOver = false;
+        currentGame.set(game);
         console.log("GOT NEW INVESTIGATION", game)
     }
     
     function newGame() {
         scoresVisible = true;
-        dispatch('newGame', { 'game_uuid': game.uuid });
+        dispatch('newGame', { 'game_uuid': $currentGame.uuid });
     }
 
     // Scores
@@ -118,7 +98,7 @@
 <div class="top">
     <div class="top-left">
         <div class="main">
-        {#if game.investigation.InvestigationOver}
+        {#if $currentGame.investigation?.InvestigationOver}
             <div class="jailtime">
                 {$t('arrest')}
             </div>
@@ -128,13 +108,13 @@
                 on:mouseenter={() => hint.set("A question about the wanted person, answered by an AI witness.")}
                 on:mouseleave={() => hint.set("")}
                 >
-                {game.investigation.rounds.length}.
+                {$currentGame.investigation?.rounds?.length}.
                 {#if $locale == "cz"}
-                    {game.investigation.rounds.at(-1).Question.Czech}
+                    {$currentGame.investigation?.rounds?.at(-1)?.Question?.Czech}
                 {:else if $locale == "pl"}
-                    {game.investigation.rounds.at(-1).Question.Polish}
+                    {$currentGame.investigation?.rounds?.at(-1)?.Question?.Polish}
                 {:else}
-                    {game.investigation.rounds.at(-1).Question.English}
+                    {$currentGame.investigation?.rounds?.at(-1)?.Question?.English}
                 {/if}
             </div>
             {#if answerIsLoading}
@@ -149,16 +129,16 @@
                     on:mouseenter={() => hint.set("The AI witness' response to the question about the wanted person.")}
                     on:mouseleave={() => hint.set("")}
                     >
-                    {$t(answer.toLocaleLowerCase())}!
+                    {$t($currentGame.investigation?.rounds?.at(-1)?.answer?.toLocaleLowerCase())}!
                 </div>
             {/if}
         {/if}
         </div>
         <div class="instruction">
-            {#if game.investigation.InvestigationOver}
+            {#if $currentGame.investigation?.InvestigationOver}
                 {$t('arrestInstruction')}
             {:else if !answerIsLoading}
-                {#if answer.toLowerCase() == "yes"}{$t('release-no')}
+                {#if $currentGame.investigation?.rounds?.at(-1)?.answer?.toLowerCase() == "yes"}{$t('release-no')}
                 {:else}{$t('release-yes')}
                 {/if}
             {:else}
@@ -177,17 +157,17 @@
 <div class="middle">
     <div class="left">
         <Suspects
-            suspects={game.investigation.suspects}
-            gameOver={game.GameOver}
-            investigationOver={game.investigation.InvestigationOver}
+            suspects={$currentGame.investigation?.suspects || []}
+            gameOver={$currentGame.GameOver}
+            investigationOver={$currentGame.investigation?.InvestigationOver}
             {answerIsLoading}
             on:suspect_freeing={handleSuspectFreeing}
             on:suspect_jailing={nextInvestigation}
         />
 
         <div class="actions">
-            {#if !game.investigation.InvestigationOver}
-                {#if game.GameOver}
+            {#if !$currentGame.investigation?.InvestigationOver}
+                {#if $currentGame.GameOver}
                     <button
                         on:click={newGame}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
@@ -202,8 +182,8 @@
                     on:mouseenter={() => getHintNextQuestion()}
                     on:mouseleave={() => hint.set("")}
                     class="{!$serviceStatus.Ready && 'offline'}"
-                    disabled={!game.investigation.rounds.at(-1).Eliminations || game.GameOver || !$serviceStatus.Ready}
-                    aria-disabled="{!game.investigation.rounds.at(-1).Eliminations || game.GameOver || !$serviceStatus.Ready ? 'true': 'false'}"
+                    disabled={!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.Ready}
+                    aria-disabled="{!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.Ready ? 'true': 'false'}"
                     >
                     {$t('buttons.nextQuestion')}
                 </button>
@@ -213,7 +193,7 @@
     </div>
 
     <div class="right">
-        <History {game}/>
+        <History/>
     </div>
 </div>
 
@@ -229,19 +209,19 @@
             on:mouseenter={() => hint.set("Successfully finish the investigation to get into higher level.")}
             on:mouseleave={() => hint.set("")}
             >
-            level: {game.level}
+            level: {$currentGame.level}
         </div>
         <div
             on:mouseenter={() => hint.set("Your current score. Free innocent suspects and finish the investigation to get more points.")}
             on:mouseleave={() => hint.set("")}
             >
-            score: {game.Score}
+            score: {$currentGame.Score}
         </div>
     </div>
 </div>
 
-{#if game.GameOver && scoresVisible}
-    <Scores {game} on:toggleScores={handleToggleScores} on:newGame/>    
+{#if $currentGame.GameOver && scoresVisible}
+    <Scores on:toggleScores={handleToggleScores} on:newGame/>    
 {/if}
 
 {#if helpVisible}

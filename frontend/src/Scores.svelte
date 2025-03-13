@@ -1,11 +1,10 @@
 <script lang="ts">
-    import { serviceStatus, hint } from './lib/stores';
-    import type { Game, FinalScore } from './lib/main';
+    import { currentGame,serviceStatus, hint } from './lib/stores';
+    import type { FinalScore } from './lib/main';
     import { GetScores, SaveScore } from './lib/main';
     import { createEventDispatcher, onMount } from 'svelte';
     import { t } from 'svelte-i18n';
 
-    export let game: Game;
     let name: string;
     let scores: FinalScore[] = [];
     let loading: boolean = true;
@@ -28,11 +27,11 @@
     }
 
     function newGameDispatcher() {
-        dispatch('newGame', { 'game_uuid': game.uuid });
+        dispatch('newGame', { 'game_uuid': $currentGame.uuid });
     }
 
     function saveScore() {
-        SaveScore(name, game.uuid);
+        SaveScore(name, $currentGame.uuid);
     }
 
     // Helper function to return the position label (medal or rank)
@@ -45,7 +44,7 @@
 
     // Function to check if the current score belongs to the current game
     function isCurrentGame(scoreUUID: string): boolean {
-        return scoreUUID === game.uuid;
+        return scoreUUID === $currentGame.uuid;
     }
 
     function getHintNewGame() {

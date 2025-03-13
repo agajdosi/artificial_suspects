@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { database } from '../wailsjs/go/models';
-    import Suspect from './Suspect.svelte'
-    
-    export let suspects: database.Suspect[];
+    import SuspectSvelte from './Suspect.svelte'
+    import type { Suspect } from './lib/main';
+
+    export let suspects: Suspect[];
     export let gameOver: boolean;
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;
@@ -10,7 +10,7 @@
 
 <div class="suspects">
     {#each suspects as suspect}
-        <Suspect suspect={suspect} {gameOver} {investigationOver} {answerIsLoading} on:suspect_freeing on:suspect_jailing />
+        <SuspectSvelte suspect={suspect} {gameOver} {investigationOver} {answerIsLoading} on:suspect_freeing on:suspect_jailing />
     {/each}
 </div>
 

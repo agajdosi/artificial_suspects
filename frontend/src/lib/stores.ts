@@ -1,5 +1,26 @@
 import { writable } from 'svelte/store';
-import type { ServiceStatus, ErrorMessage, Service } from './main';
+import type { ServiceStatus, ErrorMessage, Service, Game } from './main';
+
+
+// Game
+const defaultGame: Game = {
+    uuid: '',
+    level: 0,
+    Score: 0,
+    investigation: {
+        uuid: '',
+        game_uuid: '',
+        suspects: [],
+        rounds: [],
+        CriminalUUID: '',
+        InvestigationOver: false,
+        Timestamp: ''
+    },
+    GameOver: false,
+    Investigator: '',
+    Timestamp: ''
+};
+export const currentGame = writable<Game>(defaultGame);
 
 // ServiceStatus - is AI accessible?
 const defaultServiceStatus: ServiceStatus = {

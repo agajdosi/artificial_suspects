@@ -1,16 +1,14 @@
 <script lang="ts">
-    import { hint, activeService } from './lib/stores';
-    import type { Game } from './lib/main';
+    import { currentGame, hint, activeService } from './lib/stores';
     import { locale, t } from 'svelte-i18n';
 
-    export let game: Game;
 </script>
 
 <div class="history"
     on:mouseenter={() => hint.set("History of previous questions and their answers in current investigation.")}
     on:mouseleave={() => hint.set("")}
 >
-    {#each [...game.investigation.rounds].reverse().slice(1).reverse() as round, index}
+    {#each [...$currentGame.investigation?.rounds || []].reverse().slice(1).reverse() as round, index}
         <div class="round">
             <div class="question">
                 {index+1}.
