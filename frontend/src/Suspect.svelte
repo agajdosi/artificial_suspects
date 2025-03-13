@@ -1,10 +1,10 @@
 <script lang="ts">
     import { serviceStatus, hint } from './lib/stores';
-    import { database } from '../wailsjs/go/models';
+    import type { Suspect } from './lib/main';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    export let suspect: database.Suspect;
+    export let suspect: Suspect;
     export let gameOver: boolean;
     export let investigationOver: boolean;
     export let answerIsLoading: boolean;
