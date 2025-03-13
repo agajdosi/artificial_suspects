@@ -6,6 +6,7 @@
     import { register, init} from 'svelte-i18n';
     import type { Game } from './lib/main';
     import { NewGame, GetGame } from './lib/main';
+    import { generateAnswer } from './lib/intelligence';
 
     register('en', () => import('./assets/locales/en.json'));
     register('cz', () => import('./assets/locales/cz.json'));
@@ -26,6 +27,13 @@
             return
         }
         screen = 'game';
+
+        const answer = await generateAnswer(game.investigation.rounds.at(-1).uuid, game.investigation.rounds.at(-1).Question, game.investigation.CriminalUUID);
+
+        // TODO: Save answer to database
+        game.investigation.rounds.at(-1).answer = answer.answer;
+        game.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+
         return
     }
 

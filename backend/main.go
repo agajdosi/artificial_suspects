@@ -135,7 +135,7 @@ func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go database.GetAnswerFromAI(round, game.Investigation.CriminalUUID)
+	// go database.GetAnswerFromAI(round, game.Investigation.CriminalUUID)
 
 	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
 

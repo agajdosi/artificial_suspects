@@ -357,7 +357,7 @@ func NewGame() (Game, error) {
 		return game, err
 	}
 
-	go GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
+	// go GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
 
 	return game, err
 }
@@ -529,7 +529,7 @@ func NewInvestigation(gameUUID string) (Investigation, error) {
 	cn := rand.IntN(len(suspects))
 	i.CriminalUUID = i.Suspects[cn].UUID
 
-	go GetAnswerFromAI(i.Rounds[0], i.CriminalUUID)
+	// go GetAnswerFromAI(i.Rounds[0], i.CriminalUUID)
 	log.Printf("NEW INVESTIGATION, criminal is: no. %d\n", cn+1)
 
 	err = saveInvestigation(i)

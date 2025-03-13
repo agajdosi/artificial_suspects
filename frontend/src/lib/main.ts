@@ -1,5 +1,3 @@
-import { activeService } from './stores';
-
 // MARK: CONSTANTS
 
 const API_URL = 'http://localhost:8080';
@@ -17,6 +15,11 @@ const initPOST = {
 }
 
 // MARK: TYPES
+
+export interface Answer {
+    uuid: string;
+    answer: string;
+}
 
 export interface Elimination {
     UUID: string;
@@ -209,4 +212,15 @@ export async function GetServices(): Promise<Service[]> {
 export async function ListModelsOllama(): Promise<Model[]> {
     let models: Model[] = [];
     return models;
+}
+
+
+export async function getDescriptionsForSuspect(suspectUUID: string, serviceName: string, modelName: string): Promise<string[]> {
+    let descriptions: string[] = [];
+    return descriptions;
+}
+
+export async function getQuestion(questionUUID: string): Promise<Question> {
+    let question: Question;
+    return question;
 }

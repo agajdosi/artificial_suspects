@@ -93,7 +93,7 @@ func (a *App) NextRound() database.Game {
 	if err != nil {
 		log.Printf("NextRound() could not get new Round: %v\n", err)
 	}
-	go database.GetAnswerFromAI(round, game.Investigation.CriminalUUID)
+	// go database.GetAnswerFromAI(round, game.Investigation.CriminalUUID)
 
 	game.Investigation.Rounds = append(game.Investigation.Rounds, round) // prepend
 
