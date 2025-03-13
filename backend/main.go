@@ -173,10 +173,18 @@ func GetScoresHandler(w http.ResponseWriter, r *http.Request) {
 
 func WaitForAnswerHandler(w http.ResponseWriter, r *http.Request) {
 	roundUUID := r.URL.Query().Get("round_uuid")
+	fmt.Println("WaitForAnswer() roundUUID:", roundUUID)
 	answer := database.WaitForAnswer(roundUUID)
 
+	resp, err := json.Marshal(answer)
+	if err != nil {
+		fmt.Println("WaitForAnswer() error:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(answer))
+	w.Write(resp)
 }
 
 func EliminateSuspectHandler(w http.ResponseWriter, r *http.Request) {

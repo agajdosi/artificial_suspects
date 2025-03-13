@@ -25,7 +25,6 @@
             console.log(`NewGame() has failed: ${error}`)
             return
         }
-        console.log(game)
         screen = 'game';
         return
     }

@@ -110,12 +110,13 @@ export interface Question {
 
 export async function NewGame(): Promise<Game> {
     const response = await fetch(`${API_URL}/new_game`, initGET);
-    
     if (!response.ok) {
         throw new Error('Failed to create new game');
     }
     
-    return await response.json();
+    const game = await response.json();
+    console.log(`NewGame() response: ${game}`)
+    return game;
 }
 
 export async function GetGame(): Promise<Game> {
@@ -157,8 +158,7 @@ export async function EliminateSuspect(suspectUUID: string, roundUUID: string, i
 }
 
 export async function WaitForAnswer(roundUUID: string): Promise<string> {
-    const response = await fetch(`${API_URL}/wait_for_answer`, initGET);
-
+    const response = await fetch(`${API_URL}/wait_for_answer?round_uuid=${roundUUID}`, initGET);
     if (!response.ok) {
         throw new Error('Failed to wait for answer');
     }
