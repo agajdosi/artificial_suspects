@@ -199,8 +199,13 @@ export async function SaveScore(name: string, gameUUID: string): Promise<void> {
 // 
 
 export async function GetServices(): Promise<Service[]> {
-    let services: Service[] = [];
-    return services;
+    const response = await fetch(`${API_URL}/get_services`, initGET);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch services');
+    }
+
+    return await response.json();
 }
 
 export async function GetActiveService(): Promise<Service> {
