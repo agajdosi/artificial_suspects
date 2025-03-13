@@ -1,13 +1,13 @@
 <script lang="ts">
     import { serviceStatus, hint } from './lib/stores';
-    import { database } from '../wailsjs/go/models';
-    import { GetScores, SaveScore } from '../wailsjs/go/main/App.js';
+    import type { Game, FinalScore } from './lib/main';
+    import { GetScores, SaveScore } from './lib/main';
     import { createEventDispatcher, onMount } from 'svelte';
     import { t } from 'svelte-i18n';
 
-    export let game: database.Game;
+    export let game: Game;
     let name: string;
-    let scores: database.FinalScore[] = [];
+    let scores: FinalScore[] = [];
     let loading: boolean = true;
 
     const dispatch = createEventDispatcher();

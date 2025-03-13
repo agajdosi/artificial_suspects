@@ -30,6 +30,12 @@ export interface ErrorMessage {
     Actions: string[];
 }
 
+export interface FinalScore {
+    GameUUID: string;
+    Score: number;
+    Investigator: string; // AKA player name
+}
+
 export interface Game {
     uuid: string;
     investigation: Investigation;
@@ -158,6 +164,35 @@ export async function WaitForAnswer(roundUUID: string): Promise<string> {
 
     return await response.json();
 }
+
+export async function GetScores(): Promise<FinalScore[]> {
+    const response = await fetch(`${API_URL}/get_scores`, initGET);
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch scores');
+    }
+
+    return await response.json();
+}
+
+export async function SaveScore(name: string, gameUUID: string): Promise<void> {
+    const body = {
+        investigator: name,
+        game_uuid: gameUUID,
+    }
+    const response = await fetch(`${API_URL}/save_score`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to save score');
+    }
+}
+
 
 
 // MARK: AI SERVICES - dummy for now
