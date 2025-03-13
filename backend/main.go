@@ -178,6 +178,7 @@ func WaitForAnswerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EliminateSuspectHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🎯 EliminateSuspectHandler() request: %v", r)
 	suspectUUID := r.URL.Query().Get("suspect_uuid")
 	roundUUID := r.URL.Query().Get("round_uuid")
 	investigationUUID := r.URL.Query().Get("investigation_uuid")

@@ -157,7 +157,6 @@ export async function EliminateSuspect(suspectUUID: string, roundUUID: string, i
     if (!response.ok) {
         throw new Error('Failed to eliminate suspect');
     }
-    return await response.json();
 }
 
 export async function WaitForAnswer(roundUUID: string): Promise<string> {
