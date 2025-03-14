@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
 
@@ -9,6 +10,9 @@ import (
 )
 
 func main() {
+	port := flag.String("port", "8080", "Port to run the server on")
+	flag.Parse()
+
 	err := database.EnsureDBAvailable()
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +30,7 @@ func main() {
 	mux.HandleFunc("/get_services", enableCORS(GetServicesHandler))
 	mux.HandleFunc("/save_answer", enableCORS(saveAnswerHandler))
 
-	log.Println("Starting server on: http://localhost:8080")
+	log.Printf("Starting server on: http://localhost:%s", *port)
 	err = http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
 		log.Fatal(err)
