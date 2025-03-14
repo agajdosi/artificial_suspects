@@ -55,8 +55,7 @@ func EnsureConfigDirAvailable() error {
 // Ensure that database is ready to be used. First, check if gamesDir exists, if not create it.
 // Then, check if database file exists, if not create it and initialize it.
 // Returns the database connection.
-func EnsureDBAvailable() error {
-	gameDBPath := GetDBPath()
+func EnsureDBAvailable(gameDBPath string) error {
 	fmt.Printf("Checking the database file at: %s\n", gameDBPath)
 	_, err := os.Stat(gameDBPath)
 	if os.IsNotExist(err) {

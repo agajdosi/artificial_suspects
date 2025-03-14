@@ -11,9 +11,10 @@ import (
 
 func main() {
 	port := flag.String("port", "8080", "Port to run the server on")
+	db_path := flag.String("db-path", database.GetDBPath(), "Path to the database file")
 	flag.Parse()
 
-	err := database.EnsureDBAvailable()
+	err := database.EnsureDBAvailable(*db_path)
 	if err != nil {
 		log.Fatal(err)
 	}

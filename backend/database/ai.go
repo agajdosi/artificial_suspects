@@ -188,7 +188,7 @@ func GetAnyDescriptionsForSuspect(suspectUUID string) ([]Description, error) {
 // Generate description of the Suspect's portrait.
 // TODO: Actually route the traffic to respective OpenAI, Ollama or other implementation.
 func GenerateDescription(suspectUUID, serviceName, modelName string) error {
-	EnsureDBAvailable()
+	//EnsureDBAvailable()
 	service, err := GetService(serviceName)
 	if err != nil {
 		return err
@@ -230,7 +230,7 @@ func GenerateDescription(suspectUUID, serviceName, modelName string) error {
 // TODO: Could be improved to run concurrently but who cares 6 days before exhibition opening?
 // TODO: Finalize
 func GenerateDescriptionsForAll(limit int, serviceName, modelName string) error {
-	EnsureDBAvailable()
+	//EnsureDBAvailable()
 	suspects, err := GetSuspectsByDescriptions(limit, serviceName, modelName)
 	if err != nil {
 		return err
