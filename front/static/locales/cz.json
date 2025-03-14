@@ -1,0 +1,35 @@
+{
+    "yes": "ano",
+    "no": "ne",
+    "greeting": "Ahoj",
+    "release-no": "Propusťte ty, kteří ne.",
+    "release-yes": "Propusťte ty, kteří ano.",
+    "thinking": "AI přemýšlí",
+    "waiting": "Počkejte na odpověď...",
+    "arrest": "Zatkněte zločince!",
+    "arrestInstruction": "A zahajte nové vyšetřování.",
+    "interrogated": "Vyslýchaný",
+    "buttons": {
+        "newGame": "Nová hra",
+        "continueGame": "Pokračovat ve hře",
+        "configuration": "Konfigurace",
+        "nextQuestion": "Další otázka",
+        "close": "Zavřít",
+        "confirm": "Potvrdit",
+        "help": "Jak hrát"
+    },
+    "gameOver": {
+        "gameOver": "Konec hry!",
+        "riptext": "Omylem jste propustil*a zločince, zatímco nevinní podezřelí byli nespravedlivě pronásledováni. Příště se pokuste proniknout hlouběji do myšlení umělé inteligence během jejího výslechu.",
+        "highScores": "Výsledky",
+        "enterName": "zadat jméno",
+        "loadingScores": "Načítání nejvyšších skóre..."
+    },
+    "help": {
+        "title": "Vítej, policejní orgáne!",
+        "text1": "Tvým úkolem je identifikovat zločince, který se skrývá mezi skupinou podezřelých. Jediným svědkem zločinu je umělá inteligence, takže se při řešení případu budeš muset spolehnout na její odpovědi.",
+        "text2": "V každém kole bude vybrána náhodná otázka z forenzního dotazníku. Počkej, až uměle inteligentní svědek odpoví na otázku týkající se vlastností zločince. Musíš pak vyloučit jednoho nebo více podezřelých, kteří neodpovídají získané odpovědi.",
+        "text3": "Po vyloučení podezřelých můžeš přejít k další otázce. Můžeš tak získat další stopy a pokračovat v zužování okruhu podezřelých. Osvobozuj nevinné, pomáhej a chraň, dokud nezůstane jen jeden - zločinec!",
+        "text4": "Pokud se ti podaří zločince dopadnout, oslavíš úspěch a dostaneš další případ. Ale pozor: pokud propustíš pachatele, hra končí. Tak se pečlivě naciť do umělé inteligence a při rozlousknutí případu věř svým instinktům! Je přece trénovaná na tom, co děláme my lidé..."
+    }
+}
