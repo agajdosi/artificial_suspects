@@ -1,6 +1,8 @@
 <script lang="ts">
     import { register, init, locale, waitLocale } from 'svelte-i18n';
     import { onMount } from 'svelte';
+    import ErrorOverlay from '$lib/ErrorOverlay.svelte';
+    import ServiceStatus from '$lib/ServiceStatus.svelte';
 
     register('en', () => import('$lib/locales/en.json'));
     register('cz', () => import('$lib/locales/cz.json'));
@@ -24,6 +26,9 @@
 {:else}
     <p>Loading translations...</p>
 {/if}
+
+<ErrorOverlay on:message={handleMessage}/>
+<ServiceStatus/>
 
 <style>
 :global(html) {

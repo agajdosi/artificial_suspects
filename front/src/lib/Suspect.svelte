@@ -47,6 +47,8 @@
     on:mouseenter={setHint}
     on:mouseleave={() => hint.set("")}
     aria-disabled={suspect.Free || suspect.Fled || gameOver || !$serviceStatus.ready}
+    role="button"
+    tabindex="0"
     >
     <div class="suspect-image" style="background-image: url({imgDir+suspect.Image});"></div>
 </div>

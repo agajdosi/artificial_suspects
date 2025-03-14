@@ -5,6 +5,7 @@
 </script>
 
 <div class="history"
+    role="tooltip"
     on:mouseenter={() => hint.set("History of previous questions and their answers in current investigation.")}
     on:mouseleave={() => hint.set("")}
 >
@@ -29,6 +30,7 @@
 
 <div class="roles">
     <div class="model"
+        role="tooltip"
         on:mouseenter={() => hint.set("An AI model that acts as a witness and responds to questions. You can change it in the game configuration.")}
         on:mouseleave={() => hint.set("")}
         >
