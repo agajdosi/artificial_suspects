@@ -140,6 +140,7 @@
         </div>
     </div>
     <div class="top-right"
+        role="tooltip"
         on:mouseenter={() => hint.set("Switch language of the user interface.")}
         on:mouseleave={() => hint.set("")}
         >
@@ -199,12 +200,14 @@
     </div>
     <div class="stats">
         <div
+            role="tooltip"
             on:mouseenter={() => hint.set("Successfully finish the investigation to get into higher level.")}
             on:mouseleave={() => hint.set("")}
             >
             level: {$currentGame.level}
         </div>
         <div
+            role="tooltip"
             on:mouseenter={() => hint.set("Your current score. Free innocent suspects and finish the investigation to get more points.")}
             on:mouseleave={() => hint.set("")}
             >
@@ -295,9 +298,6 @@
 }
 .langbtn:hover{
     cursor: pointer;
-}
-.langbtn.active {
-    text-transform: uppercase;
 }
 
 </style>
