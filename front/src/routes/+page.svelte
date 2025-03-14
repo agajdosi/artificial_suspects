@@ -11,7 +11,7 @@
     }
     
     function enterConfig() {
-        goto('/game');
+        goto('/configuration');
     }
 </script>
 
