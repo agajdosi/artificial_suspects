@@ -95,6 +95,7 @@
         {:else}
             <div
                 class="question"
+                role="tooltip"
                 on:mouseenter={() => hint.set("A question about the wanted person, answered by an AI witness.")}
                 on:mouseleave={() => hint.set("")}
                 >
@@ -109,6 +110,7 @@
             </div>
             {#if $currentGame.investigation?.rounds?.at(-1)?.answer == ""}
                 <div class="waiting"
+                    role="tooltip"
                     on:mouseenter={() => hint.set("Waiting for the AI witness to answer the question.")}
                     on:mouseleave={() => hint.set("")}
                     >
@@ -116,6 +118,7 @@
                 </div>
             {:else}
                 <div class="answer"
+                    role="tooltip"
                     on:mouseenter={() => hint.set("The AI witness' response to the question about the wanted person.")}
                     on:mouseleave={() => hint.set("")}
                     >

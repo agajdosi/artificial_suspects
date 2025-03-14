@@ -1,18 +1,29 @@
 <script lang="ts">
-    import { register, init } from 'svelte-i18n';
+    import { register, init, locale, waitLocale } from 'svelte-i18n';
+    import { onMount } from 'svelte';
 
-    register('en', () => import('/locales/en.json?url'));
-    register('cz', () => import('/locales/cz.json?url'));
-    register('pl', () => import('/locales/pl.json?url'));
+    register('en', () => import('$lib/locales/en.json'));
+    register('cz', () => import('$lib/locales/cz.json'));
+    register('pl', () => import('$lib/locales/pl.json'));
+
     init({
         fallbackLocale: 'en',
         initialLocale: 'en'
     });
+
+    let isLocaleLoaded = false;
+
+    onMount(async () => {
+        await waitLocale(); // Ensure locale is ready before rendering
+        isLocaleLoaded = true;
+    });
 </script>
 
-<div>
+{#if isLocaleLoaded}
     <slot />
-</div>
+{:else}
+    <p>Loading translations...</p>
+{/if}
 
 <style>
 :global(html) {
