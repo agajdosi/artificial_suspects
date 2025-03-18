@@ -1,6 +1,6 @@
 <script lang="ts">
     import { currentGame, serviceStatus, hint } from '$lib/stores';
-    import { NextRound, EliminateSuspect, GetGame, NextInvestigation } from '$lib/main';
+    import { NextRound, EliminateSuspect, GetGame, NextInvestigation, saveAnswer, NewGame } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
     import Scores from '$lib/Scores.svelte';
@@ -9,15 +9,37 @@
     import { locale, t } from 'svelte-i18n';
     import { createEventDispatcher } from 'svelte';
     import LanguageSwitch from '$lib/LanguageSwitch.svelte';
-
+    import type { Game } from '$lib/main';
+    import { onMount } from 'svelte';
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
 
-    // HOME BUTTON
 
-    const dispatch = createEventDispatcher();
-    function goToMenu() {dispatch('message', { message: 'goToHome' });}
+    onMount(async () => {
+        await newGameHandler({});
+    });
 
+    async function newGameHandler(event) {
+        console.log("NEW GAME HANDLER")
+        let newGame: Game;
+        try {
+            newGame = await NewGame();
+            currentGame.set(newGame);
+        } catch (error) {
+            console.log(`NewGame() has failed: ${error}`)
+            return
+        }
+        const answer = await generateAnswer(
+            newGame.investigation.rounds.at(-1).uuid,
+            newGame.investigation.rounds.at(-1).Question,
+            newGame.investigation.CriminalUUID
+        );
+
+        await saveAnswer(answer.answer, newGame.investigation.rounds.at(-1).uuid);
+        newGame.investigation.rounds.at(-1).answer = answer.answer;
+        newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+        currentGame.set(newGame);
+    }
 
     function getHintNextQuestion(){
         if ($currentGame.investigation?.rounds?.at(-1)?.answer != "") return hint.set("Wait for the AI to answer the question.")
