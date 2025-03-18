@@ -115,14 +115,34 @@ export interface Question {
 // MARK: FUNCTIONS
 
 export async function NewGame(): Promise<Game> {
-    const response = await fetch(`${API_URL}/new_game`, initGET);
-    if (!response.ok) {
-        throw new Error('Failed to create new game');
+    console.log("NEW GAME HANDLER");
+    let newGame: Game;
+    try {
+        const response = await fetch(`${API_URL}/new_game`, initGET);
+        if (!response.ok) {
+            throw new Error('Failed to create new game');
+        }
+        newGame = await response.json();
+        console.log(`NewGame() response: ${newGame}`);
+        currentGame.set(newGame);
+    } catch (error) {
+        console.log(`NewGame() has failed: ${error}`);
+        throw error;
     }
-    
-    const game: Game = await response.json();
-    console.log(`NewGame() response: ${game}`)
-    return game;
+
+    const answer = await generateAnswer(
+        newGame.investigation.rounds.at(-1)?.uuid,
+        newGame.investigation.rounds.at(-1)?.Question,
+        newGame.investigation.CriminalUUID
+    );
+
+    await saveAnswer(answer.answer, newGame.investigation.rounds.at(-1)?.uuid);
+    if (newGame.investigation.rounds.at(-1)) {
+        newGame.investigation.rounds.at(-1).answer = answer.answer;
+        newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+    }
+    currentGame.set(newGame);
+    return newGame;
 }
 
 export async function GetGame(): Promise<Game> {

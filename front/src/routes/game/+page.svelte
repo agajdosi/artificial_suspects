@@ -1,7 +1,6 @@
 <script lang="ts">
     import { currentGame, serviceStatus, hint } from '$lib/stores';
-    import { NextRound, EliminateSuspect, GetGame, NextInvestigation, saveAnswer, NewGame } from '$lib/main';
-    import { generateAnswer } from '$lib/intelligence';
+    import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
     import Scores from '$lib/Scores.svelte';
@@ -10,37 +9,15 @@
     import { locale, t } from 'svelte-i18n';
     import { createEventDispatcher } from 'svelte';
     import LanguageSwitch from '$lib/LanguageSwitch.svelte';
-    import type { Game } from '$lib/main';
     import { onMount } from 'svelte';
+
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
 
-
     onMount(async () => {
-        await newGameHandler({});
+        await NewGame(); // TODO: if game is already in progress, don't start a new one
     });
 
-    async function newGameHandler(event) {
-        console.log("NEW GAME HANDLER")
-        let newGame: Game;
-        try {
-            newGame = await NewGame();
-            currentGame.set(newGame);
-        } catch (error) {
-            console.log(`NewGame() has failed: ${error}`)
-            return
-        }
-        const answer = await generateAnswer(
-            newGame.investigation.rounds.at(-1).uuid,
-            newGame.investigation.rounds.at(-1).Question,
-            newGame.investigation.CriminalUUID
-        );
-
-        await saveAnswer(answer.answer, newGame.investigation.rounds.at(-1).uuid);
-        newGame.investigation.rounds.at(-1).answer = answer.answer;
-        newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
-        currentGame.set(newGame);
-    }
 
     function getHintNextQuestion(){
         if ($currentGame.investigation?.rounds?.at(-1)?.answer != "") return hint.set("Wait for the AI to answer the question.")
@@ -68,10 +45,6 @@
         console.log("GOT NEW INVESTIGATION", game)
     }
     
-    function newGame() {
-        scoresVisible = true;
-        dispatch('newGame', { 'game_uuid': $currentGame.uuid });
-    }
 
     // Scores
     function handleToggleScores(event) {
@@ -83,7 +56,7 @@
         helpVisible = !helpVisible;
         scoresVisible = false;
     }
-    function handleToggleHelp(event) {
+    function handleToggleHelp(event: CustomEvent<{helpVisible: boolean}>) {
         helpVisible = event.detail.helpVisible;
     }
 
@@ -186,7 +159,7 @@
             {#if !$currentGame.investigation?.InvestigationOver}
                 {#if $currentGame.GameOver}
                     <button
-                        on:click={newGame}
+                        on:click={NewGame}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
                         on:mouseleave={() => hint.set("")}
                         class="{!$serviceStatus.ready && 'offline'}"
