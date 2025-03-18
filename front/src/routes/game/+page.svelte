@@ -1,6 +1,7 @@
 <script lang="ts">
     import { currentGame, serviceStatus, hint } from '$lib/stores';
     import { NextRound, EliminateSuspect, GetGame, NextInvestigation, saveAnswer, NewGame } from '$lib/main';
+    import { generateAnswer } from '$lib/intelligence';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
     import Scores from '$lib/Scores.svelte';
