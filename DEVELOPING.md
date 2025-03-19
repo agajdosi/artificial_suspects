@@ -1,9 +1,11 @@
 # DEVELOPING
 
+Frontend is written in SvelteKit and backend is written in Go.
+
 ## Frontend server
 
 ```
-cd frontend
+cd front
 npm run dev
 ```
 
