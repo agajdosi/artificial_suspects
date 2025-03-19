@@ -1,4 +1,4 @@
-import ollama from 'ollama';
+import ollama from 'ollama/browser';
 import openai from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 import { getDescriptionsForSuspect } from '$lib/main';
