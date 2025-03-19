@@ -213,7 +213,7 @@
 </div>
 
 {#if $currentGame.GameOver && scoresVisible}
-    <Scores on:toggleScores={handleToggleScores} on:newGame/>    
+    <Scores on:toggleScores={handleToggleScores}/>    
 {/if}
 
 {#if helpVisible}

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { currentGame,serviceStatus, hint } from '$lib/stores';
-    import type { FinalScore } from '$lib/main';
+    import { currentGame, serviceStatus, hint } from '$lib/stores';
+    import { NewGame, type FinalScore } from '$lib/main';
     import { GetScores, SaveScore } from '$lib/main';
     import { createEventDispatcher, onMount } from 'svelte';
     import { t } from 'svelte-i18n';
@@ -24,10 +24,6 @@
 
     function closeScores() {
         dispatch('toggleScores', { scoresVisible: false });
-    }
-
-    function newGameDispatcher() {
-        dispatch('newGame', { 'game_uuid': $currentGame.uuid });
     }
 
     function saveScore() {
@@ -105,7 +101,7 @@
         {$t('buttons.close')}
     </button>
     <button
-        on:click={newGameDispatcher}
+        on:click={NewGame}
         on:mouseenter={() => getHintNewGame()}
         on:mouseleave={() => hint.set("")}
         class="{!$serviceStatus.ready && 'offline'}"
