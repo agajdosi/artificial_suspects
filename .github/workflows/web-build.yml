@@ -8,18 +8,21 @@ on:
 jobs:
   build_site:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
     steps:
       - uses: actions/checkout@v4
-      - run: cd front
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: front/package-lock.json
       - run: npm install
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: 'build/' # this should match the `pages` option in your adapter-static options
+          path: 'front/build/'
 
   deploy:
     needs: build_site
