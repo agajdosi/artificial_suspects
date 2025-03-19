@@ -18,7 +18,7 @@ const answerBoolean = `ROLE: You are a senior decision maker.
 TASK: Answer the question YES or NO. Do not write anything else. Do not write anything else. Just write YES, or NO based on the previous information.`
 
 
-export async function generateAnswer(roundUUID: string, question: Question, criminalUUID: string): Promise<Answer> {
+export async function generateAnswer(roundUUID: string, question: Question, criminalUUID: string): Promise<Answer | undefined> {
     console.log(">>> getAnswerFromAI called!");    
     const service = get(services)[get(activeService)];
 
@@ -38,7 +38,7 @@ export async function generateAnswer(roundUUID: string, question: Question, crim
             default:
                 console.error(`Unsupported service '${service.Name}'`);
                 await saveAnswer("failed: unsupported service", roundUUID);
-                return;
+                return undefined;
         }
 
         const answer_object: Answer = {

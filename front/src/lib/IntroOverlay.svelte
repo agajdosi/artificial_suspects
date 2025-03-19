@@ -9,7 +9,6 @@
   }
 
   let typedInstance: Typed | null = null;
-  let showOverlay = true;
   let tutorialSteps = [
     "Welcome, Investigator! <br>Your mission is to find the guilty criminal among 15 suspects.",
     "Each round, the Witness will answer a question about the criminal.",

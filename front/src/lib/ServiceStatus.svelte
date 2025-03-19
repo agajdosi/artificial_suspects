@@ -15,6 +15,11 @@
         let status: ServiceStatus;
         if ($activeService.toLowerCase() == "openai") {
             // TODO: get status from openai
+            status = {
+                ready: false,
+                message: "OpenAI is not yet supported",
+                service: $services[$activeService]
+            }
         } else {
             status = await checkServiceStatusOllama($services[$activeService]);
         }

@@ -27,7 +27,7 @@
     <p>Loading translations...</p>
 {/if}
 
-<ErrorOverlay on:message={handleMessage}/>
+<ErrorOverlay/>
 <ServiceStatus/>
 
 <style>
