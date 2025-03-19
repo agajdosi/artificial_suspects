@@ -104,7 +104,7 @@
         on:click={NewGame}
         on:mouseenter={() => getHintNewGame()}
         on:mouseleave={() => hint.set("")}
-        class="{!$serviceStatus.ready && 'offline'}"
+        class:offline={!$serviceStatus.ready}
         disabled={!$serviceStatus.ready}
         >
         {$t('buttons.newGame')}

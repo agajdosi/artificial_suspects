@@ -1,13 +1,12 @@
 <script lang="ts">
     import { currentGame, serviceStatus, hint } from '$lib/stores';
-    import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame } from '$lib/main';
+    import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame, type Suspect } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
     import Scores from '$lib/Scores.svelte';
     import Help from '$lib/Help.svelte';
     import IntroOverlay from '$lib/IntroOverlay.svelte';
     import { locale, t } from 'svelte-i18n';
-    import { createEventDispatcher } from 'svelte';
     import LanguageSwitch from '$lib/LanguageSwitch.svelte';
     import { onMount } from 'svelte';
 
@@ -25,11 +24,14 @@
         return hint.set("Proceed to next question.");
     }
 
-    async function handleSuspectFreeing(event) {
+    async function handleSuspectFreeing(event: CustomEvent<{suspect: Suspect}>) {
         console.log("FREEING SUSPECT", event)
         const { suspect } = event.detail;
         try {
-            await EliminateSuspect(suspect.UUID, $currentGame.investigation?.rounds?.at(-1)?.uuid, $currentGame.investigation?.uuid);
+            const roundUUID = $currentGame.investigation?.rounds?.at(-1)?.uuid;
+            const investigationUUID = $currentGame.investigation?.uuid;
+            if (!roundUUID || !investigationUUID) return;
+            await EliminateSuspect(suspect.UUID, roundUUID, investigationUUID);
         } catch (error) {
             console.error(`Failed to free suspect ${suspect.UUID}:`, error);
         }
@@ -47,7 +49,7 @@
     
 
     // Scores
-    function handleToggleScores(event) {
+    function handleToggleScores(event: CustomEvent<{scoresVisible: boolean}>) {
         scoresVisible = event.detail.scoresVisible;
     }
 
@@ -62,7 +64,7 @@
 
     //INTRO
     let introVisible: boolean = false;
-    function handleToggleIntro(event) {
+    function handleToggleIntro(event: CustomEvent<{introVisible: boolean}>) {
         introVisible = event.detail.introVisible;
     }
 
@@ -118,7 +120,7 @@
                     on:mouseenter={() => hint.set("The AI witness' response to the question about the wanted person.")}
                     on:mouseleave={() => hint.set("")}
                     >
-                    {$t($currentGame.investigation?.rounds?.at(-1)?.answer?.toLocaleLowerCase())}!
+                    {$t($currentGame.investigation?.rounds?.at(-1)?.answer?.toLowerCase() || '')}!
                 </div>
             {/if}
         {/if}
@@ -162,7 +164,7 @@
                         on:click={NewGame}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
                         on:mouseleave={() => hint.set("")}
-                        class="{!$serviceStatus.ready && 'offline'}"
+                        class:offline={!$serviceStatus.ready}
                         disabled={!$serviceStatus.ready}>
                         {$t('buttons.newGame')}
                     </button>
@@ -171,7 +173,7 @@
                     on:click={NextRound}
                     on:mouseenter={() => getHintNextQuestion()}
                     on:mouseleave={() => hint.set("")}
-                    class="{!$serviceStatus.ready && 'offline'}"
+                    class:offline={!$serviceStatus.ready}
                     disabled={!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.ready}
                     aria-disabled="{!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.ready ? 'true': 'false'}"
                     >
