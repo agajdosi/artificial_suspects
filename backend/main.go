@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	port := flag.String("port", "8080", "Port to run the server on")
+	host := flag.String("host", "localhost", "Host to run the server on, for production use 0.0.0.0")
 	db_path := flag.String("db-path", database.GetDBPath(), "Path to the database file")
 	flag.Parse()
 
@@ -25,14 +27,16 @@ func main() {
 	mux.HandleFunc("/next_investigation", enableCORS(NextInvestigationHandler))
 	mux.HandleFunc("/next_round", enableCORS(NextRoundHandler))
 	mux.HandleFunc("/get_scores", enableCORS(GetScoresHandler))
-	mux.HandleFunc("/wait_for_answer", enableCORS(WaitForAnswerHandler))
 	mux.HandleFunc("/eliminate_suspect", enableCORS(EliminateSuspectHandler))
 	mux.HandleFunc("/save_score", enableCORS(SaveScoreHandler))
 	mux.HandleFunc("/get_services", enableCORS(GetServicesHandler))
 	mux.HandleFunc("/save_answer", enableCORS(saveAnswerHandler))
+	mux.HandleFunc("/status", enableCORS(statusHandler))
+	//	mux.HandleFunc("/wait_for_answer", enableCORS(WaitForAnswerHandler))
 
-	log.Printf("Starting server on: http://localhost:%s", *port)
-	err = http.ListenAndServe("localhost:8080", mux)
+	url := fmt.Sprintf("%s:%s", *host, *port)
+	log.Printf("🚀 Starting server on: http://%s", url)
+	err = http.ListenAndServe(url, mux)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,7 +58,14 @@ func enableCORS(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func statusHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 statusHandler() request: %v", r)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+}
+
 func NewGameHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 NewGameHandler() request: %v", r)
 	game, err := database.NewGame()
 	if err != nil {
 		log.Printf("NewGame() error: %v", err)
@@ -75,6 +86,7 @@ func NewGameHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetGameHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 GetGameHandler() request: %v", r)
 	game, err := database.GetCurrentGame()
 	if err != nil {
 		log.Printf("GetGame() error: %v", err)
@@ -94,6 +106,7 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NextInvestigationHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 NextInvestigationHandler() request: %v", r)
 	game, err := database.GetCurrentGame()
 	if err != nil {
 		log.Printf("NextInvestigation() error: %v", err)
@@ -120,6 +133,7 @@ func NextInvestigationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 NextRoundHandler() request: %v", r)
 	game, err := database.GetCurrentGame()
 	if err != nil {
 		log.Printf("NextRound() error: %v", err)
@@ -148,6 +162,7 @@ func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetScoresHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 GetScoresHandler() request: %v", r)
 	scores, err := database.GetScores()
 	if err != nil {
 		log.Printf("GetScores() error: %v", err)
@@ -167,8 +182,8 @@ func GetScoresHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func WaitForAnswerHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 WaitForAnswerHandler() request: %v", r)
 	roundUUID := r.URL.Query().Get("round_uuid")
-	log.Printf("WaitForAnswer() roundUUID: %s", roundUUID)
 	answer := database.WaitForAnswer(roundUUID)
 
 	resp, err := json.Marshal(answer)
@@ -199,6 +214,7 @@ func EliminateSuspectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("💰 SaveScoreHandler() request: %v", r)
 	name := r.URL.Query().Get("player_name")
 	gameUUID := r.URL.Query().Get("game_uuid")
 	err := database.SaveScore(name, gameUUID)
@@ -213,6 +229,7 @@ func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetServicesHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 GetServicesHandler() request: %v", r)
 	services, err := database.GetServices()
 	if err != nil {
 		log.Printf("GetServices() error: %v", err)
@@ -232,6 +249,7 @@ func GetServicesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func saveAnswerHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 saveAnswerHandler() request: %v", r)
 	answer := r.URL.Query().Get("answer")
 	roundUUID := r.URL.Query().Get("round_uuid")
 
