@@ -50,7 +50,8 @@ export const errorMessage = writable<ErrorMessage>(defaultErrorMessage);
 export const hint = writable<string>("");
 
 // ActiveService
-let storedActiveService: string = JSON.parse(localStorage.getItem('activeServiceName') || '');
+const activeServiceName = localStorage.getItem('activeServiceName');
+let storedActiveService: string = activeServiceName ? JSON.parse(activeServiceName) : '';
 if (storedActiveService === '') {
     storedActiveService = "ollama";
 }
