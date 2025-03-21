@@ -33,6 +33,7 @@ const (
 	defaultPlayerName string = "anonymous"
 	appName           string = "suspects"
 	numSuspect        int    = 15 // How many suspects are in one investigation - there were 12 in original board game.
+	emoDB             string = "💾"
 )
 
 // MARK: GENERAL DATABASE
@@ -56,16 +57,21 @@ func EnsureConfigDirAvailable() error {
 // Then, check if database file exists, if not create it and initialize it.
 // Returns the database connection.
 func EnsureDBAvailable(gameDBPath string) error {
-	fmt.Printf("Checking the database file at: %s\n", gameDBPath)
+	log.Printf("%s Checking the database file at: %s\n", emoDB, gameDBPath)
 	_, err := os.Stat(gameDBPath)
 	if os.IsNotExist(err) {
-		fmt.Printf("Database file %s does not exist, creating it...\n", gameDBPath)
+		log.Printf("%s Database file %s does not exist, creating it...\n", emoDB, gameDBPath)
+		parentDir := filepath.Dir(gameDBPath)
+		err = os.MkdirAll(parentDir, 0755)
+		if err != nil {
+			return err
+		}
 		file, err := os.Create(gameDBPath)
 		if err != nil {
 			return err
 		}
 		file.Close()
-		fmt.Println("Database successfully created!")
+		log.Printf("%s Database successfully created!", emoDB)
 	}
 
 	db, err := sql.Open("sqlite3", gameDBPath)
@@ -73,7 +79,7 @@ func EnsureDBAvailable(gameDBPath string) error {
 		log.Fatal(err)
 	}
 	database = db
-	fmt.Println("Database successfully opened!")
+	log.Printf("%s Database successfully opened!", emoDB)
 
 	return nil
 }
