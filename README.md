@@ -8,5 +8,12 @@ Play the *Unusual Suspects* board game with AI in your browser!
 ## **Contributing**
 Want to contribute? Check out the [DEVELOPING.md](DEVELOPING.md) for setup instructions and contribution guidelines.
 
+## **Build Backend Docker Image**
+
+```bash
+docker build -t agajdosi/artsus_server:latest --platform linux/amd64  .
+docker push agajdosi/artsus_server:latest
+```
+
 ## **Acknowledgments**
 A huge thanks to **SvelteKit** for making this possible! 🎉
