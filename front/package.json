@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
+		"prev": "vite build && vite preview",
 		"build": "vite build",
 		"preview": "vite preview",
 		"preview:debug": "rm -rf ./build && npm run build && vite preview --debug",
