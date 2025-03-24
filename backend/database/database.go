@@ -15,6 +15,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+	"io"
 	"log"
 	"math/rand/v2"
 	"os"
@@ -25,6 +26,9 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+//go:embed default.db
+var defaultDB embed.FS
 
 var database *sql.DB
 
@@ -50,12 +54,27 @@ func EnsureDBAvailable(gameDBPath string) error {
 		if err != nil {
 			return err
 		}
-		file, err := os.Create(gameDBPath)
+
+		log.Printf("%s Opening default.db", emoDB)
+		defaultDBFile, err := defaultDB.Open("default.db")
 		if err != nil {
 			return err
 		}
-		file.Close()
-		log.Printf("%s Database successfully created!", emoDB)
+		defer defaultDBFile.Close()
+
+		log.Printf("%s Creating new database file at %s", emoDB, gameDBPath)
+		newDBFile, err := os.Create(gameDBPath)
+		if err != nil {
+			return err
+		}
+		defer newDBFile.Close()
+
+		log.Printf("%s Copying default.db to %s", emoDB, gameDBPath)
+		_, err = io.Copy(newDBFile, defaultDBFile)
+		if err != nil {
+			return err
+		}
+		log.Printf("%s Database successfully created from default.db!", emoDB)
 	}
 
 	db, err := sql.Open("sqlite3", gameDBPath)
@@ -64,41 +83,6 @@ func EnsureDBAvailable(gameDBPath string) error {
 	}
 	database = db
 	log.Printf("%s Database successfully opened!", emoDB)
-
-	return nil
-}
-
-func InitDB(assets embed.FS) error {
-	var tables = []string{
-		createGamesTable,
-		createInvestigationsTable,
-		createRoundsTable,
-		createEliminationsTable,
-		createServicesTable,
-	}
-	for i := range tables {
-		_, err := database.Exec(tables[i])
-		if err != nil {
-			fmt.Printf("Error initializing table: '%s', error: %v", tables[i], err)
-			return err
-		}
-	}
-	err := InitQuestionsTable()
-	if err != nil {
-		return err
-	}
-
-	err = InitSuspectsTable(assets)
-	if err != nil {
-		return err
-	}
-
-	err = InitDescriptionsTable()
-	if err != nil {
-		return err
-	}
-
-	log.Println("Database successfully initiated.")
 
 	return nil
 }

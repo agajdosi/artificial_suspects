@@ -4,3 +4,4 @@ frontend/dist
 frontend/public/input
 frontend/public/output
 .env
+backend/data
