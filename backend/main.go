@@ -13,7 +13,7 @@ import (
 func main() {
 	port := flag.String("port", "8080", "Port to run the server on")
 	host := flag.String("host", "localhost", "Host to run the server on, for production use 0.0.0.0")
-	db_path := flag.String("db-path", database.GetDBPath(), "Path to the database file")
+	db_path := flag.String("db-path", "./data/artsus.db", "Path to the database file")
 	flag.Parse()
 
 	err := database.EnsureDBAvailable(*db_path)

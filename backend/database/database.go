@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/adrg/xdg"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -37,21 +36,6 @@ const (
 )
 
 // MARK: GENERAL DATABASE
-
-// Get path to directory where Game will save its data.
-func GetDataDirPath() string {
-	return filepath.Join(xdg.ConfigHome, appName)
-}
-
-// Get path to Database located in Data Directory.
-func GetDBPath() string {
-	return filepath.Join(GetDataDirPath(), "default.db")
-}
-
-func EnsureConfigDirAvailable() error {
-	DataDir := GetDataDirPath()
-	return os.MkdirAll(DataDir, 0755)
-}
 
 // Ensure that database is ready to be used. First, check if gamesDir exists, if not create it.
 // Then, check if database file exists, if not create it and initialize it.
