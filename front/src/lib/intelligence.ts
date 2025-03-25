@@ -56,7 +56,8 @@ export async function generateAnswer(roundUUID: string, question: Question, crim
 
 async function getAnswerFromOpenAI(question: string, description: string, service: Service): Promise<string> {
     const conn = new openai({
-        apiKey: service.Token
+        apiKey: service.Token,
+        dangerouslyAllowBrowser: true
     });
 
     const reflectionPrompt = answerReflection.replace("%s", question).replace("%s", description);
@@ -70,10 +71,13 @@ async function getAnswerFromOpenAI(question: string, description: string, servic
         throw new Error("No reflection from OpenAI");
     }
 
-    const decisionPrompt = answerBoolean.replace("%s", reflection);
     const decisionResponse = await conn.chat.completions.create({
         model: service.VisualModel,
-        messages: [{ role: "user", content: decisionPrompt }]
+        messages: [
+            { role: "user", content: reflectionPrompt },
+            { role: "assistant", content: reflection },
+            { role: "user", content: answerBoolean }
+        ]
     });
     const decision = decisionResponse.choices[0].message.content;
     console.log("🤖 GOT THE DECISION FROM OPENAI:", decision);

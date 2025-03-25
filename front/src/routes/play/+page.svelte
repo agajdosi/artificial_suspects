@@ -16,6 +16,9 @@
     let configOverlayVisible: boolean = true;
 
     onMount(async () => {
+        await NewGame();
+        return;
+        
         // 1. Check if service is available
         if (!$serviceStatus.ready){
             // SHOW CONFIG OVERLAY
