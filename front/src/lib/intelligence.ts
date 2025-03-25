@@ -52,6 +52,7 @@ export async function generateAnswer(roundUUID: string, question: Question, crim
     }
 }
 
+// MARK: OPENAI
 
 async function getAnswerFromOpenAI(question: string, description: string, service: Service): Promise<string> {
     const conn = new openai({
@@ -83,6 +84,29 @@ async function getAnswerFromOpenAI(question: string, description: string, servic
     return decision;
 }
 
+export async function checkServiceStatusOpenAI(service: Service): Promise<ServiceStatus> {
+    const conn = new openai({
+        apiKey: service.Token,
+        dangerouslyAllowBrowser: true
+    });
+    const response = await conn.models.list();
+    console.log("🤖 GOT THE MODELS FROM OPENAI:", response);
+    if (!response) {
+        return {
+            service: service,
+            ready: false,
+            message: "OpenAI response is nil"
+        };
+    }
+    return {
+        service: service,
+        ready: true,
+        message: "OpenAI is ready"
+    };
+}
+
+// MARK: OLLAMA
+
 async function getAnswerFromOllama(question: string, description: string, service: Service): Promise<string> {
     // First get reflection
     const reflectionPrompt = answerReflection.replace("%s", question).replace("%s", description);
@@ -112,8 +136,6 @@ async function saveAnswer(answer: string, roundUUID: string): Promise<void> {
     console.log("Saving answer:", answer);
 }
 
-
-// MARK: OLLAMA
 export async function checkServiceStatusOllama(service: Service): Promise<ServiceStatus> {
     const status: ServiceStatus = {
         service: service,

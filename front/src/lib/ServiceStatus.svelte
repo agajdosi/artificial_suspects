@@ -1,7 +1,7 @@
 <script lang="ts">
     import { serviceStatus, activeService, services, hint } from '$lib/stores';
     import type { ServiceStatus } from '$lib/main';
-    import { checkServiceStatusOllama } from '$lib/intelligence';
+    import { checkServiceStatusOllama, checkServiceStatusOpenAI } from '$lib/intelligence';
     import { onMount } from 'svelte';
 
     let interval: NodeJS.Timeout; // Store the interval ID
@@ -14,15 +14,14 @@
         console.log("getServiceStatus()")
         let status: ServiceStatus;
         if ($activeService.toLowerCase() == "openai") {
-            // TODO: get status from openai
-            status = {
-                ready: false,
-                message: "OpenAI is not yet supported",
-                service: $services[$activeService]
-            }
-        } else {
+            status = await checkServiceStatusOpenAI($services[$activeService]);
+        } else if ($activeService.toLowerCase() == "ollama") {
             status = await checkServiceStatusOllama($services[$activeService]);
-        }
+        } else {status = {
+                ready: false,
+                message: "Service is not yet supported",
+                service: $services[$activeService]
+            }}
 
         serviceStatus.set(status);
     }
