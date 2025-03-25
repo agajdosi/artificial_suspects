@@ -14,7 +14,15 @@
     let helpVisible: boolean = false;
 
     onMount(async () => {
-        await NewGame(); // TODO: if game is already in progress, don't start a new one
+        // 1. Check if service is available
+        if (!$serviceStatus.ready){
+            // SHOW CONFIG OVERLAY
+        }
+
+        // 2. Check if game is already in progress
+        if ($currentGame.uuid == ""){
+            await NewGame();
+        }
     });
 
 

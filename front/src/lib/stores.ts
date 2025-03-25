@@ -2,7 +2,8 @@ import { writable } from 'svelte/store';
 import type { ServiceStatus, ErrorMessage, Service, Game } from '$lib/main';
 
 
-// Game
+// GAME STATE
+const storedGame = localStorage.getItem('currentGame');
 const defaultGame: Game = {
     uuid: '',
     level: 0,
@@ -20,7 +21,10 @@ const defaultGame: Game = {
     Investigator: '',
     Timestamp: ''
 };
-export const currentGame = writable<Game>(defaultGame);
+export const currentGame = writable<Game>(storedGame ? JSON.parse(storedGame) : defaultGame);
+currentGame.subscribe((value) => {
+    localStorage.setItem('currentGame', JSON.stringify(value));
+});
 
 // ServiceStatus - is AI accessible?
 const defaultServiceStatus: ServiceStatus = {

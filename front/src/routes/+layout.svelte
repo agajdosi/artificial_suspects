@@ -1,7 +1,8 @@
 <script lang="ts">
     import { register, init, locale, waitLocale } from 'svelte-i18n';
     import { onMount } from 'svelte';
-    import ErrorOverlay from '$lib/ErrorOverlay.svelte';
+    import OverlayError from '$lib/OverlayError.svelte';
+    import OverlayConfig from '$lib/OverlayConfig.svelte';
     import ServiceStatus from '$lib/ServiceStatus.svelte';
 
     register('en', () => import('$lib/locales/en.json'));
@@ -27,7 +28,8 @@
     <p>Loading translations...</p>
 {/if}
 
-<ErrorOverlay/>
+<OverlayError/>
+<OverlayConfig/>
 <ServiceStatus/>
 
 <style>
