@@ -9,9 +9,11 @@
     import { locale, t } from 'svelte-i18n';
     import LanguageSwitch from '$lib/LanguageSwitch.svelte';
     import { onMount } from 'svelte';
+    import OverlayConfig from '$lib/OverlayConfig.svelte';
 
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
+    let configOverlayVisible: boolean = true;
 
     onMount(async () => {
         // 1. Check if service is available
@@ -233,6 +235,8 @@
 {#if introVisible}
     <OverlayIntro on:toggleIntro={handleToggleIntro}/>
 {/if}
+
+<OverlayConfig configOverlayVisible={configOverlayVisible}/>
 
 <style>
 .middle {
