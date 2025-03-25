@@ -29,12 +29,15 @@
 {/if}
 
 <OverlayError/>
-<OverlayConfig/>
 <ServiceStatus/>
 
 <style>
+:global(:root){
+       --bg-color: rgba(27, 38, 54, 1);
+}
+
 :global(html) {
-    background-color: rgba(27, 38, 54, 1);
+    background-color: var(--bg-color);
     text-align: center;
     color: white;
 }
