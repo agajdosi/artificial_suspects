@@ -222,17 +222,6 @@ export async function SaveScore(playerName: string, gameUUID: string) {
 }
 
 
-// MARK: AI SERVICES
-export async function GetServices(): Promise<Service[]> {
-    const response = await fetch(`${API_URL}/get_services`, initGET);
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch services');
-    }
-
-    return await response.json();
-}
-
 export async function ListModelsOllama(): Promise<Model[]> {
     let models: Model[] = [];
     return models;

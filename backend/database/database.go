@@ -20,7 +20,6 @@ import (
 	"math/rand/v2"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -95,42 +94,6 @@ type Suspect struct {
 	Free      bool   `json:"Free"`
 	Fled      bool   `json:"Fled"`
 	Timestamp string `json:"Timestamp"`
-}
-
-const createSuspectsTable = `
-	CREATE TABLE IF NOT EXISTS suspects (
-		uuid TEXT PRIMARY KEY,
-		image TEXT,
-		timestamp TEXT
-	);`
-
-func InitSuspectsTable(assets embed.FS) error {
-	_, err := database.Exec(createSuspectsTable)
-	if err != nil {
-		return err
-	}
-
-	imagePaths, err := loadSuspectImages(assets)
-	if err != nil {
-		return err
-	}
-
-	for _, imagePath := range imagePaths {
-		filename := filepath.Base(imagePath)
-		ext := filepath.Ext(filename)
-		name := strings.TrimSuffix(filename, ext)
-		suspect := Suspect{
-			UUID:  name,
-			Image: filename,
-		}
-		err := SaveSuspect(suspect)
-		if err != nil {
-			log.Println("Cannot initialize Suspect:", err)
-			return err
-		}
-	}
-
-	return nil
 }
 
 func SaveSuspect(suspect Suspect) error {
@@ -302,14 +265,6 @@ type Game struct {
 	Timestamp     string        `json:"Timestamp"`     // when game was created
 }
 
-const createGamesTable = `
-	CREATE TABLE IF NOT EXISTS games (
-		uuid TEXT PRIMARY KEY,
-		score INT,
-		investigator TEXT,
-		timestamp TEXT
-	);`
-
 func NewGame() (Game, error) {
 	var game Game
 	game.UUID = uuid.New().String()
@@ -329,8 +284,6 @@ func NewGame() (Game, error) {
 	if err != nil {
 		return game, err
 	}
-
-	// go GetAnswerFromAI(game.Investigation.Rounds[0], game.Investigation.CriminalUUID)
 
 	return game, err
 }
@@ -399,32 +352,6 @@ type Investigation struct {
 	InvestigationOver bool      `json:"InvestigationOver"` // Last standing is the Criminal
 	Timestamp         string    `json:"Timestamp"`
 }
-
-// Original has 12 suspects, for now I plan 15.
-// Do not know how to make the array in more elegant way.
-// This ugly shit works - for now.
-const createInvestigationsTable = `
-	CREATE TABLE IF NOT EXISTS investigations (
-		uuid TEXT PRIMARY KEY,
-		game_uuid TEXT,
-		timestamp TEXT,
-		criminal_uuid TEXT,
-		sus1_uuid TEXT,
-		sus2_uuid TEXT,
-		sus3_uuid TEXT,
-		sus4_uuid TEXT,
-		sus5_uuid TEXT,
-		sus6_uuid TEXT,
-		sus7_uuid TEXT,
-		sus8_uuid TEXT,
-		sus9_uuid TEXT,
-		sus10_uuid TEXT,
-		sus11_uuid TEXT,
-		sus12_uuid TEXT,
-		sus13_uuid TEXT,
-		sus14_uuid TEXT,
-		sus15_uuid TEXT
-	);`
 
 func saveInvestigation(investigation Investigation) error {
 	if len(investigation.Suspects) != 15 {
@@ -502,9 +429,7 @@ func NewInvestigation(gameUUID string) (Investigation, error) {
 	cn := rand.IntN(len(suspects))
 	i.CriminalUUID = i.Suspects[cn].UUID
 
-	// go GetAnswerFromAI(i.Rounds[0], i.CriminalUUID)
 	log.Printf("NEW INVESTIGATION, criminal is: no. %d\n", cn+1)
-
 	err = saveInvestigation(i)
 	return i, err
 }
@@ -585,15 +510,6 @@ type Round struct {
 	Timestamp         string        `json:"Timestamp"`
 }
 
-const createRoundsTable = `
-	CREATE TABLE IF NOT EXISTS rounds (
-		uuid TEXT PRIMARY KEY,
-		investigation_uuid TEXT,
-		question_uuid TEXT,
-		answer TEXT,
-		timestamp TEXT
-	);`
-
 func saveRound(r Round) error {
 	query := `
 		INSERT OR REPLACE INTO rounds (uuid, investigation_uuid, question_uuid, answer, timestamp)
@@ -672,14 +588,6 @@ type Elimination struct {
 	Timestamp   string `json:"Timestamp"`
 }
 
-const createEliminationsTable = `
-	CREATE TABLE IF NOT EXISTS eliminations (
-		UUID TEXT PRIMARY KEY,
-		RoundUUID TEXT,
-		SuspectUUID TEXT,
-		Timestamp TEXT
-	);`
-
 // Save the Elimination, check if Criminal was not released
 // and if not update the Game.Score accordingly.
 func SaveElimination(suspectUUID, roundUUID, investigationUUID string) error {
@@ -753,37 +661,11 @@ type Question struct {
 	Level   int    `json:"Level"`
 }
 
-var createQuestionsTable = `
-	CREATE TABLE IF NOT EXISTS questions (
-		UUID TEXT PRIMARY KEY,
-		English TEXT,
-		Czech TEXT,
-		Polish TEXT,
-		Topic TEXT,
-		Level INT
-	);`
-
 func GetRandomQuestion() (Question, error) {
 	var question Question
 	row := database.QueryRow("SELECT UUID, English, Czech, Polish, Topic, Level FROM questions ORDER BY RANDOM() LIMIT 1")
 	err := row.Scan(&question.UUID, &question.English, &question.Czech, &question.Polish, &question.Topic, &question.Level)
 	return question, err
-}
-
-func InitQuestionsTable() error {
-	_, err := database.Exec(createQuestionsTable)
-	if err != nil {
-		return err
-	}
-	for i := range defaultQuestions {
-		err := SaveQuestion(defaultQuestions[i])
-		if err != nil {
-			log.Println("Cannot initialize Question:", err)
-			return err
-		}
-	}
-
-	return nil
 }
 
 // English is the cannonical text. If question with same English version exists, it will not overwrite.
@@ -958,24 +840,6 @@ type ServiceStatus struct {
 	Service Service
 }
 
-const createServicesTable = `BEGIN;
-CREATE TABLE IF NOT EXISTS services (
-    Name TEXT PRIMARY KEY,
-	Type TEXT,
-	Active TEXT,
-	TextModel TEXT,
-	VisualModel TEXT,
-    Token TEXT,
-	URL TEXT
-);
-INSERT OR IGNORE INTO services (Name, Type, Active, TextModel, VisualModel, Token, URL)
-VALUES
-	('Ollama',    'local', '0', '', '', '', ''),	
-	('OpenAI',    'API',   '0', '', '', '', ''),
-	('Anthropic', 'API',   '0', '', '', '', ''),
-	('DeepSeek',  'API',   '0', '', '', '', '');
-COMMIT;`
-
 func GetService(name string) (Service, error) {
 	var service Service
 	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services WHERE name = $1"
@@ -1128,35 +992,6 @@ type Description struct {
 	Description string `json:"Description"`
 	Prompt      string `json:"Prompt"`
 	Timestamp   string `json:"Timestamp"`
-}
-
-const createDescriptionsTable = `
-	CREATE TABLE IF NOT EXISTS descriptions (
-		UUID TEXT PRIMARY KEY,
-		SuspectUUID TEXT,
-		Service TEXT,
-		Model TEXT,
-		Description TEXT,
-		Prompt TEXT,
-		Timestamp TEXT
-	);`
-
-// Init descriptions table with default descriptions for default suspects.
-// TODO: Add option to re-generate the descriptions for suspects, or for custom suspect.
-func InitDescriptionsTable() error {
-	_, err := database.Exec(createDescriptionsTable)
-	if err != nil {
-		return err
-	}
-	for i := range defaultDescriptions {
-		err := SaveDescription(defaultDescriptions[i])
-		if err != nil {
-			log.Println("Cannot initialize descriptions:", err)
-			return err
-		}
-	}
-
-	return nil
 }
 
 func SaveDescription(d Description) error {
