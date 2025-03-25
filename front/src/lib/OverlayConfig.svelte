@@ -31,6 +31,7 @@
             }
         };
 
+        activeService.set(selectedService);
         configOverlayVisible = false;
     }
 
