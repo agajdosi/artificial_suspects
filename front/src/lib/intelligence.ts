@@ -54,7 +54,33 @@ export async function generateAnswer(roundUUID: string, question: Question, crim
 
 
 async function getAnswerFromOpenAI(question: string, description: string, service: Service): Promise<string> {
-    return ""
+    const conn = new openai({
+        apiKey: service.Token
+    });
+
+    const reflectionPrompt = answerReflection.replace("%s", question).replace("%s", description);
+    const reflectionResponse = await conn.chat.completions.create({
+        model: service.VisualModel,
+        messages: [{ role: "user", content: reflectionPrompt }]
+    });
+    const reflection = reflectionResponse.choices[0].message.content;
+    console.log("🤖 GOT THE REFLECTION FROM OPENAI:", reflection);
+    if (!reflection) {
+        throw new Error("No reflection from OpenAI");
+    }
+
+    const decisionPrompt = answerBoolean.replace("%s", reflection);
+    const decisionResponse = await conn.chat.completions.create({
+        model: service.VisualModel,
+        messages: [{ role: "user", content: decisionPrompt }]
+    });
+    const decision = decisionResponse.choices[0].message.content;
+    console.log("🤖 GOT THE DECISION FROM OPENAI:", decision);
+    if (!decision) {
+        throw new Error("No decision from OpenAI");
+    }
+
+    return decision;
 }
 
 async function getAnswerFromOllama(question: string, description: string, service: Service): Promise<string> {
