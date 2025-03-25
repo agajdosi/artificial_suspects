@@ -5,7 +5,7 @@
     import History from '$lib/History.svelte';
     import Scores from '$lib/Scores.svelte';
     import Help from '$lib/Help.svelte';
-    import IntroOverlay from '$lib/IntroOverlay.svelte';
+    import OverlayIntro from '$lib/OverlayIntro.svelte';
     import { locale, t } from 'svelte-i18n';
     import LanguageSwitch from '$lib/LanguageSwitch.svelte';
     import { onMount } from 'svelte';
@@ -231,7 +231,7 @@
 {/if}
 
 {#if introVisible}
-    <IntroOverlay on:toggleIntro={handleToggleIntro}/>
+    <OverlayIntro on:toggleIntro={handleToggleIntro}/>
 {/if}
 
 <style>
