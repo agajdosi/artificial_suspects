@@ -1,7 +1,7 @@
 <script lang="ts">
     import { activeService, services } from '$lib/stores';
 
-    let { configOverlayVisible = false } = $props();
+    let { overlayConfigVisible = $bindable(false) } = $props();
 
     let selectedService = $state($activeService); // Holds the AI service selected in the UI
 
@@ -32,15 +32,15 @@
         };
 
         activeService.set(selectedService);
-        configOverlayVisible = false;
+        overlayConfigVisible = false;
     }
 
     function quitConfig() {
-        configOverlayVisible = false;
+        overlayConfigVisible = false;
     }
 </script>
 
-{#if configOverlayVisible}
+{#if overlayConfigVisible}
 <div class="overlay">
 
 <h1>Game Configuration</h1>

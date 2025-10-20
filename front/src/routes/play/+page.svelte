@@ -7,18 +7,15 @@
     import Help from '$lib/Help.svelte';
     import OverlayIntro from '$lib/OverlayIntro.svelte';
     import { locale, t } from 'svelte-i18n';
-    import LanguageSwitch from '$lib/LanguageSwitch.svelte';
+    import MenuTop from '$lib/MenuTop.svelte';
     import { onMount } from 'svelte';
     import OverlayConfig from '$lib/OverlayConfig.svelte';
 
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
-    let configOverlayVisible: boolean = true;
+    let overlayConfigVisible: boolean = true;
 
     onMount(async () => {
-        await NewGame();
-        return;
-        
         // 1. Check if service is available
         if (!$serviceStatus.ready){
             // SHOW CONFIG OVERLAY
@@ -155,7 +152,7 @@
         on:mouseenter={() => hint.set("Switch language of the user interface.")}
         on:mouseleave={() => hint.set("")}
         >
-        <LanguageSwitch/>
+        <MenuTop bind:overlayConfigVisible={overlayConfigVisible}/>
     </div>
 </div>
 
@@ -239,7 +236,7 @@
     <OverlayIntro on:toggleIntro={handleToggleIntro}/>
 {/if}
 
-<OverlayConfig configOverlayVisible={configOverlayVisible}/>
+<OverlayConfig bind:overlayConfigVisible={overlayConfigVisible}/>
 
 <style>
 .middle {
