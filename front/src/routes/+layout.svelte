@@ -2,7 +2,6 @@
     import { register, init, waitLocale } from 'svelte-i18n';
     import { onMount } from 'svelte';
     import OverlayError from '$lib/OverlayError.svelte';
-    import ServiceStatus from '$lib/ServiceStatus.svelte';
 
     register('en', () => import('$lib/locales/en.json'));
     register('cz', () => import('$lib/locales/cz.json'));
