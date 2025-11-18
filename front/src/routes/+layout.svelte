@@ -28,7 +28,6 @@
 {/if}
 
 <OverlayError/>
-<ServiceStatus/>
 
 <style>
 :global(:root){
