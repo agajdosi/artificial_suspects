@@ -17,6 +17,8 @@
     onMount(async () => {
         await waitLocale(); // Ensure locale is ready before rendering
         isLocaleLoaded = true;
+        const player = localStorage.getItem('player');
+        console.log("Current player:", player);
     });
 </script>
 

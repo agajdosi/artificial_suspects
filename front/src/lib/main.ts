@@ -1,4 +1,5 @@
-import { currentGame } from '$lib/stores';
+import { currentGame, currentPlayer } from '$lib/stores';
+import { get } from 'svelte/store';
 import { generateAnswer } from '$lib/intelligence';
 
 // MARK: CONSTANTS
@@ -42,6 +43,11 @@ export interface FinalScore {
     GameUUID: string;
     Score: number;
     Investigator: string; // AKA player name
+}
+
+export interface Player {
+    UUID: string;
+    Name: string;
 }
 
 export interface Game {
@@ -118,7 +124,8 @@ export async function NewGame(): Promise<Game> {
     console.log("NEW GAME HANDLER");
     let newGame: Game;
     try {
-        const response = await fetch(`${API_URL}/new_game`, initGET);
+        const player = get(currentPlayer);
+        const response = await fetch(`${API_URL}/new_game?player_uuid=${player.UUID}`, initGET);
         if (!response.ok) {
             throw new Error('Failed to create new game');
         }
@@ -146,7 +153,8 @@ export async function NewGame(): Promise<Game> {
 }
 
 export async function GetGame(): Promise<Game> {
-    const response = await fetch(`${API_URL}/get_game`, initGET);
+    const player = get(currentPlayer);
+    const response = await fetch(`${API_URL}/get_game?player_uuid=${player.UUID}`, initGET);
     if (!response.ok) {
         throw new Error('Failed to fetch game');
     }

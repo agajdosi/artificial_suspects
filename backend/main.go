@@ -66,7 +66,11 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 
 func NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔍 NewGameHandler() request: %v", r)
-	game, err := database.NewGame()
+	playerUUID := r.URL.Query().Get("player_uuid")
+	if playerUUID == "" {
+		log.Println("NewGameHandler() warning: player_uuid is empty! Creating new game without player.UUID.")
+	}
+	game, err := database.NewGame(playerUUID)
 	if err != nil {
 		log.Printf("NewGame() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -85,9 +89,17 @@ func NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+// Get the current game for the current player identified by required query parameter player_uuid.
 func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔍 GetGameHandler() request: %v", r)
-	game, err := database.GetCurrentGame()
+	playerUUID := r.URL.Query().Get("player_uuid")
+	if playerUUID == "" {
+		log.Printf("GetGameHandler() error: player_uuid is empty!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	game, err := database.GetCurrentGame(playerUUID)
 	if err != nil {
 		log.Printf("GetGame() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -105,9 +117,17 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+// Get the next investigation for the current game for the current player identified by required query parameter player_uuid.
 func NextInvestigationHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔍 NextInvestigationHandler() request: %v", r)
-	game, err := database.GetCurrentGame()
+	playerUUID := r.URL.Query().Get("player_uuid")
+	if playerUUID == "" {
+		log.Printf("NextInvestigationHandler() error: player_uuid is empty!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	game, err := database.GetCurrentGame(playerUUID)
 	if err != nil {
 		log.Printf("NextInvestigation() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -132,9 +152,17 @@ func NextInvestigationHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+// Get the next round for the current the current player identified by required query parameter player_uuid.
 func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔍 NextRoundHandler() request: %v", r)
-	game, err := database.GetCurrentGame()
+	playerUUID := r.URL.Query().Get("player_uuid")
+	if playerUUID == "" {
+		log.Printf("NextRoundHandler() error: player_uuid is empty!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	game, err := database.GetCurrentGame(playerUUID)
 	if err != nil {
 		log.Printf("NextRound() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

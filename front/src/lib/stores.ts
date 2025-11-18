@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { ServiceStatus, ErrorMessage, Service, Game } from '$lib/main';
+import type { ServiceStatus, ErrorMessage, Service, Game, Player } from '$lib/main';
 
 
 // GAME STATE
@@ -103,4 +103,43 @@ export const services = writable<Record<string, Service>>(storedServices);
 services.subscribe((value) => {
     // Ensure we're always storing an object
     localStorage.setItem('services', JSON.stringify(value));
+});
+
+// MARK: Stored PLAYER
+const generateUUID = (): string => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    return `player-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
+const createNewPlayer = (): Player => ({
+    UUID: generateUUID(),
+    Name: ''
+});
+
+const storedPlayer = localStorage.getItem('player');
+let initialPlayer: Player;
+if (storedPlayer) {
+    try {
+        const parsed = JSON.parse(storedPlayer) as Player;
+        if (!parsed.UUID) {
+            initialPlayer = createNewPlayer();
+            localStorage.setItem('player', JSON.stringify(initialPlayer));
+        } else {
+            initialPlayer = parsed;
+        }
+    } catch (error) {
+        console.error('Failed to parse stored player, creating new one.', error);
+        initialPlayer = createNewPlayer();
+        localStorage.setItem('player', JSON.stringify(initialPlayer));
+    }
+} else {
+    initialPlayer = createNewPlayer();
+    localStorage.setItem('player', JSON.stringify(initialPlayer));
+}
+
+export const currentPlayer = writable<Player>(initialPlayer);
+currentPlayer.subscribe((value) => {
+    localStorage.setItem('player', JSON.stringify(value));
 });
