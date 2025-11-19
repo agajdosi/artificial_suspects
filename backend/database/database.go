@@ -894,63 +894,6 @@ func GetServices() ([]Service, error) {
 	return services, nil
 }
 
-func SaveService(name, text_model, visual_model, token, url string) error {
-	query := `UPDATE services 
-SET Token = $1, TextModel = $2, VisualModel=$3, URL = $4 
-WHERE Name = $5
-`
-	result, err := database.Exec(query, token, text_model, visual_model, url, name)
-	if err != nil {
-		log.Printf("Error saving service %s: %v", name, err)
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		log.Printf("Error retrieving rows affected for service '%s': %v", name, err)
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Printf("No record updated for service '%s'", name)
-		return fmt.Errorf("no record updated for service '%s'", name)
-	}
-
-	fmt.Printf("SaveService successful. Service=%s Token=%s TextModel=%s VisualModel=%s URL=%s\n", name, token, text_model, visual_model, url)
-	return nil
-}
-
-// Set the active service which will be used to generate the thinking during the game.
-// First deactivate all services, then activate the requested service to make sure, just one is active.
-func ActivateService(name string) error {
-	tx, err := database.Begin()
-	if err != nil {
-		return fmt.Errorf("error starting transaction: %v", err)
-	}
-
-	deactivateQuery := "UPDATE services SET Active = 0"
-	_, err = tx.Exec(deactivateQuery)
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("error deactivating services: %v", err)
-	}
-
-	activateQuery := "UPDATE services SET Active = 1 WHERE Name = ?"
-	_, err = tx.Exec(activateQuery, name)
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("error activating service %s: %v", name, err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		tx.Rollback()
-		return fmt.Errorf("error committing transaction: %v", err)
-	}
-
-	fmt.Printf("ActivateService name=%s successful.\n", name)
-	return nil
-}
-
 // Wait until non-empty Answer appears on the Round record in Rounds table.
 // Timeouts in 60 seconds, retries every 1 second. Answer is not modified anyhow,
 // needs to be handled after return. On error returned answer is "". On error during
