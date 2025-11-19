@@ -164,7 +164,8 @@ export async function GetGame(): Promise<Game> {
 
 export async function NextRound() {
     // FIRST GET THE NEW ROUND`
-    const response = await fetch(`${API_URL}/next_round`, initGET);
+    const player = get(currentPlayer);
+    const response = await fetch(`${API_URL}/next_round?player_uuid=${player.UUID}`, initGET);
     if (!response.ok) {
         throw new Error('Failed to fetch next round');
     }

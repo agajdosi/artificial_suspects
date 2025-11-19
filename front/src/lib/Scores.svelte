@@ -26,6 +26,7 @@
         dispatch('toggleScores', { scoresVisible: false });
     }
 
+    // TODO: also set the name to the local storage, here or inside the function
     function saveScore() {
         SaveScore(name, $currentGame.uuid);
     }
