@@ -11,44 +11,6 @@
 
 package database
 
-import "github.com/sashabaranov/go-openai"
-
-// Quick solution for now, should be generated from the DefaultModels in the future.
-var visualModels = map[string]bool{
-	openai.GPT4o20240806:     true,
-	openai.GPT4oLatest:       true,
-	openai.GPT4oMini20240718: true,
-}
-
-// Default models, these are recommended models to be used.
-var DefaultModels = []Model{
-	{
-		Name:    openai.GPT4o20240806, //"gpt-4o-2024-08-06"
-		Service: "OpenAI",
-		Visual:  true,
-	},
-	{
-		Name:    openai.GPT4oLatest, //"chatgpt-4o-latest"
-		Service: "OpenAI",
-		Visual:  true,
-	},
-	{
-		Name:    openai.GPT4oMini20240718, // "gpt-4o-mini-2024-07-18"
-		Service: "OpenAI",
-		Visual:  true,
-	},
-	{
-		Name:    "claude-3-haiku-20240307",
-		Service: "OpenAI",
-		Visual:  true,
-	},
-	{
-		Name:    "claude-3-5-sonnet-20240620",
-		Service: "OpenAI",
-		Visual:  true,
-	},
-}
-
 // Prepacked default questions for the game. This gets filled into
 // the questions database.
 var defaultQuestions = []Question{

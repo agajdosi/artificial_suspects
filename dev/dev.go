@@ -19,8 +19,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"suspects/database"
 
+	"github.com/agajdosi/artificial_suspects/backend/database"
 	"github.com/urfave/cli/v2"
 )
 

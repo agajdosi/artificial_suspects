@@ -135,6 +135,23 @@ func GenerateDescription(suspectUUID, serviceName, modelName string) error {
 	return err
 }
 
+func GenerateDescriptionsForAllSuspects(serviceName, modelName string, limit int) error {
+	suspects, err := GetAllSuspects()
+	if err != nil {
+		return err
+	}
+
+	for _, suspect := range suspects {
+		err := GenerateDescription(suspect.UUID, serviceName, modelName)
+		if err != nil {
+			log.Printf("Error generating description for suspect %s: %v", suspect.UUID, err)
+		} else {
+			log.Printf("Successfully generated description for suspect %s", suspect.UUID)
+		}
+	}
+	return nil
+}
+
 // MARK: OPENAI
 
 // Describe the image using the specified model.
@@ -142,10 +159,6 @@ func GenerateDescription(suspectUUID, serviceName, modelName string) error {
 //
 // Returns description, prompt used and error.
 func OpenAIDescribeImage(imagePath string, model string, service Service) (string, string, error) {
-	if !visualModels[model] {
-		return "", "", errors.New("unsupported model")
-	}
-
 	if service.Token == "" {
 		return "", "", errors.New("token cannot be empty")
 	}

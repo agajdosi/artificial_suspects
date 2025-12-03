@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/agajdosi/artificial_suspects/database"
+	"github.com/agajdosi/artificial_suspects/backend/database"
 )
 
 func main() {
