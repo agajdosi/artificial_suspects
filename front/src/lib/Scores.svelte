@@ -1,9 +1,10 @@
 <script lang="ts">
     import { currentGame, serviceStatus, hint } from '$lib/stores';
-    import { NewGame, type FinalScore } from '$lib/main';
+    import { type FinalScore } from '$lib/main';
     import { GetScores, SaveScore } from '$lib/main';
     import { createEventDispatcher, onMount } from 'svelte';
     import { t } from 'svelte-i18n';
+	import { goto } from '$app/navigation';
 
     let name: string;
     let scores: FinalScore[] = [];
@@ -24,6 +25,10 @@
 
     function closeScores() {
         dispatch('toggleScores', { scoresVisible: false });
+    }
+
+    function gotoNewGame() {
+        goto('/new_game');
     }
 
     // TODO: also set the name to the local storage, here or inside the function
@@ -102,7 +107,7 @@
         {$t('buttons.close')}
     </button>
     <button
-        on:click={NewGame}
+        on:click={gotoNewGame}
         on:mouseenter={() => getHintNewGame()}
         on:mouseleave={() => hint.set("")}
         class:offline={!$serviceStatus.ready}
