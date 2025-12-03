@@ -22,17 +22,20 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	// gameplay
 	mux.HandleFunc("/new_game", enableCORS(NewGameHandler))
 	mux.HandleFunc("/get_game", enableCORS(GetGameHandler))
-	mux.HandleFunc("/next_investigation", enableCORS(NextInvestigationHandler))
-	mux.HandleFunc("/next_round", enableCORS(NextRoundHandler))
-	mux.HandleFunc("/get_scores", enableCORS(GetScoresHandler))
 	mux.HandleFunc("/eliminate_suspect", enableCORS(EliminateSuspectHandler))
+	mux.HandleFunc("/next_round", enableCORS(NextRoundHandler))
+	mux.HandleFunc("/next_investigation", enableCORS(NextInvestigationHandler))
+	// scores
+	mux.HandleFunc("/get_scores", enableCORS(GetScoresHandler))
 	mux.HandleFunc("/save_score", enableCORS(SaveScoreHandler))
-	mux.HandleFunc("/get_services", enableCORS(GetServicesHandler))
-	mux.HandleFunc("/save_answer", enableCORS(saveAnswerHandler))
+	// AI
+	mux.HandleFunc("/get_models", enableCORS(GetModelsHandler))
+	mux.HandleFunc("/get_or_generate_answer", enableCORS(GetOrGenerateAnswerHandler))
+	// utils
 	mux.HandleFunc("/status", enableCORS(statusHandler))
-	//	mux.HandleFunc("/wait_for_answer", enableCORS(WaitForAnswerHandler))
 
 	url := fmt.Sprintf("%s:%s", *host, *port)
 	log.Printf("🚀 Starting server on: http://%s", url)
@@ -65,12 +68,19 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewGameHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("🔍 NewGameHandler() request: %v", r)
+	log.Printf("🎮 NewGameHandler() request: %v", r)
 	playerUUID := r.URL.Query().Get("player_uuid")
+	model := r.URL.Query().Get("model")
+	if model == "" {
+		log.Printf("NewGameHandler() error: query parameter 'model' cannot be empty!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	if playerUUID == "" {
 		log.Println("NewGameHandler() warning: player_uuid is empty! Creating new game without player.UUID.")
 	}
-	game, err := database.NewGame(playerUUID)
+
+	game, err := database.NewGame(playerUUID, model)
 	if err != nil {
 		log.Printf("NewGame() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -84,6 +94,7 @@ func NewGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("🎮 NewGameHandler() completed successfully.")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
@@ -185,6 +196,24 @@ func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	service, err := database.GetService("openai")
+	if err != nil {
+		log.Println("NextRoundHandler() could not get service openai")
+		return
+	}
+
+	descriptions, err := database.GetDescriptionsForSuspect(
+		game.Investigation.CriminalUUID,
+		"openai",
+		game.Model,
+	)
+	if err != nil {
+		log.Println("NextRoundHandler() could not get descriptions for suspect")
+		return
+	}
+
+	go database.GenerateAnswer(round.Question.English, descriptions[0].Description, game.Model, service)
+
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
 }
@@ -201,22 +230,6 @@ func GetScoresHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := json.Marshal(scores)
 	if err != nil {
 		log.Printf("GetScores() error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
-}
-
-func WaitForAnswerHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("🔍 WaitForAnswerHandler() request: %v", r)
-	roundUUID := r.URL.Query().Get("round_uuid")
-	answer := database.WaitForAnswer(roundUUID)
-
-	resp, err := json.Marshal(answer)
-	if err != nil {
-		log.Printf("WaitForAnswer() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -256,16 +269,26 @@ func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetServicesHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("🔍 GetServicesHandler() request: %v", r)
-	services, err := database.GetServices()
+// Get all Models available in the database.
+// WARNING: API keys must not leak in here, this goes to public frontend!
+func GetModelsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 GetModelsHandler() request: %v", r)
+
+	/* services, err := database.GetServices()
 	if err != nil {
 		log.Printf("GetServices() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
+	} */
+
+	models, err := database.GetModels()
+	if err != nil {
+		log.Printf("GetModels() error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	resp, err := json.Marshal(services)
+	resp, err := json.Marshal(models)
 	if err != nil {
 		log.Printf("GetServices() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -276,18 +299,66 @@ func GetServicesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-func saveAnswerHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("🔍 saveAnswerHandler() request: %v", r)
-	answer := r.URL.Query().Get("answer")
-	roundUUID := r.URL.Query().Get("round_uuid")
-
-	err := database.SaveAnswer(answer, roundUUID)
+// TODO: toto muzeme vlastne oddelat
+// 1. generovat answer z newGame anebo z nextRound primo v Gocku
+// 2. na frontend pak jen pockat skrze WaitForAnswer
+func GetOrGenerateAnswerHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("🔍 GetOrGenerateAnswerHandler() request: %v", r)
+	playerUUID := r.URL.Query().Get("player_uuid")
+	if playerUUID == "" {
+		log.Printf("GetOrGenerateAnswerHandler() error: query parameter 'player_uuid' cannot be empty!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	game, err := database.GetCurrentGame(playerUUID)
+	question := game.Investigation.Rounds[len(game.Investigation.Rounds)-1].Question.English
 	if err != nil {
-		log.Printf("SaveAnswer() error: %v", err)
+		log.Printf("GetOrGenerateAnswerHandler() could not get currentGame: %v\n", err)
+		return
+	}
+
+	log.Printf("===> game.Model: %s\n", game.Model)
+
+	// TODO: get the service based on the current game's Model
+	serviceName := "OpenAI"
+	service, err := database.GetService(serviceName)
+	if err != nil {
+		log.Printf("GetOrGenerateAnswerHandler() could not get service %s, %v\n", serviceName, err)
+		return
+	}
+
+	descriptions, err := database.GetDescriptionsForSuspect(
+		game.Investigation.CriminalUUID,
+		"OpenAI",
+		game.Model,
+	)
+	if err != nil {
+		log.Printf("GetOrGenerateAnswerHandler() could not get descriptions for suspect: %v\n", err)
+		return
+	}
+
+	answer, err := database.GenerateAnswer(question, descriptions[0].Description, game.Model, service)
+	if err != nil {
+		log.Printf("GetOrGenerateAnswerHandler() error generating answer: %v\n", err)
+		return
+	}
+
+	// TODO: move to database.GenerateAnswer()?
+	err = database.SaveAnswer(answer, game.Investigation.Rounds[len(game.Investigation.Rounds)-1].UUID)
+	if err != nil {
+		log.Printf("GetOrGenerateAnswerHandler() error saving answer: %v\n", err)
+		return
+	}
+
+	log.Printf("GetOrGenerateAnswerHandler() - generated answer: %s", answer)
+
+	resp, err := json.Marshal(answer)
+	if err != nil {
+		log.Printf("GetOrGenerateAnswerHandler() error marshalling answer: %v\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("SaveAnswer() answer: %s, roundUUID: %s", answer, roundUUID)
 	w.WriteHeader(http.StatusOK)
+	w.Write(resp)
 }

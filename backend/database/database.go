@@ -263,21 +263,24 @@ type Player struct {
 // User clicks on start and plays until they make a mistake, can be several cases. This is the Game.
 type Game struct {
 	UUID          string        `json:"uuid"`
-	Investigation Investigation `json:"investigation"` // TODO: actually this could be Investigations []Investigation
-	Level         int           `json:"level"`         // aka number of Investigations done + 1
 	Score         int           `json:"Score"`         // TODO: implement
-	GameOver      bool          `json:"GameOver"`      // TODO: when true, Game is over
 	Investigator  Player        `json:"Investigator"`  // The human player, right now can play only as investigator
 	Timestamp     string        `json:"Timestamp"`     // when game was created
+	Model         string        `json:"model"`         // LLM model used for generating descriptions and answers
+	Investigation Investigation `json:"investigation"` // TODO: actually this could be Investigations []Investigation
+	Level         int           `json:"level"`         // aka number of Investigations done + 1
+	GameOver      bool          `json:"GameOver"`      // TODO: when true, Game is over
+
 }
 
 // Create a new game for the current player identified by their playerUUID.
 // Multiple players can play the game at the same time, so we need to identify the player by their playerUUID.
-func NewGame(playerUUID string) (Game, error) {
+func NewGame(playerUUID, model string) (Game, error) {
 	var game Game
 	game.UUID = uuid.New().String()
 	game.Timestamp = TimestampNow()
 	game.Score = 0
+	game.Model = model
 	game.Investigator = Player{
 		UUID: playerUUID,
 		Name: defaultPlayerName, // TODO: also pass from the frontend
@@ -303,13 +306,13 @@ func NewGame(playerUUID string) (Game, error) {
 // Multiple players can play the game at the same time, so we need to identify the game by playerUUID.
 func GetCurrentGame(playerUUID string) (Game, error) {
 	var game Game
-	row := database.QueryRow("SELECT uuid, timestamp, score FROM games WHERE player_uuid = $1 ORDER BY timestamp DESC LIMIT 1", playerUUID)
-	err := row.Scan(&game.UUID, &game.Timestamp, &game.Score)
+	row := database.QueryRow("SELECT uuid, timestamp, score, model FROM games WHERE player_uuid = $1 ORDER BY timestamp DESC LIMIT 1", playerUUID)
+	err := row.Scan(&game.UUID, &game.Timestamp, &game.Score, &game.Model)
 
 	// No game found - first play
 	if err == sql.ErrNoRows {
 		log.Println("Warning: No games in DB, creating new game")
-		return NewGame("") // TODO: PlayerUUID should be passed from frontend
+		return NewGame("", "") // TODO: PlayerUUID should be passed from frontend
 	}
 	if err != nil {
 		return game, err
@@ -335,7 +338,7 @@ func GetCurrentGame(playerUUID string) (Game, error) {
 }
 
 func saveGame(game Game) error {
-	query := `INSERT INTO games (uuid, timestamp, score, investigator, player_uuid) VALUES (?, ?, ?, ?, ?)`
+	query := `INSERT INTO games (uuid, timestamp, score, investigator, player_uuid, model) VALUES (?, ?, ?, ?, ?, ?)`
 	_, err := database.Exec(
 		query,
 		game.UUID,
@@ -343,6 +346,7 @@ func saveGame(game Game) error {
 		game.Score,
 		game.Investigator.Name,
 		game.Investigator.UUID,
+		game.Model,
 	)
 	return err
 }
@@ -844,14 +848,14 @@ func SaveScore(name, gameUUID string) error {
 
 // MARK: AI SERVICES
 
+// Service is an LLM provider. It can be OpenAI, Anthropic, DeepSeek, or local model served via LiteLLM.
 type Service struct {
-	Name        string `json:"Name"`
-	Type        string `json:"Type"` // API or local
-	Active      bool   `json:"Active"`
-	TextModel   string `json:"TextModel"`
-	VisualModel string `json:"VisualModel"`
-	Token       string `json:"Token"`
-	URL         string `json:"URL"`
+	Name      string         `json:"Name"`      // Name presented to the user
+	API_style sql.NullString `json:"API_style"` // What is the style of the API (openai, deepseek, etc) - we can have DeepSeek provided via LiteLLM (which uses openai API style)
+	Type      string         `json:"Type"`      // API or local
+	URL       sql.NullString `json:"URL"`
+	Token     string         `json:"Token"`
+	Active    bool           `json:"Active"`
 }
 
 type ServiceStatus struct {
@@ -862,8 +866,8 @@ type ServiceStatus struct {
 
 func GetService(name string) (Service, error) {
 	var service Service
-	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services WHERE name = $1"
-	err := database.QueryRow(query, name).Scan(&service.Name, &service.Type, &service.Active, &service.TextModel, &service.VisualModel, &service.Token, &service.URL)
+	query := "SELECT Name, API_style, Type, URL, Token, Active FROM services WHERE name = $1"
+	err := database.QueryRow(query, name).Scan(&service.Name, &service.API_style, &service.Type, &service.URL, &service.Token, &service.Active)
 	if err != nil {
 		return service, fmt.Errorf("error geting Service for name %s: %v", name, err)
 	}
@@ -872,7 +876,7 @@ func GetService(name string) (Service, error) {
 
 func GetServices() ([]Service, error) {
 	var services []Service
-	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services"
+	query := "SELECT Name, API_style, Type, URL, Token, Active FROM services"
 	rows, err := database.Query(query)
 	if err != nil {
 		return services, err
@@ -881,7 +885,7 @@ func GetServices() ([]Service, error) {
 
 	for rows.Next() {
 		var service Service
-		err := rows.Scan(&service.Name, &service.Type, &service.Active, &service.TextModel, &service.VisualModel, &service.Token, &service.URL)
+		err := rows.Scan(&service.Name, &service.API_style, &service.Type, &service.URL, &service.Token, &service.Active)
 		if err != nil {
 			return services, err
 		}
@@ -925,22 +929,39 @@ func WaitForAnswer(roundUUID string) string {
 	}
 }
 
-func GetActiveService() (Service, error) {
-	var service Service
-	query := "SELECT Name, Type, Active, TextModel, VisualModel, Token, URL FROM services WHERE Active = 1"
-	err := database.QueryRow(query).Scan(&service.Name, &service.Type, &service.Active, &service.TextModel, &service.VisualModel, &service.Token, &service.URL)
-	if err != nil {
-		return service, fmt.Errorf("error geting active service: %v", err)
-	}
-	return service, nil
-}
-
 // MARK: AI MODELS
 
 type Model struct {
-	Name    string `json:"Name"`
-	Service string `json:"Service"`
-	Visual  bool   `json:"Visual"`
+	Name       string `json:"Name"`
+	Service    string `json:"Service"`    // Service  which provides this model (OpenAI, Anthropic, DeepSeek)
+	Visual     bool   `json:"Visual"`     // Model has visual capabilities
+	Allowed    bool   `json:"Allowed"`    // Model can be used to play the Game right now
+	Historical bool   `json:"Historical"` // Model can be shown in the historical statistics
+}
+
+// Get all available Models from the database.
+func GetModels() ([]Model, error) {
+	var models []Model
+	query := "SELECT Name, Service, Visual, Allowed, Historical FROM models"
+	rows, err := database.Query(query)
+	if err != nil {
+		return models, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var model Model
+		err := rows.Scan(&model.Name, &model.Service, &model.Visual, &model.Allowed, &model.Historical)
+		if err != nil {
+			return models, err
+		}
+		models = append(models, model)
+	}
+
+	if err = rows.Err(); err != nil {
+		return models, err
+	}
+	return models, nil
 }
 
 // MARK: DESCRIPTIONS

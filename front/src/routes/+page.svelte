@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    function newGame() {
-        goto('/play');
+    function newGame() {        
+        goto('/new_game');
     }    
 </script>
 
@@ -16,6 +16,7 @@ Every decision it makes highlights subtle biases that usually stay invisible beh
 
 <div class="menu">
     <button on:click={newGame}>Start Game</button>
+    <button disabled on:click={newGame}>Continue Game</button>
 </div>
 
 <style>

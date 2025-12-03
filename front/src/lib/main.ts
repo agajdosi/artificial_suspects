@@ -1,6 +1,5 @@
 import { currentGame, currentPlayer } from '$lib/stores';
 import { get } from 'svelte/store';
-import { generateAnswer } from '$lib/intelligence';
 
 // MARK: CONSTANTS
 
@@ -57,6 +56,7 @@ export interface Game {
     Score: number;
     GameOver: boolean;
     Investigator: string;
+    Model: string;
     Timestamp: string;
 }
 
@@ -72,7 +72,10 @@ export interface Investigation {
 
 export interface Model {
     Name: string;
+    Service: string;
     Visual: boolean;
+    Allowed: boolean;
+    Historical: boolean;
 }
 
 export interface Round {
@@ -87,11 +90,11 @@ export interface Round {
 
 export interface Service {
     Name: string;
+    API_style: string; // Style of the API (openAI, anthropic, etc.)
     Type: string; // API or local
-    TextModel: string;
-    VisualModel: string;
-    Token: string;
     URL: string;
+    Token: string;
+    Active: boolean
 }
 
 export interface ServiceStatus {
@@ -120,12 +123,12 @@ export interface Question {
 
 // MARK: FUNCTIONS
 
-export async function NewGame(): Promise<Game> {
-    console.log("NEW GAME HANDLER");
+export async function NewGame(model: string): Promise<Game> {
+    console.log("NEW GAME requested!");
     let newGame: Game;
     try {
         const player = get(currentPlayer);
-        const response = await fetch(`${API_URL}/new_game?player_uuid=${player.UUID}`, initGET);
+        const response = await fetch(`${API_URL}/new_game?player_uuid=${player.UUID}&model=${model}`, initGET);
         if (!response.ok) {
             throw new Error('Failed to create new game');
         }
@@ -137,17 +140,12 @@ export async function NewGame(): Promise<Game> {
         throw error;
     }
 
-    const answer = await generateAnswer(
-        newGame.investigation.rounds.at(-1)?.uuid,
-        newGame.investigation.rounds.at(-1)?.Question,
-        newGame.investigation.CriminalUUID
-    );
-
-    await saveAnswer(answer.answer, newGame.investigation.rounds.at(-1)?.uuid);
+    const answer = await generateAnswer(newGame.investigation.rounds.at(-1)?.uuid);
     if (newGame.investigation.rounds.at(-1)) {
         newGame.investigation.rounds.at(-1).answer = answer.answer;
         newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
     }
+
     currentGame.set(newGame);
     return newGame;
 }
@@ -181,7 +179,6 @@ export async function NextRound() {
         game.investigation.CriminalUUID
     );
 
-    await saveAnswer(answer.answer, game.investigation.rounds.at(-1).uuid);
     game.investigation.rounds.at(-1).answer = answer.answer;
     game.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
     currentGame.set(game);
@@ -236,21 +233,29 @@ export async function ListModelsOllama(): Promise<Model[]> {
     return models;
 }
 
-
-export async function getDescriptionsForSuspect(suspectUUID: string, serviceName: string, modelName: string): Promise<string[]> {
-    let descriptions: string[] = [];
-    return descriptions;
-}
-
-export async function getQuestion(questionUUID: string): Promise<Question> {
-    let question: Question;
-    return question;
-}
-
-
-export async function saveAnswer(answer: string, roundUUID: string): Promise<void> {
-    const response = await fetch(`${API_URL}/save_answer?answer=${answer}&round_uuid=${roundUUID}`, initPOST);
+export async function ListAvailableModels(): Promise<Model[]> {
+    const response = await fetch(`${API_URL}/get_models`, initGET);
     if (!response.ok) {
-        throw new Error('Failed to save answer');
+        throw new Error('Failed to fetch models');
+    }
+    return await response.json();
+}
+
+export async function generateAnswer(roundUUID: string): Promise<Answer | undefined> {
+    const player = get(currentPlayer);
+    console.log(`>>> generateAnswer called! roundUUID=${roundUUID}`);
+    try {
+        let answer: Answer; 
+        const response = await fetch(`${API_URL}/get_or_generate_answer?player_uuid=${player.UUID}`, initGET);
+        if (!response.ok) {
+            throw new Error('Failed to /get_or_generate_answer');
+        }
+
+        answer = await response.json() as Answer;
+        console.log(`Answer is: ${answer}`);
+        return answer;
+    } catch (error) {
+        console.error(`generateAnswer error for round ${roundUUID}:`, error);
+        // TODO: communicate failure to the user and GUI
     }
 }

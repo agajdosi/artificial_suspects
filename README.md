@@ -5,6 +5,13 @@ Rather than analyzing training datasets or statistical outputs, this game allows
 
 Play the *Unusual Suspects* board game with AI in your browser!
 
+
+## Architecture
+
+- only backend calls the LLM services
+- AI model is selected at the start of the game and is used for the whole game
+
+
 ## **Contributing**
 Want to contribute? Check out the [DEVELOPING.md](DEVELOPING.md) for setup instructions and contribution guidelines.
 

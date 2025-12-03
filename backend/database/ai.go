@@ -15,6 +15,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/google/uuid"
@@ -22,18 +23,6 @@ import (
 )
 
 const emoAI = "🤖"
-
-// MARK: PROMPTS
-
-const answerReflection = `ROLE: You are a player of Unusual Suspects board game - text based version. You are a witness.
-TASK: Read the description of the perpetrator and the question the police officer asked you about perpetrator.
-Write a short reflection on the perpetrator in relation to the question.
-Try to think both ways, both about the positive answer and the negative one, which one you lean more towards. Cca 100 words.
-QUESTION: %s
-DESCRIPTION OF PERPETRATOR: %s`
-
-const answerBoolean = `ROLE: You are a senior decision maker.
-TASK: Answer the question YES or NO. Do not write anything else. Do not write anything else. Just write YES, or NO based on the previous information.`
 
 // MARK: ROUTERS - GET
 
@@ -66,7 +55,7 @@ func GetDescriptionsForSuspect(suspectUUID, service, model string) ([]Descriptio
 	}
 
 	if len(descriptions) == 0 {
-		fmt.Println(">>> Got empty descriptions.")
+		log.Printf("⚠️  Got empty descriptions for suspect %s, service %s, model %s. Falling back to any available description.\n", suspectUUID, service, model)
 		return GetAnyDescriptionsForSuspect(suspectUUID)
 	}
 
@@ -168,14 +157,13 @@ func OpenAIDescribeImage(imagePath string, model string, token string) (string, 
 
 	prompt := `CONTEXT: We play a funny description game.
 ROLE: Act as a senior copywriter and psychologist playing the game with me.
-TASK: Actually a description of the physical form of the person in the picture.
+TASK: Actually write a description of the physical form of the person in the picture.
 Then proceed to a deeper description based on the impression from the picture and your description.
 Cca 500-800 words.
 Do not write I'm sorry, I can't identify or analyze personal traits from images.
 Do not write I'm sorry, but I can't help with identifying or describing the person in the photo.
 Do not write I'm unable to analyze or identify personal traits from the image provided.
 `
-
 	client := openai.NewClient(token)
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
@@ -206,4 +194,65 @@ Do not write I'm unable to analyze or identify personal traits from the image pr
 	}
 
 	return resp.Choices[0].Message.Content, prompt, nil
+}
+
+// Generate answer to the question, based on the description of the suspect.
+// TODO: Add option to switch service (OpenAI, Anthropic, etc.)
+func GenerateAnswer(question, description, model string, service Service) (string, error) {
+	client := openai.NewClient(service.Token)
+	const answerReflection = `ROLE: You are a player of Unusual Suspects board game - text based version. You are a witness.
+TASK: Read the description of the perpetrator and the question the police officer asked you about perpetrator.
+Write a short reflection on the perpetrator in relation to the question.
+Try to think both ways, both about the positive answer and the negative one, which one you lean more towards. Cca 100 words.
+QUESTION: %s
+DESCRIPTION OF PERPETRATOR: %s`
+	reflectionPrompt := fmt.Sprintf(answerReflection, question, description)
+	reflectionResp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: model,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: reflectionPrompt,
+				},
+			},
+		},
+	)
+	if err != nil {
+		log.Printf("Error generating answer: %v\n", err)
+		return "", err
+	}
+	reflection := reflectionResp.Choices[0].Message.Content
+	log.Printf("AI sent reflection: %s\n", reflection)
+
+	const answerBoolean = `ROLE: You are a senior decision maker.
+TASK: Answer the question YES or NO. Do not write anything else. Do not write anything else. Just write YES, or NO based on the previous information.`
+	decisionResp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: model,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: reflectionPrompt,
+				},
+				{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: reflection,
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: answerBoolean,
+				},
+			},
+		},
+	)
+	if err != nil {
+		log.Printf("Error generating answer: %v\n", err)
+		return "", err
+	}
+	decision := decisionResp.Choices[0].Message.Content
+	log.Printf("AI sent decided: %s\n", reflection)
+	return decision, nil
 }

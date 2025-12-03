@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentGame, serviceStatus, hint } from '$lib/stores';
+    import { currentGame, serviceStatus, hint, selectedModel } from '$lib/stores';
     import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame, type Suspect } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
@@ -9,21 +9,20 @@
     import { locale, t } from 'svelte-i18n';
     import MenuTop from '$lib/MenuTop.svelte';
     import { onMount } from 'svelte';
-    import OverlayConfig from '$lib/OverlayConfig.svelte';
 
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
     let overlayConfigVisible: boolean = true;
 
     onMount(async () => {
-        // 1. Check if service is available
-        if (!$serviceStatus.ready){
-            // SHOW CONFIG OVERLAY
-        }
-
-        // 2. Check if game is already in progress
         if ($currentGame.uuid == ""){
-            await NewGame();
+            const model = $selectedModel ?? 'ollama';
+            try {
+                await NewGame(model);
+            } finally {
+                // clear selection so subsequent navigations don't reuse it unintentionally
+                selectedModel.set(null);
+            }
         }
     });
 
@@ -130,7 +129,7 @@
                     on:mouseenter={() => hint.set("The AI witness' response to the question about the wanted person.")}
                     on:mouseleave={() => hint.set("")}
                     >
-                    {$t($currentGame.investigation?.rounds?.at(-1)?.answer?.toLowerCase() || '')}!
+                    {$t($currentGame.investigation?.rounds?.at(-1)?.answer?.toLowerCase() || '') || $currentGame.investigation?.rounds?.at(-1)?.answer?.toLowerCase() || ''}!
                 </div>
             {/if}
         {/if}
@@ -171,7 +170,7 @@
             {#if !$currentGame.investigation?.InvestigationOver}
                 {#if $currentGame.GameOver}
                     <button
-                        on:click={NewGame}
+                        on:click={() => NewGame($selectedModel ?? 'ollama')}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
                         on:mouseleave={() => hint.set("")}
                         class:offline={!$serviceStatus.ready}
@@ -235,8 +234,6 @@
 {#if introVisible}
     <OverlayIntro on:toggleIntro={handleToggleIntro}/>
 {/if}
-
-<OverlayConfig bind:overlayConfigVisible={overlayConfigVisible}/>
 
 <style>
 .middle {

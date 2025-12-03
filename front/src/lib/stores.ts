@@ -64,48 +64,8 @@ activeService.subscribe((value) => {
     localStorage.setItem('activeServiceName', JSON.stringify(value));
 });
 
-// Services
-const supportedServices: Record<string, Service> = {
-    "ollama": {
-        Name: "ollama",
-        Type: "local", 
-        TextModel: "llama3",
-        VisualModel: "llama3",
-        Token: "",
-        URL: "",
-    },
-    "openai": {
-        Name: "openai",
-        Type: "API",
-        TextModel: "gpt-4o",
-        VisualModel: "gpt-4o",
-        Token: "",
-        URL: "",
-    }
-};
-
-let storedServices: Record<string, Service>;
-try {
-    const stored = JSON.parse(localStorage.getItem('services') || '{}');
-    // Convert array to object if needed
-    storedServices = Array.isArray(stored) 
-        ? stored.reduce((obj, service) => ({...obj, [service.Name]: service}), {})
-        : stored;
-} catch (e) {
-    storedServices = {};
-}
-
-if (Object.keys(storedServices).length === 0) {
-    storedServices = supportedServices;
-}
-
-export const services = writable<Record<string, Service>>(storedServices);
-services.subscribe((value) => {
-    // Ensure we're always storing an object
-    localStorage.setItem('services', JSON.stringify(value));
-});
-
 // MARK: Stored PLAYER
+// TODO: actually we can use `import { v4 as uuidv4 } from 'uuid'`;
 const generateUUID = (): string => {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
         return crypto.randomUUID();
@@ -142,4 +102,12 @@ if (storedPlayer) {
 export const currentPlayer = writable<Player>(initialPlayer);
 currentPlayer.subscribe((value) => {
     localStorage.setItem('player', JSON.stringify(value));
+});
+
+// Selected model (AI) for a new game - persisted in localStorage so navigation/reloads keep selection
+const storedSelectedModel = localStorage.getItem('selectedModel');
+let initialSelectedModel: string | null = storedSelectedModel ? JSON.parse(storedSelectedModel) : null;
+export const selectedModel = writable<string | null>(initialSelectedModel);
+selectedModel.subscribe((value) => {
+    localStorage.setItem('selectedModel', JSON.stringify(value));
 });
