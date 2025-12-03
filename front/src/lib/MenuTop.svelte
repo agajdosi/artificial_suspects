@@ -15,9 +15,8 @@
     }
 </script>
 
-<button onclick={() => goto('/')}>home</button>
-<button onclick={() => NewGame()}>restart</button>
-<button onclick={() => toggleOverlayConfig()}>config</button>
+<button onclick={() => goto('/')}>Home</button>
+<button onclick={() => goto('/new_game')}>Restart</button>
 
 <span class="separator"></span>
 
