@@ -273,15 +273,12 @@ func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
 // WARNING: API keys must not leak in here, this goes to public frontend!
 func GetModelsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔍 GetModelsHandler() request: %v", r)
+	allowedOnly := false
+	if r.URL.Query().Get("allowed_only") == "true" {
+		allowedOnly = true
+	}
 
-	/* services, err := database.GetServices()
-	if err != nil {
-		log.Printf("GetServices() error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	} */
-
-	models, err := database.GetModels()
+	models, err := database.GetModels(allowedOnly)
 	if err != nil {
 		log.Printf("GetModels() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

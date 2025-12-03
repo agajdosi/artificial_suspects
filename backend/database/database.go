@@ -965,9 +965,14 @@ type Model struct {
 }
 
 // Get all available Models from the database.
-func GetModels() ([]Model, error) {
+func GetModels(allowedOnly bool) ([]Model, error) {
 	var models []Model
-	query := "SELECT Name, Service, Visual, Allowed, Historical FROM models"
+	var query string
+	if allowedOnly {
+		query = "SELECT Name, Service, Visual, Allowed, Historical FROM models WHERE Allowed = 1"
+	} else {
+		query = "SELECT Name, Service, Visual, Allowed, Historical FROM models"
+	}
 	rows, err := database.Query(query)
 	if err != nil {
 		return models, err

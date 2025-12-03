@@ -253,8 +253,8 @@ export async function ListModelsOllama(): Promise<Model[]> {
     return models;
 }
 
-export async function ListAvailableModels(): Promise<Model[]> {
-    const response = await fetch(`${API_URL}/get_models`, initGET);
+export async function ListAvailableModels(allowedOnly: boolean): Promise<Model[]> {
+    const response = await fetch(`${API_URL}/get_models?allowed_only=${allowedOnly}`, initGET);
     if (!response.ok) {
         throw new Error('Failed to fetch models');
     }

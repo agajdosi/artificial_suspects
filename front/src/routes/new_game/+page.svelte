@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { ListAvailableModels, NewGame } from '$lib/main';
+    import { ListAvailableModels } from '$lib/main';
     import { onMount } from 'svelte';
     import { currentGame } from '$lib/stores';
     import { selectedModel } from '$lib/stores';
@@ -9,7 +9,7 @@
     let loading = $state(true);
 
     onMount(async () => {
-        models = await ListAvailableModels();
+        models = await ListAvailableModels(true);
         loading = false;
     });
 
