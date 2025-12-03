@@ -904,6 +904,25 @@ func GetServices() ([]Service, error) {
 	return services, nil
 }
 
+// Get Service by name of the Model which it provides.
+// We know Model name, and we need to get the Service which provides it.
+func GetServiceForModel(modelName string) (Service, error) {
+	var service Service
+	model, err := GetModel(modelName)
+	if err != nil {
+		return service, fmt.Errorf("could not get model %s for service lookup: %v", modelName, err)
+	}
+
+	query := "SELECT Name, API_style, Type, URL, Token, Active FROM services WHERE name = $1"
+	row := database.QueryRow(query, model.Service)
+	err = row.Scan(&service.Name, &service.API_style, &service.Type, &service.URL, &service.Token, &service.Active)
+	if err != nil {
+		return service, fmt.Errorf("error geting Service for model %s: %v", modelName, err)
+	}
+
+	return service, nil
+}
+
 // Wait until non-empty Answer appears on the Round record in Rounds table.
 // Timeouts in 60 seconds, retries every 1 second. Answer is not modified anyhow,
 // needs to be handled after return. On error returned answer is "". On error during
@@ -968,6 +987,17 @@ func GetModels() ([]Model, error) {
 		return models, err
 	}
 	return models, nil
+}
+
+// Get Model specified by its name from the database.
+func GetModel(name string) (Model, error) {
+	var model Model
+	query := "SELECT Name, Service, Visual, Allowed, Historical FROM models WHERE Name = $1"
+	err := database.QueryRow(query, name).Scan(&model.Name, &model.Service, &model.Visual, &model.Allowed, &model.Historical)
+	if err != nil {
+		return model, fmt.Errorf("error geting Model for name %s: %v", name, err)
+	}
+	return model, nil
 }
 
 // MARK: DESCRIPTIONS

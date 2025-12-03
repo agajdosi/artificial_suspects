@@ -175,12 +175,9 @@ export async function NextRound() {
     // THEN GENERATE ANSWER
     const answer = await generateAnswer(
         game.investigation.rounds.at(-1).uuid,
-        game.investigation.rounds.at(-1).Question,
-        game.investigation.CriminalUUID
     );
 
-    game.investigation.rounds.at(-1).answer = answer.answer;
-    game.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+    game.investigation.rounds.at(-1).answer = answer?.Text;
     currentGame.set(game);
 }
 

@@ -196,9 +196,9 @@ func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	service, err := database.GetService("openai")
+	service, err := database.GetServiceForModel(game.Model)
 	if err != nil {
-		log.Println("NextRoundHandler() could not get service openai")
+		log.Printf("NextRoundHandler() could not get service for model %s: %v\n", game.Model, err)
 		return
 	}
 
