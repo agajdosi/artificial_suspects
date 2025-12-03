@@ -28,7 +28,7 @@
 
 
     function getHintNextQuestion(){
-        if ($currentGame.investigation?.rounds?.at(-1)?.answer != "") return hint.set("Wait for the AI to answer the question.")
+        if ($currentGame.investigation?.rounds?.at(-1)?.answer == "") return hint.set("Wait for the AI to answer the question.")
         if (!$currentGame.investigation?.rounds?.at(-1)?.Eliminations) return hint.set("Eliminate at least 1 suspect before proceeding to next question.");
         return hint.set("Proceed to next question.");
     }
