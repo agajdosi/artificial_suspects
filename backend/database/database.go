@@ -729,6 +729,12 @@ func getQuestion(questionUUID string) (Question, error) {
 
 // MARK: ANSWER
 
+type Answer struct {
+	UUID      string `json:"UUID"`
+	Text      string `json:"Text"`
+	Timestamp string `json:"Timestamp"`
+}
+
 // Save the Answer to the Round record in the database. There is then func WaitForAnswer()
 // which is called from frontend once new Round is found (and so Question can be shown ASAP).
 // But Answer takes time and when it is saved here the WaitForAnswer() retrieves it later.

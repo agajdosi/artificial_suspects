@@ -352,7 +352,12 @@ func GetOrGenerateAnswerHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("GetOrGenerateAnswerHandler() - generated answer: %s", answer)
 
-	resp, err := json.Marshal(answer)
+	resp, err := json.Marshal(
+		database.Answer{ // TODO: add UUID and Timestamp once Answer has its own table
+			UUID:      "",
+			Text:      answer,
+			Timestamp: "",
+		})
 	if err != nil {
 		log.Printf("GetOrGenerateAnswerHandler() error marshalling answer: %v\n", err)
 		w.WriteHeader(http.StatusInternalServerError)

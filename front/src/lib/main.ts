@@ -20,8 +20,9 @@ const initPOST = {
 // MARK: TYPES
 
 export interface Answer {
-    uuid: string;
-    answer: string;
+    UUID: string;
+    Text: string;
+    Timestamp: string;
 }
 
 export interface Elimination {
@@ -142,8 +143,7 @@ export async function NewGame(model: string): Promise<Game> {
 
     const answer = await generateAnswer(newGame.investigation.rounds.at(-1)?.uuid);
     if (newGame.investigation.rounds.at(-1)) {
-        newGame.investigation.rounds.at(-1).answer = answer.answer;
-        newGame.investigation.rounds.at(-1).AnswerUUID = answer.uuid;
+        newGame.investigation.rounds.at(-1).answer = answer?.Text;
     }
 
     currentGame.set(newGame);
@@ -241,7 +241,7 @@ export async function ListAvailableModels(): Promise<Model[]> {
     return await response.json();
 }
 
-export async function generateAnswer(roundUUID: string): Promise<Answer | undefined> {
+export async function generateAnswer(roundUUID: string): Promise<Answer|undefined> {
     const player = get(currentPlayer);
     console.log(`>>> generateAnswer called! roundUUID=${roundUUID}`);
     try {
@@ -252,7 +252,7 @@ export async function generateAnswer(roundUUID: string): Promise<Answer | undefi
         }
 
         answer = await response.json() as Answer;
-        console.log(`Answer is: ${answer}`);
+        console.log(`Got answer: ${answer}`);
         return answer;
     } catch (error) {
         console.error(`generateAnswer error for round ${roundUUID}:`, error);
