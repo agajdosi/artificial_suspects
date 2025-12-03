@@ -141,9 +141,21 @@ export async function NewGame(model: string): Promise<Game> {
         throw error;
     }
 
-    const answer = await generateAnswer(newGame.investigation.rounds.at(-1)?.uuid);
+    const lastRoundUUID = newGame.investigation.rounds.at(-1)?.uuid;
+    if (!lastRoundUUID) {
+        throw new Error('Last Round UUID not found in new game');
+    }
+    const answer = await generateAnswer(lastRoundUUID);
+
     if (newGame.investigation.rounds.at(-1)) {
-        newGame.investigation.rounds.at(-1).answer = answer?.Text;
+        const answerText = answer?.Text;
+        if (!answerText) {
+            throw new Error('Generated answer is empty');
+        }
+        if (!newGame.investigation.rounds[newGame.investigation.rounds.length - 1]) {
+            throw new Error('Last round not found in new game');
+        } 
+        newGame.investigation.rounds[newGame.investigation.rounds.length - 1].answer = answerText;
     }
 
     currentGame.set(newGame);
@@ -173,11 +185,22 @@ export async function NextRound() {
     currentGame.set(game);
 
     // THEN GENERATE ANSWER
-    const answer = await generateAnswer(
-        game.investigation.rounds.at(-1).uuid,
-    );
+    const lastRoundUUID = game.investigation.rounds.at(-1)?.uuid;
+    if (!lastRoundUUID) {
+        throw new Error('Last Round UUID not found in new game');
+    }
+    const answer = await generateAnswer(lastRoundUUID);
 
-    game.investigation.rounds.at(-1).answer = answer?.Text;
+    if (game.investigation.rounds.at(-1)) {
+        const answerText = answer?.Text;
+        if (!answerText) {
+            throw new Error('Generated answer is empty');
+        }
+        if (!game.investigation.rounds[game.investigation.rounds.length - 1]) {
+            throw new Error('Last round not found in new game');
+        } 
+        game.investigation.rounds[game.investigation.rounds.length - 1].answer = answerText;
+    }
     currentGame.set(game);
 }
 
