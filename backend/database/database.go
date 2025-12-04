@@ -209,7 +209,7 @@ func GetSuspectsByDescriptions(limit int, serviceName, modelName string) ([]Susp
 		return suspects, err
 	}
 	for _, suspect := range allSuspects {
-		descriptions, err := GetDescriptionsForSuspect(suspect.UUID, serviceName, modelName)
+		descriptions, err := GetDescriptionsForSuspect(suspect.UUID, modelName, true) // strictly get only descriptions for this model
 		if err != nil {
 			fmt.Printf("Error getting descriptions for suspect (%s): %v", suspect.UUID, err)
 			continue

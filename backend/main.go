@@ -204,8 +204,8 @@ func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 
 	descriptions, err := database.GetDescriptionsForSuspect(
 		game.Investigation.CriminalUUID,
-		"openai",
 		game.Model,
+		false, // do not be strict, allow fallback to any description
 	)
 	if err != nil {
 		log.Println("NextRoundHandler() could not get descriptions for suspect")
@@ -317,17 +317,16 @@ func GetOrGenerateAnswerHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("===> game.Model: %s\n", game.Model)
 
 	// TODO: get the service based on the current game's Model
-	serviceName := "OpenAI"
-	service, err := database.GetService(serviceName)
+	service, err := database.GetServiceForModel(game.Model)
 	if err != nil {
-		log.Printf("GetOrGenerateAnswerHandler() could not get service %s, %v\n", serviceName, err)
+		log.Printf("GetOrGenerateAnswerHandler() could not get service for model %s, %v\n", game.Model, err)
 		return
 	}
 
 	descriptions, err := database.GetDescriptionsForSuspect(
 		game.Investigation.CriminalUUID,
-		"OpenAI",
 		game.Model,
+		false, // do not be strict, allow fallback to any description
 	)
 	if err != nil {
 		log.Printf("GetOrGenerateAnswerHandler() could not get descriptions for suspect: %v\n", err)

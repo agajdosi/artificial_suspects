@@ -38,11 +38,6 @@ func main() {
 						Required: true,
 					},
 					&cli.StringFlag{
-						Name:     "service",
-						Usage:    "Service name for the description generation",
-						Required: true,
-					},
-					&cli.StringFlag{
 						Name:     "model",
 						Usage:    "Model name to use for description generation",
 						Required: true,
@@ -54,11 +49,6 @@ func main() {
 				Name:  "describe-all",
 				Usage: "Describe the image of specified suspect.",
 				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "service",
-						Usage:    "Service name for the description generation",
-						Required: true,
-					},
 					&cli.StringFlag{
 						Name:     "model",
 						Usage:    "Model name to use for description generation",
@@ -80,6 +70,12 @@ func main() {
 			},
 		},
 	}
+
+	dbPath := "../backend/data/artsus.db"
+	if err := database.EnsureDBAvailable(dbPath); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
@@ -162,14 +158,12 @@ func copyFile(src, dst string) error {
 
 func describe(cCtx *cli.Context) error {
 	suspectUUID := cCtx.String("suspect-id")
-	serviceName := cCtx.String("service")
 	modelName := cCtx.String("model")
-	return database.GenerateDescription(suspectUUID, serviceName, modelName)
+	return database.GenerateDescription(suspectUUID, modelName)
 }
 
 func describeAll(cCtx *cli.Context) error {
-	limit := cCtx.Int("limit")
-	serviceName := cCtx.String("service")
 	modelName := cCtx.String("model")
-	return database.GenerateDescriptionsForAll(limit, serviceName, modelName)
+	limit := cCtx.Int("limit")
+	return database.GenerateDescriptionsForAllSuspects(modelName, limit)
 }
