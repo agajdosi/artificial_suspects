@@ -38,8 +38,10 @@ go run main.go
 
 ### Build Backend Docker Image
 
+Run the Docker build from the project root as we need access to go.mod and go.sum files,
+use --file flag to specify the Dockerfile in backend directory:
 ```bash
-docker build -t agajdosi/artsus_server:latest --platform linux/amd64  .
+docker build -t agajdosi/artsus_server:latest --platform linux/amd64  --file backend/Dockerfile .
 docker push agajdosi/artsus_server:latest
 ```
 
