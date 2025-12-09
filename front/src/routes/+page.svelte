@@ -9,13 +9,13 @@
     }    
 </script>
 
-<div class="menu">
-
 <h1>Artificial Witness</h1>
+
+<div class="menu">
 
 <p>
 A playful investigation into how machines judge people.
-Question the AI witness, catch the criminal, and uncover the distortions embedded in its data, its design, and the preferences of its builders and owners.
+Question the AI witness, catch the criminal, and uncover the distortions embedded in AI's training data, design, and the preferences of its builders and owners.
 </p>
 
 <button on:click={newGame}>Start Game</button>
@@ -32,12 +32,14 @@ Question the AI witness, catch the criminal, and uncover the distortions embedde
     align-items: center;
 }
 .menu > * {
-    max-width: 500px;
+    max-width: 910px;
 }
 button {
-    width: 300px;
-    margin: 2rem;
+    width: 490px;
+    margin: 1rem;
 }
-
+p {
+    margin: 0 0 6rem 0;
+}
 
 </style>

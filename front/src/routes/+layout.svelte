@@ -53,8 +53,25 @@
     font-family: "Nunito";
     font-style: normal;
     font-weight: 400;
-    src: local(""),
-    url("/nunito-v16-latin-regular.woff2") format("woff2");
+    src: local(""), url("/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Bitcount";
+    font-style: normal;
+    src: local(""), url("/Bitcount-VariableFont_CRSV,ELSH,ELXP,slnt,wght.ttf") format("truetype");
+}
+
+:global(h1) {
+    margin: 6rem 0 1rem 0;
+    font-size: 6rem;
+    font-family: "Bitcount";
+    font-weight: 390;
+    font-variation-settings:
+        "slnt" -8,
+        "CRSV" 0,
+        "ELSH" 0,
+        "ELXP" 0;
 }
 
 :global(#app) {
