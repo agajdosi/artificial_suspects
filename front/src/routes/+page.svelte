@@ -4,22 +4,22 @@
 
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { t } from 'svelte-i18n';
+
     function newGame() {        
         goto('/new_game');
-    }    
+    }
+
 </script>
 
 <h1>Artificial Witness</h1>
 
 <div class="menu">
 
-<p>
-A playful investigation into how machines judge people.
-Question the AI witness, catch the criminal, and uncover the distortions embedded in AI's training data, design, and the preferences of its builders and owners.
-</p>
+<p>{$t('home.intro')}</p>
 
-<button on:click={newGame}>Start Game</button>
-<button disabled on:click={newGame}>Continue Game</button>
+<button on:click={newGame}>{$t('buttons.newGame')}</button>
+<button disabled on:click={newGame}>{$t('buttons.continueGame')}</button>
 
 
 </div>

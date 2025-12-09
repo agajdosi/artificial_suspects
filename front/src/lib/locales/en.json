@@ -31,5 +31,8 @@
         "text2": "Each turn, a random question from a forensic questionnaire will be selected for you. Wait for the AI witness to answer the question about the criminal's characteristics. Your job is to eliminate one or more suspects who do not match the AI's answer.",
         "text3": "After eliminating suspects, proceed to the next question to gather more clues and continue narrowing down the suspects. Keep freeing the innocent until only one remains – the criminal!",
         "text4": "If you successfully catch the criminal, you’ll move on to the next case. But be careful: if you eliminate guilty suspect, the game will be over. Tune into the AI’s responses carefully and trust your instincts to crack the case! After all, it's trained to do what we humans do..."
+    },
+    "home": {
+        "intro": "A playful investigation into how machines judge people. Question the AI witness, catch the criminal, and uncover the distortions embedded in AI's training data, design, and the preferences of its builders and owners."
     }
 }
