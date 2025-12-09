@@ -113,6 +113,12 @@
     border-color: #0056b3;
 }
 
+:global(header) {
+    display: flex;
+    justify-content: end;
+    padding: 3px 7px 0 0;
+}
+
 /* Use display: flow-root to create new Block Formatting Context.
 BFC prevents margins to overflow outside main and #app, breaking its 100vh.
 */

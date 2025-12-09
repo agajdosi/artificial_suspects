@@ -1,22 +1,19 @@
 <script lang="ts">
-    import {locale} from 'svelte-i18n';
-    import { NewGame } from '$lib/main';
+    import { locale } from 'svelte-i18n';
     import { goto } from '$app/navigation';
+    import { page } from '$app/state';  
 
     let {overlayConfigVisible = $bindable(false)} = $props();
 
     function changeLanguage(code: string) {
         $locale = code;
     }
-
-    async function toggleOverlayConfig() {
-        console.log("toggleOverlayConfig", overlayConfigVisible);
-        overlayConfigVisible = !overlayConfigVisible;
-    }
 </script>
 
-<button onclick={() => goto('/')}>Home</button>
-<button onclick={() => goto('/new_game')}>Restart</button>
+{#if page.url.pathname.startsWith('/play')}
+<button onclick={() => goto('/')} class="navigation">Home</button>
+<button onclick={() => goto('/new_game')} class="navigation">Restart</button>
+{/if}
 
 <span class="separator"></span>
 
@@ -28,9 +25,11 @@
 button {
     all: unset;
     text-decoration: underline;
-    min-width: 20px;
+    min-width: 25px;
 }
 button:hover{
+    all: unset;
+    min-width: 25px;
     cursor: pointer;
 }
 button.active {

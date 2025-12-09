@@ -5,12 +5,17 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { t } from 'svelte-i18n';
+    import MenuTop from '$lib/MenuTop.svelte';
+
 
     function newGame() {        
         goto('/new_game');
     }
 
 </script>
+<header>
+    <MenuTop/>
+</header>
 
 <h1>Artificial Witness</h1>
 
