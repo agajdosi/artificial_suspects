@@ -179,6 +179,7 @@
                     </button>
                 {:else}
                 <button
+                    class="next-round"
                     on:click={NextRound}
                     on:mouseenter={() => getHintNextQuestion()}
                     on:mouseleave={() => hint.set("")}
@@ -305,6 +306,14 @@
 }
 .langbtn:hover{
     cursor: pointer;
+}
+
+button:disabled{
+    cursor: wait;
+}
+
+button.next-round {
+    cursor: not-allowed;
 }
 
 </style>

@@ -32,8 +32,5 @@ button {
     margin: 2rem;
 }
 
-button:disabled{
-    cursor: wait;
-}
 
 </style>
