@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Artificial Witness | Question the AI and Solve the Case</title> 
+</svelte:head>
+
 <script lang="ts">
     import { currentGame, serviceStatus, hint, selectedModel } from '$lib/stores';
     import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame, type Suspect } from '$lib/main';

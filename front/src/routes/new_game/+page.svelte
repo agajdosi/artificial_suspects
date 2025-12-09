@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Artificial Witness | Start a New Investigation</title> 
+</svelte:head>
+
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { ListAvailableModels } from '$lib/main';

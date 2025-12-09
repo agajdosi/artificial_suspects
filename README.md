@@ -1,9 +1,7 @@
-# Artificial Suspects
+# Artificial Witness
 
-**Artificial Suspects** is an experimental art game that explores the biases and prejudices of different AI models.
-Rather than analyzing training datasets or statistical outputs, this game allows players to experience AI biases firsthand through gameplay in *Unusual Suspects*.
-
-Play the *Unusual Suspects* board game with AI in your browser!
+**Artificial Witness** is an experimental art game that explores the biases and prejudices of different AI models.
+Rather than analyzing training datasets or statistical outputs, this game allows players to experience AI biases firsthand through modified gameplay of *Unusual Suspects* board game.
 
 ## Contributing
 

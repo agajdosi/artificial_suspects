@@ -1,3 +1,7 @@
+<svelte:head>
+    <title>Artificial Witness | How AI Interprets People</title>
+</svelte:head>
+
 <script lang="ts">
     import { goto } from '$app/navigation';
     function newGame() {        
@@ -5,18 +9,19 @@
     }    
 </script>
 
-<h1>Artificial Suspects</h1>
+<div class="menu">
+
+<h1>Artificial Witness</h1>
 
 <p>
-A game exposing how different AI models form biased interpretations of people.</p>
-<p>
-Using the familiar structure of Unusual Suspects, the game lets an AI take the role of the witness.
-Every decision it makes highlights subtle biases that usually stay invisible behind the training data, weights and code.
+A playful investigation into how machines judge people.
+Question the AI witness, catch the criminal, and uncover the distortions embedded in its data, its design, and the preferences of its builders and owners.
 </p>
 
-<div class="menu">
-    <button on:click={newGame}>Start Game</button>
-    <button disabled on:click={newGame}>Continue Game</button>
+<button on:click={newGame}>Start Game</button>
+<button disabled on:click={newGame}>Continue Game</button>
+
+
 </div>
 
 <style>
@@ -26,9 +31,11 @@ Every decision it makes highlights subtle biases that usually stay invisible beh
     flex-direction: column;
     align-items: center;
 }
-
+.menu > * {
+    max-width: 500px;
+}
 button {
-    width: 400px;
+    width: 300px;
     margin: 2rem;
 }
 
