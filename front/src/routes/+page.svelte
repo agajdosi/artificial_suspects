@@ -5,14 +5,18 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { t } from 'svelte-i18n';
+    import { currentGame, serviceStatus, hint, selectedModel } from '$lib/stores';
     import MenuTop from '$lib/MenuTop.svelte';
 
 
     function newGame() {        
         goto('/new_game');
     }
-
+    function continueGame() {
+        goto('/play');
+    }
 </script>
+
 <header>
     <MenuTop/>
 </header>
@@ -24,7 +28,7 @@
 <p>{$t('home.intro')}</p>
 
 <button on:click={newGame}>{$t('buttons.newGame')}</button>
-<button disabled on:click={newGame}>{$t('buttons.continueGame')}</button>
+<button disabled={$currentGame.uuid == ""} on:click={continueGame}>{$t('buttons.continueGame')}</button>
 
 
 </div>
