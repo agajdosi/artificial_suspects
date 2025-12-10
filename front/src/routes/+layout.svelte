@@ -1,7 +1,26 @@
 <script lang="ts">
     import { register, init, waitLocale } from 'svelte-i18n';
     import { onMount } from 'svelte';
+    import { browser } from '$app/environment';
+    import posthog from 'posthog-js'
     import OverlayError from '$lib/OverlayError.svelte';
+
+    export const load = async () => {
+    if (browser) {
+        console.log("POSTHOG INITED!")
+        posthog.init(
+        'phc_YvVKqEIOo7uTZMg0AsElZNWqPHguDF0j7eFNEATigLf',
+        {
+            api_host: 'https://eu.i.posthog.com',
+            defaults: '2025-11-30',
+            persistence: 'memory',
+            autocapture: false,
+            person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+        }
+        )
+    }
+    return
+    };
 
     register('en', () => import('$lib/locales/en.json'));
     register('cz', () => import('$lib/locales/cz.json'));
@@ -19,6 +38,19 @@
         isLocaleLoaded = true;
         const player = localStorage.getItem('player');
         console.log("Current player:", player);
+        if (browser) {
+            console.log("POSTHOG INITED!")
+            posthog.init(
+                'phc_YvVKqEIOo7uTZMg0AsElZNWqPHguDF0j7eFNEATigLf',
+                {
+                    api_host: 'https://eu.i.posthog.com',
+                    defaults: '2025-11-30',
+                    persistence: 'memory',
+                    autocapture: false,
+                    person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+                }
+            )
+        }
     });
 </script>
 
