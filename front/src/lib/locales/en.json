@@ -34,5 +34,8 @@
     },
     "home": {
         "intro": "A playful investigation into how machines judge people. Question the AI witness, catch the criminal, and uncover the distortions embedded in AI's training data, design, and the preferences of its builders and owners."
+    },
+    "new_game": {
+        "title": "Choose the Witness"
     }
 }

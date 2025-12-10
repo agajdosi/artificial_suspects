@@ -7,6 +7,7 @@
     import { ListAvailableModels } from '$lib/main';
     import { onMount } from 'svelte';
     import { currentGame } from '$lib/stores';
+    import { t } from 'svelte-i18n';
     import { selectedModel } from '$lib/stores';
     import MenuTop from '$lib/MenuTop.svelte';
     import Navigation from '$lib/Navigation.svelte';
@@ -50,7 +51,7 @@
     <MenuTop/>
 </header>
 
-<h1>Choose AI coponent</h1>
+<h1>{$t('new_game.title')}</h1>
 
 <div class="services">
     {#if loading}

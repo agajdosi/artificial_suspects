@@ -34,5 +34,8 @@
     },
     "home": {
         "intro": "Zabawne badanie tego, jak maszyny oceniają ludzi. Zadawaj pytania świadkowi AI, złap przestępcę i odkryj zniekształcenia zakodowane w AI, w jej budowie, danych szkoleniowych oraz preferencjach jej twórców i właścicieli."
+    },
+    "new_game": {
+        "title": "Wybierz świadka"
     }
 }

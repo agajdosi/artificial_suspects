@@ -34,5 +34,8 @@
     },
     "home": {
         "intro": "Herní průzkum toho, jak stroje vidí a soudí lidi. Vyslechněte AI svědka, dopadněte zločince a odhalte předsudky zakotvené v AI, jejích tréninkových datech, designu i preferencích jejích tvůrců a majitelů."
+    },
+    "new_game": {
+        "title": "Vyber svědka"
     }
 }
