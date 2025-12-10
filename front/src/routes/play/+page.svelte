@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    import { currentGame, hint, selectedModel } from '$lib/stores';
+    import { currentGame, hint } from '$lib/stores';
     import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame, type Suspect } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
