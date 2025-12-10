@@ -73,14 +73,3 @@
         <a href="https://gajdosik.org">Andy Gajdosik</a>
     </div>
 </footer>
-
-
-<style>
-    .services {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 5rem;
-        gap: 10px;
-    }
-</style>
