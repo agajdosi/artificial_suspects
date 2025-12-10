@@ -13,6 +13,7 @@
     import { locale, t } from 'svelte-i18n';
     import MenuTop from '$lib/MenuTop.svelte';
     import { onMount } from 'svelte';
+	import Navigation from '$lib/Navigation.svelte';
 
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
@@ -205,6 +206,7 @@
 
 <div class="bottom">
     <div class="help">
+        <Navigation/>
         <button on:click={toggleHelp} class="langbtn">{$t('buttons.help')}</button>
     </div>
     <div class="hint">
@@ -262,7 +264,7 @@
     position: absolute;
     bottom: 0;
     width: calc(100vw - 2.5rem);
-    padding: 0 0.5rem 0 2rem;
+    padding: 0 0.5rem 0 7px;
 }
 .stats {
     display: flex;
@@ -318,6 +320,10 @@ button:disabled{
 
 button.next-round {
     cursor: not-allowed;
+}
+
+.help {
+    display: flex;
 }
 
 </style>
