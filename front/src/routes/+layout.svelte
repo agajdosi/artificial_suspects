@@ -160,9 +160,20 @@ BFC prevents margins to overflow outside main and #app, breaking its 100vh.
 
 :global(footer) {
     display: flex;
+    width: 99vw;
+    justify-content: space-between;
     position: absolute;
-    bottom: 3px;
-    left: 7px;
+    margin: 3px 7px;
+    bottom: 0;
+}
+:global(a){
+    text-decoration: none;
+    color: white;
+}
+
+:global(.horflip) {
+  display: inline-block;
+  transform: rotateY(180deg);
 }
 
 
