@@ -22,6 +22,7 @@
 <style>
 h1 {
     margin: 20px 10px 15px 10px;
+    font-size: 2.4rem;
 }
 p {
     margin: 15px 20px;
