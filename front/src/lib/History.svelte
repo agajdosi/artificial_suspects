@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentGame, hint, activeService } from '$lib/stores';
+    import { currentGame, hint } from '$lib/stores';
     import { locale, t } from 'svelte-i18n';
 
 </script>
@@ -31,13 +31,10 @@
 <div class="roles">
     <div class="model"
         role="tooltip"
-        on:mouseenter={() => hint.set("An AI model that acts as a witness and responds to questions. You can change it in the game configuration.")}
+        on:mouseenter={() => hint.set("An AI model that acts as a witness and responds to questions. It is selected at the begining of the game.")}
         on:mouseleave={() => hint.set("")}
         >
-        {$t("interrogated")}:
-        {#if $activeService === null}{$t("loading")}
-        {:else} {$activeService}
-        {/if}
+        {$t("interrogated")}: {$currentGame.Model}
     </div>
 </div>
 

@@ -266,7 +266,7 @@ type Game struct {
 	Score         int           `json:"Score"`         // TODO: implement
 	Investigator  Player        `json:"Investigator"`  // The human player, right now can play only as investigator
 	Timestamp     string        `json:"Timestamp"`     // when game was created
-	Model         string        `json:"model"`         // LLM model used for generating descriptions and answers
+	Model         string        `json:"Model"`         // LLM model used for generating descriptions and answers
 	Investigation Investigation `json:"investigation"` // TODO: actually this could be Investigations []Investigation
 	Level         int           `json:"level"`         // aka number of Investigations done + 1
 	GameOver      bool          `json:"GameOver"`      // TODO: when true, Game is over
@@ -862,12 +862,6 @@ type Service struct {
 	URL       sql.NullString `json:"URL"`
 	Token     string         `json:"Token"`
 	Active    bool           `json:"Active"`
-}
-
-type ServiceStatus struct {
-	Ready   bool   `json:"Ready"`
-	Message string `json:"Message"`
-	Service Service
 }
 
 func GetService(name string) (Service, error) {

@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    import { currentGame, serviceStatus, hint, selectedModel } from '$lib/stores';
+    import { currentGame, hint, selectedModel } from '$lib/stores';
     import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame, type Suspect } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
@@ -178,8 +178,7 @@
                         on:click={() => NewGame($selectedModel ?? 'ollama')}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
                         on:mouseleave={() => hint.set("")}
-                        class:offline={!$serviceStatus.ready}
-                        disabled={!$serviceStatus.ready}>
+                        >
                         {$t('buttons.newGame')}
                     </button>
                 {:else}
@@ -188,9 +187,8 @@
                     on:click={NextRound}
                     on:mouseenter={() => getHintNextQuestion()}
                     on:mouseleave={() => hint.set("")}
-                    class:offline={!$serviceStatus.ready}
-                    disabled={!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.ready}
-                    aria-disabled="{!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver || !$serviceStatus.ready ? 'true': 'false'}"
+                    disabled={!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver }
+                    aria-disabled="{!$currentGame.investigation?.rounds?.at(-1)?.Eliminations || $currentGame.GameOver ? 'true': 'false'}"
                     >
                     {$t('buttons.nextQuestion')}
                 </button>

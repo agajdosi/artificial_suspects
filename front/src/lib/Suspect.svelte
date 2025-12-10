@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { serviceStatus, hint } from '$lib/stores';
+    import { hint } from '$lib/stores';
     import type { Suspect } from '$lib/main';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
@@ -12,7 +12,7 @@
     const imgDir: string = 'suspects/';
 
     async function selected() {
-        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading || !$serviceStatus.ready) return;
+        if (suspect.Free || suspect.Fled || gameOver || answerIsLoading ) return;
         if (investigationOver) { // last suspect = click to jail, new Investigation coming
             dispatch('suspect_jailing', { 'suspect': suspect})
             return
@@ -30,7 +30,6 @@
 
     $: suspectClasses = [
         "suspect",
-        !$serviceStatus.ready && "offline",
         suspect.Free && "free",
         suspect.Fled && "fled",
         answerIsLoading && "waiting",
@@ -46,7 +45,7 @@
     on:keydown={selected}
     on:mouseenter={setHint}
     on:mouseleave={() => hint.set("")}
-    aria-disabled={suspect.Free || suspect.Fled || gameOver || !$serviceStatus.ready}
+    aria-disabled={suspect.Free || suspect.Fled || gameOver }
     role="button"
     tabindex="0"
     >

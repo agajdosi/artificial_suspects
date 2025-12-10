@@ -98,12 +98,6 @@ export interface Service {
     Active: boolean
 }
 
-export interface ServiceStatus {
-    ready: boolean;
-    message: string;
-    service: Service;
-}
-
 export interface Suspect {
     UUID: string;
     Image: string;

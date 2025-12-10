@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { currentGame, serviceStatus, hint } from '$lib/stores';
+    import { currentGame, hint } from '$lib/stores';
     import { type FinalScore } from '$lib/main';
     import { GetScores, SaveScore } from '$lib/main';
     import { createEventDispatcher, onMount } from 'svelte';
@@ -50,7 +50,6 @@
     }
 
     function getHintNewGame() {
-        if (!$serviceStatus.ready) return hint.set("Cannot start new game, AI service is not ready!");
         return hint.set("Start a new game and try it again!");
     }
 </script>
@@ -110,8 +109,6 @@
         on:click={gotoNewGame}
         on:mouseenter={() => getHintNewGame()}
         on:mouseleave={() => hint.set("")}
-        class:offline={!$serviceStatus.ready}
-        disabled={!$serviceStatus.ready}
         >
         {$t('buttons.newGame')}
     </button>  

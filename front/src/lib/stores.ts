@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { ServiceStatus, ErrorMessage, Service, Game, Player } from '$lib/main';
+import type { ErrorMessage, Game, Player } from '$lib/main';
 
 
 // GAME STATE
@@ -19,27 +19,13 @@ const defaultGame: Game = {
     },
     GameOver: false,
     Investigator: '',
+    Model: '',
     Timestamp: ''
 };
 export const currentGame = writable<Game>(storedGame ? JSON.parse(storedGame) : defaultGame);
 currentGame.subscribe((value) => {
     localStorage.setItem('currentGame', JSON.stringify(value));
 });
-
-// ServiceStatus - is AI accessible?
-const defaultServiceStatus: ServiceStatus = {
-    ready: true,
-    message: '',
-    service: { // Dummy service - until the real fetching of service is implemented
-        Name: 'Dummy',
-        Type: 'local',
-        TextModel: 'llava:latest',
-        VisualModel: 'llava:latest',
-        Token: '',
-        URL: ''
-    }
-};
-export const serviceStatus = writable<ServiceStatus>(defaultServiceStatus);
 
 // ErrorMessage
 const defaultErrorMessage: ErrorMessage = {
@@ -53,16 +39,6 @@ export const errorMessage = writable<ErrorMessage>(defaultErrorMessage);
 // Hint
 export const hint = writable<string>("");
 
-// ActiveService
-const activeServiceName = localStorage.getItem('activeServiceName');
-let storedActiveService: string = activeServiceName ? JSON.parse(activeServiceName) : '';
-if (storedActiveService === '') {
-    storedActiveService = "ollama";
-}
-export const activeService = writable<string>(storedActiveService);
-activeService.subscribe((value) => {
-    localStorage.setItem('activeServiceName', JSON.stringify(value));
-});
 
 // MARK: Stored PLAYER
 // TODO: actually we can use `import { v4 as uuidv4 } from 'uuid'`;
