@@ -14,23 +14,19 @@
     import MenuTop from '$lib/MenuTop.svelte';
     import { onMount } from 'svelte';
 	import Navigation from '$lib/Navigation.svelte';
+	import { goto } from '$app/navigation';
 
     let scoresVisible: boolean = true;
     let helpVisible: boolean = false;
     let overlayConfigVisible: boolean = true;
 
     onMount(async () => {
-        if ($currentGame.uuid == ""){
-            const model = $selectedModel ?? 'ollama';
-            try {
-                await NewGame(model);
-            } finally {
-                // clear selection so subsequent navigations don't reuse it unintentionally
-                selectedModel.set(null);
-            }
-        }
+        if ($currentGame.uuid == "")gotoNewGame();
     });
 
+    function gotoNewGame(){
+        goto("/new_game");
+    }
 
     function getHintNextQuestion(){
         if ($currentGame.investigation?.rounds?.at(-1)?.answer == "") return hint.set("Wait for the AI to answer the question.")
@@ -175,7 +171,7 @@
             {#if !$currentGame.investigation?.InvestigationOver}
                 {#if $currentGame.GameOver}
                     <button
-                        on:click={() => NewGame($selectedModel ?? 'ollama')}
+                        on:click={gotoNewGame}
                         on:mouseenter={() => hint.set("Start a new game and try it again!")}
                         on:mouseleave={() => hint.set("")}
                         >
