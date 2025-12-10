@@ -176,5 +176,37 @@ BFC prevents margins to overflow outside main and #app, breaking its 100vh.
   transform: rotateY(180deg);
 }
 
+:global(.menu) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+:globa(.menu > *) {
+    max-width: 910px;
+}
+:global(.menu > button) {
+    width: 300px;
+    margin: 1rem;
+}
+:global(.menu > p) {
+    margin: 0 0 6rem 0;
+    max-width: 900px;
+}
+
+@media screen and (max-width: 600px) {
+    :global(h1) {
+        font-size: 3rem;
+    }
+    :global(.menu > p) {
+        max-width: 90vw;
+    }
+    :global(.menu > button) {
+        width: 50vw;
+        margin: 1rem;
+    }
+    :global(footer) {
+        max-width: 97vw;
+    }
+}
 
 </style>
