@@ -9,6 +9,8 @@
     import { currentGame } from '$lib/stores';
     import { selectedModel } from '$lib/stores';
     import MenuTop from '$lib/MenuTop.svelte';
+    import Navigation from '$lib/Navigation.svelte';
+
 
     let models: any[] = $state([]);
     let loading = $state(true);
@@ -61,6 +63,11 @@
         {/each}
     {/if}
 </div>
+
+<footer>
+    <Navigation/>
+</footer>
+
 
 <style>
     .services {

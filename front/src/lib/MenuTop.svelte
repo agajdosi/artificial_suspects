@@ -10,13 +10,6 @@
     }
 </script>
 
-{#if page.url.pathname.startsWith('/play')}
-<button onclick={() => goto('/')} class="navigation">Home</button>
-<button onclick={() => goto('/new_game')} class="navigation">Restart</button>
-{/if}
-
-<span class="separator"></span>
-
 <button onclick={() => changeLanguage('en')} class:active={$locale === 'en'}>en</button>
 <button onclick={() => changeLanguage('cz')} class:active={$locale === 'cz'}>cz</button>
 <button onclick={() => changeLanguage('pl')} class:active={$locale === 'pl'}>pl</button>
@@ -34,10 +27,5 @@ button:hover{
 }
 button.active {
     text-transform: uppercase;
-}
-
-.separator {
-    margin: 0 1rem;
-    background-color: var(--bg-color);
 }
 </style>

@@ -126,4 +126,12 @@ BFC prevents margins to overflow outside main and #app, breaking its 100vh.
     display: flow-root;
 }
 
+:global(footer) {
+    display: flex;
+    position: absolute;
+    bottom: 3px;
+    left: 7px;
+}
+
+
 </style>

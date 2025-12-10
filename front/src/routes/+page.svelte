@@ -5,9 +5,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { t } from 'svelte-i18n';
-    import { currentGame, serviceStatus, hint, selectedModel } from '$lib/stores';
+    import { currentGame } from '$lib/stores';
     import MenuTop from '$lib/MenuTop.svelte';
-
+    import Navigation from '$lib/Navigation.svelte';
 
     function newGame() {        
         goto('/new_game');
@@ -24,14 +24,14 @@
 <h1>Artificial Witness</h1>
 
 <div class="menu">
-
-<p>{$t('home.intro')}</p>
-
-<button on:click={newGame}>{$t('buttons.newGame')}</button>
-<button disabled={$currentGame.uuid == ""} on:click={continueGame}>{$t('buttons.continueGame')}</button>
-
-
+    <p>{$t('home.intro')}</p>
+    <button on:click={newGame}>{$t('buttons.newGame')}</button>
+    <button disabled={$currentGame.uuid == ""} on:click={continueGame}>{$t('buttons.continueGame')}</button>
 </div>
+
+<footer>
+    <Navigation/>
+</footer>
 
 <style>
 
