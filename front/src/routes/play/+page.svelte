@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    import { currentGame, hint } from '$lib/stores';
+    import { currentGame, hint, selectedModel } from '$lib/stores';
     import { NextRound, EliminateSuspect, GetGame, NextInvestigation, NewGame, type Suspect } from '$lib/main';
     import Suspects from '$lib/Suspects.svelte';
     import History from '$lib/History.svelte';
@@ -21,7 +21,15 @@
     let overlayConfigVisible: boolean = true;
 
     onMount(async () => {
-        if ($currentGame.uuid == "")gotoNewGame();
+        if ($currentGame.uuid == ""){
+            const model = $selectedModel ?? 'ollama';
+            if (model === '') gotoNewGame()
+            try {
+                await NewGame(model);
+            } finally {
+                selectedModel.set(null);
+            }
+        }
     });
 
     function gotoNewGame(){
@@ -293,10 +301,6 @@
 
 .answer {
     text-transform: uppercase;
-}
-
-.offline {
-    cursor: wait;
 }
 
 .langbtn {
