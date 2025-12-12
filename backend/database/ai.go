@@ -125,11 +125,6 @@ func GenerateDescription(suspectUUID, modelName string) error {
 	}
 
 	fmt.Printf("Generated description: %s\n\nPrompt used: %s\n\n", text, prompt)
-
-	// TODO: TADY SE NECO DEJE SPATNE
-	// ANEBO JINDE
-	// ALE PROSTE DEV.GO VYGENERUJE JENOM PRAZDNE DESCRIPTIONS
-
 	description := Description{
 		UUID:        uuid.New().String(),
 		SuspectUUID: suspectUUID,
@@ -147,6 +142,7 @@ func GenerateDescription(suspectUUID, modelName string) error {
 }
 
 // Generate descriptions by Model for all suspects in the database.
+// Used by dev.go to populate the database with descriptions of all suspects by defined model.
 func GenerateDescriptionsForAllSuspects(modelName string, limit int) error {
 	suspects, err := GetAllSuspects()
 	if err != nil {
@@ -160,7 +156,7 @@ func GenerateDescriptionsForAllSuspects(modelName string, limit int) error {
 			continue
 		}
 
-		if len(descriptions) > limit {
+		if len(descriptions) >= limit {
 			log.Printf("Skipping suspect %s: already has %d descriptions for model %s", suspect.UUID, len(descriptions), modelName)
 			continue
 		}
