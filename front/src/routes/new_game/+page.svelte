@@ -17,7 +17,7 @@
     let loading = $state(true);
 
     onMount(async () => {
-        models = await ListAvailableModels(true);
+        models = await ListAvailableModels(true, "price");
         loading = false;
     });
 

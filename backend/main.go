@@ -270,15 +270,18 @@ func SaveScoreHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get all Models available in the database.
+// Results can be ORDERed by price/weight or nothing - by default ID.
+// And can be also filtered by allowed_only.
 // WARNING: API keys must not leak in here, this goes to public frontend!
 func GetModelsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("🔍 GetModelsHandler() request: %v", r)
+	orderBy := r.URL.Query().Get("order_by") // order by price/weight or "" - default ID
 	allowedOnly := false
 	if r.URL.Query().Get("allowed_only") == "true" {
 		allowedOnly = true
 	}
 
-	models, err := database.GetModels(allowedOnly)
+	models, err := database.GetModels(allowedOnly, orderBy)
 	if err != nil {
 		log.Printf("GetModels() error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

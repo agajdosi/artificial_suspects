@@ -959,14 +959,24 @@ type Model struct {
 }
 
 // Get all available Models from the database.
-func GetModels(allowedOnly bool) ([]Model, error) {
+func GetModels(allowedOnly bool, orderBy string) ([]Model, error) {
 	var models []Model
 	var query string
-	if allowedOnly {
-		query = "SELECT Name, Service, Visual, Allowed, Historical FROM models WHERE Allowed = 1"
-	} else {
-		query = "SELECT Name, Service, Visual, Allowed, Historical FROM models"
+	order := ""
+	if orderBy == "price" {
+		order = "ORDER BY price"
 	}
+	if orderBy == "weight" {
+		order = "ORDER BY weight"
+	}
+	where := ""
+	if allowedOnly {
+		where = "WHERE Allowed = 1"
+	}
+
+	query = fmt.Sprintf("SELECT Name, Service, Visual, Allowed, Historical FROM models %s %s", where, order)
+
+	fmt.Println("QUERY:", query)
 	rows, err := database.Query(query)
 	if err != nil {
 		return models, err
