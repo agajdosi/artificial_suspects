@@ -205,6 +205,7 @@ BFC prevents margins to overflow outside main and #app, breaking its 100vh.
 }
 
 @media screen and (max-width: 600px) {
+    /* HOME + NEW GAME */
     :global(h1) {
         font-size: 3rem;
     }

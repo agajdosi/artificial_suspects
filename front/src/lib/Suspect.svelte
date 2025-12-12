@@ -116,5 +116,13 @@
     .offline {
         cursor: wait;
     }
+
+@media screen and (max-width: 600px) {
+    .suspect {
+        width: 30vw;
+        height: 30vw;
+        max-height: 10vh;
+    }
+}
 </style>
 

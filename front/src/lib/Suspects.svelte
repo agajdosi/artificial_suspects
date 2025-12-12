@@ -15,13 +15,19 @@
 </div>
 
 <style>
+.suspects {
+    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    width: 120vh;
+    max-width: 100vw;
+    max-height: 80vh;
+    flex-shrink: 1;
+}
+@media screen and (max-width: 600px) {
     .suspects {
-        justify-content: flex-start;
-        display: flex;
-        flex-wrap: wrap;
-        width: 120vh;
-        max-width: 100vw;
-        max-height: 80vh;
-        flex-shrink: 1;
+        width: unset;
+        justify-content: center;
     }
+}
 </style>

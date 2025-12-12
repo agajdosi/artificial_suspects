@@ -76,4 +76,10 @@
     border-bottom-right-radius: 0;
     text-transform: capitalize;
 }
+
+@media screen and (max-width: 600px) {
+    .roles {
+        padding: 0;
+    }
+}
 </style>

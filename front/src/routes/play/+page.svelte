@@ -324,4 +324,36 @@ button.next-round {
     display: flex;
 }
 
+@media screen and (max-width: 600px) {
+    .top .main{
+        flex-direction: column;
+        min-height: 10vh;
+        padding: 4px 4px;
+        margin: 0;
+        gap: 0.2rem;
+        font-size: 1.1rem;
+    }
+    .top .instruction {
+        font-size: 0.9rem;
+        color: #666666;
+        justify-content: center;
+    }
+    .top .answer {
+        align-self:center;
+    }
+    .top-right {
+        display: none;
+    }
+    .middle {
+        flex-direction: column;
+    }
+    .hint {
+        display: none;
+    }
+    .right {
+        flex-direction: column-reverse;
+        padding: 0 1rem;
+    }
+}
+
 </style>
