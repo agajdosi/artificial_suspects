@@ -14,9 +14,9 @@ Project is not fully prepared for comfortable external contributions, but if you
 
 ### Architecture
 
-Frontend is written in SvelteKit and backend is written in Go.
-- only backend calls the LLM services, secrets lies there
-- frontend communicates only with backend, no secret keys stored in frontend
+Frontend is written in SvelteKit, backend is written in Go, data lies in SQLite3 database.
+- only backend calls the LLM services, secrets lies in backend SQLite3 database
+- frontend communicates only with backend, no secret keys are stored in frontend
 - AI model is selected at the start of the game and is used for the whole game
 
 ### Frontend server
@@ -39,8 +39,8 @@ go run main.go
 Run the Docker build from the project root as we need access to go.mod and go.sum files,
 use --file flag to specify the Dockerfile in backend directory:
 ```bash
-docker build -t agajdosi/artsus_server:latest --platform linux/amd64  --file backend/Dockerfile .
-docker push agajdosi/artsus_server:latest
+docker build -t agajdosi/artificial_witness:latest --platform linux/amd64  --file backend/Dockerfile .
+docker push agajdosi/artifical_witness:latest
 ```
 
 ## Acknowledgments

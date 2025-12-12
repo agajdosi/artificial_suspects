@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/agajdosi/artificial_suspects/backend/database"
+	"github.com/google/uuid"
 )
 
 func main() {
@@ -212,7 +214,8 @@ func NextRoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go database.GenerateAnswer(round.Question.English, descriptions[0].Description, game.Model, service)
+	x := randomForThisInvestigation(game.Investigation.UUID, len(descriptions))
+	go database.GenerateAnswer(round.Question.English, descriptions[x].Description, game.Model, service)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
@@ -236,6 +239,24 @@ func GetScoresHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
+}
+
+// Based on the UUID (of the current investigation) choose the index (of description) to be used.
+// Be consistent across the one UUID, the investigation yet choose differently on next UUID (of investigation).
+func randomForThisInvestigation(UUID string, choices int) int {
+	if choices <= 0 {
+		return 0
+	}
+	id, err := uuid.Parse(UUID)
+	if err != nil {
+		fmt.Printf("Error parsing UUID %s: %v", UUID, err)
+		return 0
+	}
+
+	pseudoRandom := binary.BigEndian.Uint64(id[0:8])
+	num := int(pseudoRandom % uint64(choices))
+
+	return num
 }
 
 func EliminateSuspectHandler(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +357,8 @@ func GetOrGenerateAnswerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	answer, err := database.GenerateAnswer(question, descriptions[0].Description, game.Model, service)
+	x := randomForThisInvestigation(game.Investigation.UUID, len(descriptions))
+	answer, err := database.GenerateAnswer(question, descriptions[x].Description, game.Model, service)
 	if err != nil {
 		log.Printf("GetOrGenerateAnswerHandler() error generating answer: %v\n", err)
 		return
